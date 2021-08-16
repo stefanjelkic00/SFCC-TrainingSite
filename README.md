@@ -10,13 +10,13 @@ Your feedback on the ease-of-use and limitations of this new architecture is inv
 
 # The latest version
 
-The latest version of SFRA is 4.4.1
+The latest version of SFRA is 6.0.0
 
 # Getting Started
 
 1. Clone this repository.
 
-2. Run `npm install` to install all of the local dependencies (node version 8.x or current LTS release recommended)
+2. Run `npm install` to install all of the local dependencies (SFRA has been tested with v12.21.0 and is recommended)
 
 3. Run `npm run compile:js` from the command line that would compile all client-side JS files. Run `npm run compile:scss` and `npm run compile:fonts` that would do the same for css and fonts.
 
@@ -46,6 +46,8 @@ Use the provided NPM scripts to compile and upload changes to your Sandbox.
 * `npm run compile:scss` - Compiles all .scss files into CSS.
 * `npm run compile:js` - Compiles all .js files and aggregates them.
 * `npm run compile:fonts` - Copies all needed font files. Usually, this only has to be run once.
+
+ If you are having an issue compiling scss files, try running 'npm rebuild node-sass' from within your local repo.
 
 ## Linting your code
 
@@ -92,3 +94,8 @@ You can also supply URL of the sandbox on the command line:
 ```
 npm run test:integration -- --baseUrl devxx-sitegenesis-dw.demandware.net
 ```
+
+# [Contributing to SFRA](./CONTRIBUTING.md)
+
+#Page Designer Components for Storefront Reference Architecture
+See: [Page Designer Components](./page-designer-components.md)
