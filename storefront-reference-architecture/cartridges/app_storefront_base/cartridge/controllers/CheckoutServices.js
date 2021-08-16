@@ -1,10 +1,23 @@
 'use strict';
 
+/**
+ * @namespace CheckoutServices
+ */
+
 var server = require('server');
 
 var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 
-
+/**
+ * CheckoutServices-Get : This endpoint is only used in multi-ship. The CheckoutServices-Get endpoint is invoked when clicking on"Next: Payment"
+ * @name Base/CheckoutServices-Get
+ * @function
+ * @memberof CheckoutServices
+ * @param {middleware} - server.middleware.https
+ * @param {category} - sensitive
+ * @param {returns} - json
+ * @param {serverfunction} - get
+ */
 server.get('Get', server.middleware.https, function (req, res, next) {
     var BasketMgr = require('dw/order/BasketMgr');
     var AccountModel = require('*/cartridge/models/account');
@@ -48,7 +61,196 @@ server.get('Get', server.middleware.https, function (req, res, next) {
 });
 
 /**
+ * Validates the given form and creates response JSON if there are errors.
+ * @param {string} form - the customer form to validate
+ * @return {Object} validation result
+ */
+function validateCustomerForm(form) {
+    var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
+
+    var result = COHelpers.validateCustomerForm(form);
+
+    if (result.formFieldErrors.length) {
+        result.customerForm.clear();
+        // prepare response JSON with form data and errors
+        result.json = {
+            form: result.customerForm,
+            fieldErrors: result.formFieldErrors,
+            serverErrors: [],
+            error: true
+        };
+    }
+
+    return result;
+}
+
+/**
+ * Handles the route:BeforeComplete for a customer form submission.
+ * @param {Object} req - request
+ * @param {Object} res - response
+ * @param {Object} accountModel - Account model object to include in response
+ * @param {string} redirectUrl - redirect URL to send back to client
+ */
+function handleCustomerRouteBeforeComplete(req, res, accountModel, redirectUrl) {
+    var URLUtils = require('dw/web/URLUtils');
+    var BasketMgr = require('dw/order/BasketMgr');
+    var Locale = require('dw/util/Locale');
+    var Transaction = require('dw/system/Transaction');
+    var OrderModel = require('*/cartridge/models/order');
+
+    var customerData = res.getViewData();
+    var currentBasket = BasketMgr.getCurrentBasket();
+    if (!currentBasket) {
+        res.json({
+            error: true,
+            cartError: true,
+            fieldErrors: [],
+            serverErrors: [],
+            redirectUrl: URLUtils.url('Cart-Show').toString()
+        });
+        return;
+    }
+
+    Transaction.wrap(function () {
+        currentBasket.setCustomerEmail(customerData.customer.email.value);
+    });
+
+    var usingMultiShipping = req.session.privacyCache.get('usingMultiShipping');
+    if (usingMultiShipping === true && currentBasket.shipments.length < 2) {
+        req.session.privacyCache.set('usingMultiShipping', false);
+        usingMultiShipping = false;
+    }
+
+    var currentLocale = Locale.getLocale(req.locale.id);
+    var basketModel = new OrderModel(
+        currentBasket,
+        { usingMultiShipping: usingMultiShipping, countryCode: currentLocale.country, containerView: 'basket' }
+    );
+
+    res.json({
+        customer: accountModel,
+        error: false,
+        order: basketModel,
+        csrfToken: customerData.csrfToken,
+        redirectUrl: redirectUrl
+    });
+}
+
+/**
+ * Handle Ajax guest customer form submit.
+ */
+server.post(
+    'SubmitCustomer',
+    server.middleware.https,
+    csrfProtection.validateAjaxRequest,
+    function (req, res, next) {
+        // validate guest customer form
+        var coCustomerForm = server.forms.getForm('coCustomer');
+        var result = validateCustomerForm(coCustomerForm);
+        if (result.json) {
+            res.json(result.json);
+            return next();
+        }
+
+        res.setViewData(result.viewData);
+
+        this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+            var AccountModel = require('*/cartridge/models/account');
+            var accountModel = new AccountModel(req.currentCustomer);
+            handleCustomerRouteBeforeComplete(req, res, accountModel, null);
+        });
+        return next();
+    }
+);
+
+/**
+ * Handle Ajax registered customer form submit.
+ */
+server.post(
+    'LoginCustomer',
+    server.middleware.https,
+    csrfProtection.validateAjaxRequest,
+    function (req, res, next) {
+        var apiCsrfProtection = require('dw/web/CSRFProtection');
+        var Resource = require('dw/web/Resource');
+        var accountHelpers = require('*/cartridge/scripts/helpers/accountHelpers');
+
+        // validate registered customer form
+        var coRegisteredCustomerForm = server.forms.getForm('coRegisteredCustomer');
+        var result = validateCustomerForm(coRegisteredCustomerForm);
+        if (result.json) {
+            res.json(result.json);
+            return next();
+        }
+
+        // login the registered customer
+        var viewData = result.viewData;
+        var customerForm = result.customerForm;
+        var formFieldErrors = result.formFieldErrors;
+
+        viewData.customerLoginResult = accountHelpers.loginCustomer(customerForm.email.value, customerForm.password.value, false);
+        if (viewData.customerLoginResult.error) {
+            // add customer error message for invalid password
+            res.json({
+                form: customerForm,
+                fieldErrors: formFieldErrors,
+                serverErrors: [],
+                customerErrorMessage: Resource.msg('error.message.login.wrong', 'checkout', null),
+                error: true
+            });
+            return next();
+        }
+
+        // on login the session transforms so we need to retrieve new tokens
+        viewData.csrfToken = apiCsrfProtection.generateToken();
+
+        res.setViewData(viewData);
+
+        this.on('route:BeforeComplete', function (req, res) { // eslint-disable-line no-shadow
+            var AccountModel = require('*/cartridge/models/account');
+            var URLUtils = require('dw/web/URLUtils');
+
+            var accountModel = new AccountModel(viewData.customerLoginResult.authenticatedCustomer);
+            var redirectUrl = URLUtils.https('Checkout-Begin', 'stage', 'shipping').abs().toString();
+            handleCustomerRouteBeforeComplete(req, res, accountModel, redirectUrl);
+        });
+        return next();
+    }
+);
+
+
+/**
  *  Handle Ajax payment (and billing) form submit
+ */
+/**
+ * CheckoutServices-SubmitPayment : The CheckoutServices-SubmitPayment endpoint will submit the payment information and render the checkout place order page allowing the shopper to confirm and place the order
+ * @name Base/CheckoutServices-SubmitPayment
+ * @function
+ * @memberof CheckoutServices
+ * @param {middleware} - server.middleware.https
+ * @param {middleware} - csrfProtection.validateAjaxRequest
+ * @param {httpparameter} - addressSelector - For Guest shopper: A shipment UUID that contains address that matches the selected address. For returning shopper: ab_<address-name-from-address-book>" of the selected address. For both type of shoppers:  "new" if a brand new address is entered
+ * @param {httpparameter} - dwfrm_billing_addressFields_firstName - Input field for the shoppers's first name
+ * @param {httpparameter} - dwfrm_billing_addressFields_lastName - Input field for the shoppers's last name
+ * @param {httpparameter} - dwfrm_billing_addressFields_address1 - Input field for the shoppers's address 1 - street
+ * @param {httpparameter} - dwfrm_billing_addressFields_address2 - Input field for the shoppers's address 2 - street
+ * @param {httpparameter} - dwfrm_billing_addressFields_country - Input field for the shoppers's address - country
+ * @param {httpparameter} - dwfrm_billing_addressFields_states_stateCode - Input field for the shoppers's address - state code
+ * @param {httpparameter} - dwfrm_billing_addressFields_city - Input field for the shoppers's address - city
+ * @param {httpparameter} - dwfrm_billing_addressFields_postalCode - Input field for the shoppers's address - postal code
+ * @param {httpparameter} - csrf_token - hidden input field CSRF token
+ * @param {httpparameter} - localizedNewAddressTitle - label for new address
+ * @param {httpparameter} - dwfrm_billing_contactInfoFields_email - Input field for the shopper's email address
+ * @param {httpparameter} - dwfrm_billing_contactInfoFields_phone - Input field for the shopper's phone number
+ * @param {httpparameter} - dwfrm_billing_paymentMethod - Input field for the shopper's payment method
+ * @param {httpparameter} - dwfrm_billing_creditCardFields_cardType - Input field for the shopper's credit card type
+ * @param {httpparameter} - dwfrm_billing_creditCardFields_cardNumber - Input field for the shopper's credit card number
+ * @param {httpparameter} - dwfrm_billing_creditCardFields_expirationMonth - Input field for the shopper's credit card expiration month
+ * @param {httpparameter} - dwfrm_billing_creditCardFields_expirationYear - Input field for the shopper's credit card expiration year
+ * @param {httpparameter} - dwfrm_billing_creditCardFields_securityCode - Input field for the shopper's credit card security code
+ * @param {category} - sensitive
+ * @param {returns} - json
+ * @param {serverfunction} - post
  */
 server.post(
     'SubmitPayment',
@@ -89,10 +291,6 @@ server.post(
         if (Object.keys(contactInfoFormErrors).length) {
             formFieldErrors.push(contactInfoFormErrors);
         } else {
-            viewData.email = {
-                value: paymentForm.contactInfoFields.email.value
-            };
-
             viewData.phone = { value: paymentForm.contactInfoFields.phone.value };
         }
 
@@ -140,7 +338,6 @@ server.post(
             var BasketMgr = require('dw/order/BasketMgr');
             var HookMgr = require('dw/system/HookMgr');
             var PaymentMgr = require('dw/order/PaymentMgr');
-            var PaymentInstrument = require('dw/order/PaymentInstrument');
             var Transaction = require('dw/system/Transaction');
             var AccountModel = require('*/cartridge/models/account');
             var OrderModel = require('*/cartridge/models/order');
@@ -204,15 +401,9 @@ server.post(
                     billingAddress.setStateCode(billingData.address.stateCode.value);
                 }
                 billingAddress.setCountryCode(billingData.address.countryCode.value);
-
-                if (billingData.storedPaymentUUID) {
-                    billingAddress.setPhone(req.currentCustomer.profile.phone);
-                    currentBasket.setCustomerEmail(req.currentCustomer.profile.email);
-                } else {
-                    billingAddress.setPhone(billingData.phone.value);
-                    currentBasket.setCustomerEmail(billingData.email.value);
-                }
+                billingAddress.setPhone(billingData.phone.value);
             });
+
 
             // if there is no selected payment option and balance is greater than zero
             if (!paymentMethodID && currentBasket.totalGrossPrice.value > 0) {
@@ -232,31 +423,10 @@ server.post(
                 return;
             }
 
-            // Validate payment instrument
-            var creditCardPaymentMethod = PaymentMgr.getPaymentMethod(PaymentInstrument.METHOD_CREDIT_CARD);
-            var paymentCard = PaymentMgr.getPaymentCard(billingData.paymentInformation.cardType.value);
-
-            var applicablePaymentCards = creditCardPaymentMethod.getApplicablePaymentCards(
-                req.currentCustomer.raw,
-                req.geolocation.countryCode,
-                null
-            );
-
-            if (!applicablePaymentCards.contains(paymentCard)) {
-                // Invalid Payment Instrument
-                var invalidPaymentMethod = Resource.msg('error.payment.not.valid', 'checkout', null);
-                delete billingData.paymentInformation;
-                res.json({
-                    form: billingForm,
-                    fieldErrors: [],
-                    serverErrors: [invalidPaymentMethod],
-                    error: true
-                });
-                return;
-            }
+            var processor = PaymentMgr.getPaymentMethod(paymentMethodID).getPaymentProcessor();
 
             // check to make sure there is a payment processor
-            if (!PaymentMgr.getPaymentMethod(paymentMethodID).paymentProcessor) {
+            if (!processor) {
                 throw new Error(Resource.msg(
                     'error.payment.processor.missing',
                     'checkout',
@@ -264,13 +434,13 @@ server.post(
                 ));
             }
 
-            var processor = PaymentMgr.getPaymentMethod(paymentMethodID).getPaymentProcessor();
-
             if (HookMgr.hasHook('app.payment.processor.' + processor.ID.toLowerCase())) {
                 result = HookMgr.callHook('app.payment.processor.' + processor.ID.toLowerCase(),
                     'Handle',
                     currentBasket,
-                    billingData.paymentInformation
+                    billingData.paymentInformation,
+                    paymentMethodID,
+                    req
                 );
             } else {
                 result = HookMgr.callHook('app.payment.processor.default', 'Handle');
@@ -326,7 +496,7 @@ server.post(
                 usingMultiShipping = false;
             }
 
-            hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, paymentForm.contactInfoFields.email.htmlValue], function () {});
+            hooksHelper('app.customer.subscription', 'subscribeTo', [paymentForm.subscribe.checked, currentBasket.customerEmail], function () {});
 
             var currentLocale = Locale.getLocale(req.locale.id);
 
@@ -356,7 +526,16 @@ server.post(
     }
 );
 
-
+/**
+ * CheckoutServices-PlaceOrder : The CheckoutServices-PlaceOrder endpoint places the order
+ * @name Base/CheckoutServices-PlaceOrder
+ * @function
+ * @memberof CheckoutServices
+ * @param {middleware} - server.middleware.https
+ * @param {category} - sensitive
+ * @param {returns} - json
+ * @param {serverfunction} - post
+ */
 server.post('PlaceOrder', server.middleware.https, function (req, res, next) {
     var BasketMgr = require('dw/order/BasketMgr');
     var OrderMgr = require('dw/order/OrderMgr');
@@ -481,6 +660,18 @@ server.post('PlaceOrder', server.middleware.https, function (req, res, next) {
 
     // Handles payment authorization
     var handlePaymentResult = COHelpers.handlePayments(order, order.orderNo);
+
+    // Handle custom processing post authorization
+    var options = {
+        req: req,
+        res: res
+    };
+    var postAuthCustomizations = hooksHelper('app.post.auth', 'postAuthorization', handlePaymentResult, order, options, require('*/cartridge/scripts/hooks/postAuthorizationHandling').postAuthorization);
+    if (postAuthCustomizations && Object.prototype.hasOwnProperty.call(postAuthCustomizations, 'error')) {
+        res.json(postAuthCustomizations);
+        return next();
+    }
+
     if (handlePaymentResult.error) {
         res.json({
             error: true,
@@ -526,7 +717,9 @@ server.post('PlaceOrder', server.middleware.https, function (req, res, next) {
         });
     }
 
-    COHelpers.sendConfirmationEmail(order, req.locale.id);
+    if (order.getCustomerEmail()) {
+        COHelpers.sendConfirmationEmail(order, req.locale.id);
+    }
 
     // Reset usingMultiShip after successful Order placement
     req.session.privacyCache.set('usingMultiShipping', false);

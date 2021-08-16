@@ -33,19 +33,26 @@ describe('search script', function () {
             setPriceMin: function () {},
             setPriceMax: function () {},
             setSortingRule: function () {},
-            setRecursiveCategorySearch: function () {}
+            setRecursiveCategorySearch: function () {},
+            setPromotionID: function () {}
         };
         var mockParams = {
             q: 'toasters galore',
             cgid: { ID: 'abc' },
             pid: 'Product123',
             pmin: '15',
-            pmax: '37'
+            pmax: '37',
+            pmid: 'Buy5for50'
         };
         var mockSelectedCategory = {
             ID: 123
         };
         var mockSortingRule = 'rule3';
+
+        var mockParameterMap = {
+            pmin: { doubleValue: 10 },
+            pmax: { doubleValue: 100 }
+        };
 
         var spySetSearchPhrase = sinon.spy(mockProductSearch, 'setSearchPhrase');
         var spySetCategoryID = sinon.spy(mockProductSearch, 'setCategoryID');
@@ -53,6 +60,7 @@ describe('search script', function () {
         var spySetPriceMin = sinon.spy(mockProductSearch, 'setPriceMin');
         var spySetPriceMax = sinon.spy(mockProductSearch, 'setPriceMax');
         var spySetSortingRule = sinon.spy(mockProductSearch, 'setSortingRule');
+        var spySetPromotionID = sinon.spy(mockProductSearch, 'setPromotionID');
         var spySetRecursiveCategorySearch = sinon.spy(mockProductSearch,
             'setRecursiveCategorySearch');
 
@@ -60,12 +68,9 @@ describe('search script', function () {
             mockProductSearch,
             mockParams,
             mockSelectedCategory,
-            mockSortingRule
+            mockSortingRule,
+            mockParameterMap
         );
-
-        function toNumber(str) {
-            return parseInt(str, 10);
-        }
 
         it('should set the search phrase with spaces decoded', function () {
             assert.isTrue(spySetSearchPhrase.calledWith('toasters galore'));
@@ -80,11 +85,11 @@ describe('search script', function () {
         });
 
         it('should set the minimum price', function () {
-            assert.isTrue(spySetPriceMin.calledWith(toNumber(mockParams.pmin)));
+            assert.isTrue(spySetPriceMin.calledWith(mockParameterMap.pmin.doubleValue));
         });
 
         it('should set the maximum price', function () {
-            assert.isTrue(spySetPriceMax.calledWith(toNumber(mockParams.pmax)));
+            assert.isTrue(spySetPriceMax.calledWith(mockParameterMap.pmax.doubleValue));
         });
 
         it('should set the sort rule', function () {
@@ -93,6 +98,10 @@ describe('search script', function () {
 
         it('should set category search to be recursive', function () {
             assert.isTrue(spySetRecursiveCategorySearch.calledWith(true));
+        });
+
+        it('should set the promotion refinement', function () {
+            assert.isTrue(spySetPromotionID.calledWith(mockParams.pmid));
         });
     });
 });

@@ -26,6 +26,19 @@ var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalcul
 // static functions needed for Checkout Controller logic
 
 /**
+ * Prepares the Customer form
+ * @param {string} formName - name of the customer form to prepare
+ * @returns {Object} processed Customer form object
+ */
+function prepareCustomerForm(formName) {
+    var customerForm = server.forms.getForm(formName);
+
+    customerForm.clear();
+
+    return customerForm;
+}
+
+/**
  * Prepares the Shipping form
  * @returns {Object} processed Shipping form object
  */
@@ -330,9 +343,42 @@ function getProductLineItem(currentBasket, pliUUID) {
 }
 
 /**
+ * Validate customer form
+ * @param {Object} form - the form to be validated
+ * @returns {Object} the result of form field validation or null if the input form is null or undefined
+ *  * viewData {Object}
+ *  *  * customer {Object}
+ *  *  * * email - customer email address
+ *  * customerForm - the input form
+ *  * formFieldErrors - An array names of the invalid form fields
+ */
+function validateCustomerForm(form) {
+    if (!form) {
+        return null;
+    }
+
+    var result = {
+        viewData: {},
+        customerForm: form,
+        formFieldErrors: []
+    };
+
+    var customerFormErrors = validateFields(result.customerForm);
+    if (Object.keys(customerFormErrors).length) {
+        result.formFieldErrors.push(customerFormErrors);
+    } else {
+        // This is not the response viewData but will get set as response viewData in the controller
+        result.viewData.customer = {
+            email: { value: result.customerForm.email.value }
+        };
+    }
+
+    return result;
+}
+
+/**
  * Validate billing form fields
  * @param {Object} form - the form object with pre-validated form fields
- * @param {Array} fields - the fields to validate
  * @returns {Object} the names of the invalid form fields
  */
 function validateBillingForm(form) {
@@ -548,7 +594,7 @@ function sendConfirmationEmail(order, locale) {
     var emailObj = {
         to: order.customerEmail,
         subject: Resource.msg('subject.order.confirmation.email', 'order', null),
-        from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@salesforce.com',
+        from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@testorganization.com',
         type: emailHelpers.emailTypes.orderConfirmation
     };
 
@@ -687,6 +733,7 @@ module.exports = {
     ensureNoEmptyShipments: ensureNoEmptyShipments,
     getProductLineItem: getProductLineItem,
     isShippingAddressInitialized: isShippingAddressInitialized,
+    prepareCustomerForm: prepareCustomerForm,
     prepareShippingForm: prepareShippingForm,
     prepareBillingForm: prepareBillingForm,
     copyCustomerAddressToShipment: copyCustomerAddressToShipment,
@@ -694,6 +741,7 @@ module.exports = {
     copyShippingAddressToShipment: copyShippingAddressToShipment,
     copyBillingAddressToBasket: copyBillingAddressToBasket,
     validateFields: validateFields,
+    validateCustomerForm: validateCustomerForm,
     validateShippingForm: validateShippingForm,
     validateBillingForm: validateBillingForm,
     validatePayment: validatePayment,

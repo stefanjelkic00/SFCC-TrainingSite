@@ -157,7 +157,6 @@ module.exports = {
         $('.container').on('click', '.show-more button', function (e) {
             e.stopPropagation();
             var showMoreUrl = $(this).data('url');
-
             e.preventDefault();
 
             $.spinner().start();

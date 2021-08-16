@@ -23,6 +23,85 @@ describe('search helpers', function () {
         });
     });
 
+    describe('getPageDesignerCategoryPage', function () {
+        var searchHelpersMock;
+        var catalogMgrMock;
+        var pageMgrMock;
+        var categoryMock;
+
+        beforeEach(function () {
+            categoryMock = {};
+            catalogMgrMock = {
+                getCategory: sinon.stub()
+            };
+            catalogMgrMock.getCategory.returns(categoryMock);
+
+            pageMgrMock = {
+                getPage: sinon.stub()
+            };
+            searchHelpersMock = proxyquire(searchHelperPath, {
+                'dw/catalog/CatalogMgr': catalogMgrMock,
+                'dw/experience/PageMgr': pageMgrMock,
+                'dw/util/HashMap': function () {
+                    this.isHashMap = true;
+                }
+            });
+        });
+
+        it('should return an object with null values, if no suitable page can be found', function () {
+            pageMgrMock.getPage.returns(null);
+
+            var result = searchHelpersMock.getPageDesignerCategoryPage('someId');
+            assert.isNotNull(result);
+            assert.isNull(result.page);
+            assert.isNull(result.invisiblePage);
+            assert.isNull(result.aspectAttributes);
+            assert.isTrue(pageMgrMock.getPage.calledTwice);
+        });
+
+        it('should return only invisible page if no visible page can be found', function () {
+            var invisibleMockPage = { isVisible: function () { return false; }, ID: 'invisible' };
+            pageMgrMock.getPage.withArgs(categoryMock, false, 'plp').returns(invisibleMockPage);
+
+            var result = searchHelpersMock.getPageDesignerCategoryPage('someId');
+            assert.isNotNull(result);
+            assert.isNull(result.page);
+            assert.strictEqual(result.invisiblePage, invisibleMockPage);
+            assert.isNull(result.aspectAttributes);
+            assert.isTrue(pageMgrMock.getPage.calledTwice);
+        });
+
+        it('should return only a visible page and aspect attributes when it is the only page found', function () {
+            var mockPage = { ID: 'mockPageId', isVisible: function () { return true; } };
+            pageMgrMock.getPage.returns(mockPage);
+
+            var result = searchHelpersMock.getPageDesignerCategoryPage('someId');
+            assert.isNotNull(result);
+            assert.strictEqual(result.page, mockPage);
+            assert.isNull(result.invisiblePage);
+            assert.isNotNull(result.aspectAttributes);
+            assert.equal(result.aspectAttributes.category, categoryMock);
+            assert.isTrue(result.aspectAttributes.isHashMap);
+            assert.isTrue(pageMgrMock.getPage.calledTwice);
+        });
+
+        it('should return both a visible page and invisible page and aspect attributes when the pages are different', function () {
+            var mockPage = { ID: 'mockPageId', isVisible: function () { return true; } };
+            pageMgrMock.getPage.returns(mockPage);
+            var invisibleMockPage = { isVisible: function () { return false; }, ID: 'invisible' };
+            pageMgrMock.getPage.withArgs(categoryMock, false, 'plp').returns(invisibleMockPage);
+
+            var result = searchHelpersMock.getPageDesignerCategoryPage('someId');
+            assert.isNotNull(result);
+            assert.strictEqual(result.page, mockPage);
+            assert.strictEqual(result.invisiblePage, invisibleMockPage);
+            assert.isNotNull(result.aspectAttributes);
+            assert.equal(result.aspectAttributes.category, categoryMock);
+            assert.isTrue(result.aspectAttributes.isHashMap);
+            assert.isTrue(pageMgrMock.getPage.calledTwice);
+        });
+    });
+
     describe('setup search', function () {
         var mockApiProductSearch = {};
         var mockParams1 = { srule: 'bestsellers', cgid: 'mens' };
@@ -65,6 +144,7 @@ describe('search helpers', function () {
         var mockParams = { q: 'denim', startingPage: 0 };
 
         var setRecursiveFolderSearchSpy = sinon.spy();
+        var setFilteredByFolderSpy = sinon.spy();
         var setSearchPhraseSpy = sinon.spy();
         var searchSpy = sinon.spy();
         var contentSearchSpy = sinon.spy();
@@ -72,6 +152,7 @@ describe('search helpers', function () {
             'dw/content/ContentSearchModel': function () {
                 return {
                     setRecursiveFolderSearch: setRecursiveFolderSearchSpy,
+                    setFilteredByFolder: setFilteredByFolderSpy,
                     setSearchPhrase: setSearchPhraseSpy,
                     search: searchSpy,
                     getContent: function () {
@@ -87,6 +168,9 @@ describe('search helpers', function () {
 
         it('should set setRecursiveFolderSearch to true', function () {
             assert.isTrue(setRecursiveFolderSearchSpy.calledWith(true));
+        });
+        it('should set setFilteredByFolder to false', function () {
+            assert.isTrue(setFilteredByFolderSpy.calledWith(false));
         });
         it('should set setSearchPhrase', function () {
             assert.isTrue(setSearchPhraseSpy.calledWith(mockParams.q));
@@ -193,10 +277,7 @@ describe('search helpers', function () {
         var res = {
             cachePeriod: '',
             cachePeriodUnit: '',
-            personalized: false,
-            getViewData: function () {
-                return {};
-            }
+            personalized: false
         };
         var mockRequest1 = {
             querystring: {}
@@ -248,7 +329,7 @@ describe('search helpers', function () {
         });
 
         it('should get a search redirect url', function () {
-            var result = searchHelpersMock3.search(mockRequest2, res);
+            var result = searchHelpersMock3.search(mockRequest2);
 
             assert.equal(result.searchRedirect, 'some value');
             assert.isTrue(searchSpy.notCalled);
@@ -259,6 +340,228 @@ describe('search helpers', function () {
             searchHelpersMock3.search(mockRequest3, res);
 
             assert.isTrue(searchSpy.calledOnce);
+        });
+    });
+
+    describe('backButtonDetection', function () {
+        var strContainerURLUTILS = '';
+        var searchHelpersMock4 = proxyquire(searchHelperPath, {
+            'dw/web/URLUtils': {
+                url: function (endPoint) {
+                    strContainerURLUTILS += endPoint + '?';
+                    return {
+                        append: function (param, value) {
+                            var extraChar = strContainerURLUTILS.includes('=') ? '&' : '';
+                            // if(strContainerURLUTILS.includes('&')){}
+                            strContainerURLUTILS += extraChar + param + '=' + value;
+                            return strContainerURLUTILS;
+                        },
+                        toString: function () {
+                            return strContainerURLUTILS;
+                        }
+                    };
+                }
+            },
+            '*/cartridge/config/preferences': {
+                plpBackButtonOn: true,
+                plpBackButtonLimit: 10
+            }
+        });
+
+        var searchHelpersMock5 = proxyquire(searchHelperPath, {
+            '*/cartridge/config/preferences': {
+                plpBackButtonOn: false,
+                plpBackButtonLimit: 10
+            }
+        });
+
+        afterEach(function () {
+            strContainerURLUTILS = '';
+        });
+        it('should detect the old category query string', function () {
+            var clickStream = {
+                clicks: [
+                    {
+                        pipelineName: 'Foo-Bar',
+                        queryString: ''
+                    },
+                    {
+                        pipelineName: 'Search-ShowAjax',
+                        queryString: 'cgid=womens-clothing-tops&prefn1=refinementColor&prefv1=Blue&start=12&sz=12&selectedUrl=qwertyuiop'
+                    },
+                    {
+                        pipelineName: 'Product-Show',
+                        queryString: 'qwertyuiopiutrewerty'
+                    },
+                    {
+                        pipelineName: 'Search-Show',
+                        queryString: 'cgid=womens-clothing-tops'
+                    }]
+            };
+            var result = searchHelpersMock4.backButtonDetection(clickStream);
+            var testURL = clickStream.clicks[0].pipelineName + '?' + clickStream.clicks[2].queryString;
+            assert.equal(testURL.split('&').length, result.split('&').length);
+            assert.isTrue(result.includes('start=0'));
+            assert.isTrue(result.includes('sz=24'));
+        });
+        it('should return null if it has not found a search request after the pdp request', function () {
+            var clickStream = {
+                clicks: [
+                    {
+                        pipelineName: 'Foo-Bar',
+                        queryString: ''
+                    },
+                    {
+                        pipelineName: 'Home-Show',
+                        queryString: 'cgid=womens-clothing-tops&prefn1=refinementColor&prefv1=Blue&start=12&sz=12&selectedUrl=qwertyuiop'
+                    },
+                    {
+                        pipelineName: 'Product-Show',
+                        queryString: 'qwertyuiopiutrewerty'
+                    },
+                    {
+                        pipelineName: 'Search-Show',
+                        queryString: 'cgid=womens-clothing-tops'
+                    }]
+            };
+
+            var result = searchHelpersMock4.backButtonDetection(clickStream);
+            assert.equal(result, null);
+        });
+
+        it('should return null if it has found 2 search request in a row', function () {
+            var clickStream = {
+                clicks: [
+                    {
+                        pipelineName: 'Foo-Bar',
+                        queryString: ''
+                    },
+                    {
+                        pipelineName: 'Product-Show',
+                        queryString: 'qwertyuiopiutrewerty'
+                    },
+                    {
+                        pipelineName: 'Search-UpdateGrid',
+                        queryString: 'q=shirts&prefn1=refinementColor&prefv1=Blue&start=12&sz=12&selectedUrl=qwertyuiop'
+                    },
+                    {
+                        pipelineName: 'Search-Show',
+                        queryString: 'q=shirts'
+                    }]
+            };
+
+            var result = searchHelpersMock4.backButtonDetection(clickStream);
+            assert.equal(result, null);
+        });
+
+        it('should return null if prefernces.plpBackButtonOn is falsy', function () {
+            var clickStream = {
+                clicks: [
+                    {
+                        pipelineName: 'Foo-Bar',
+                        queryString: ''
+                    },
+                    {
+                        pipelineName: 'Search-UpdateGrid',
+                        queryString: 'q=shirts&prefn1=refinementColor&prefv1=Blue&start=12&sz=12&selectedUrl=qwertyuiop'
+                    },
+                    {
+                        pipelineName: 'Product-Show',
+                        queryString: 'qwertyuiopiutrewerty'
+                    },
+                    {
+                        pipelineName: 'Search-Show',
+                        queryString: 'q=shirts'
+                    }]
+            };
+
+            var result = searchHelpersMock5.backButtonDetection(clickStream);
+            assert.equal(result, null);
+        });
+
+        it('should return a redirect url with the old search request paramters', function () {
+            var clickStream = {
+                clicks: [
+                    {
+                        pipelineName: 'Foo-Bar',
+                        queryString: ''
+                    },
+                    {
+                        pipelineName: 'Search-UpdateGrid',
+                        queryString: 'q=shirts&prefn1=refinementColor&prefv1=Blue&start=12&sz=12&selectedUrl=qwertyuiop'
+                    },
+                    {
+                        pipelineName: 'Product-Show',
+                        queryString: 'qwertyuiopiutrewerty'
+                    },
+                    {
+                        pipelineName: 'Search-Show',
+                        queryString: 'q=shirts'
+                    }]
+            };
+
+            var result = searchHelpersMock4.backButtonDetection(clickStream);
+            var testURL = clickStream.clicks[0].pipelineName + '?' + clickStream.clicks[2].queryString;
+            assert.equal(testURL.split('&').length, result.split('&').length);
+            assert.isTrue(result.includes('start=0'));
+            assert.isTrue(result.includes('sz=24'));
+        });
+
+        it('should return null if q does not match between search calls', function () {
+            var clickStream = {
+                clicks: [
+                    {
+                        pipelineName: 'Foo-Bar',
+                        queryString: ''
+                    },
+                    {
+                        pipelineName: 'Search-UpdateGrid',
+                        queryString: 'q=shirts&prefn1=refinementColor&prefv1=Blue&start=12&sz=12&selectedUrl=qwertyuiop'
+                    },
+                    {
+                        pipelineName: 'Product-Show',
+                        queryString: 'qwertyuiopiutrewerty'
+                    },
+                    {
+                        pipelineName: 'Search-Show',
+                        queryString: 'q=pants'
+                    }]
+            };
+
+            var result = searchHelpersMock4.backButtonDetection(clickStream);
+            assert.equal(result, null);
+        });
+    });
+
+    describe('.getBannerImageUrl()', function () {
+        var slotImageUrl = 'http://slot.banner.image.url';
+        var nonSlotImageUrl = 'http://image.url';
+        var category;
+
+        beforeEach(function () {
+            category = {
+                custom: {
+                    slotBannerImage: {
+                        getURL: function () {
+                            return slotImageUrl;
+                        }
+                    }
+                },
+                image: {
+                    getURL: function () {
+                        return nonSlotImageUrl;
+                    }
+                }
+            };
+        });
+
+        it('should use a slot image for a category banner if specified', function () {
+            assert.equal(searchHelpers.getBannerImageUrl(category), slotImageUrl);
+        });
+
+        it('should use a regular image for its banner image if no slot image specified', function () {
+            category.custom = null;
+            assert.equal(searchHelpers.getBannerImageUrl(category), nonSlotImageUrl);
         });
     });
 });

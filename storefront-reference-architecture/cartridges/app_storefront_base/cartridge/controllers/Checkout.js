@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * @namespace Checkout
+ */
+
 var server = require('server');
 
 var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
@@ -10,74 +14,19 @@ var consentTracking = require('*/cartridge/scripts/middleware/consentTracking');
  * Main entry point for Checkout
  */
 
-server.get(
-    'Login',
-    server.middleware.https,
-    consentTracking.consent,
-    csrfProtection.generateToken,
-    function (req, res, next) {
-        var BasketMgr = require('dw/order/BasketMgr');
-        var ProductLineItemsModel = require('*/cartridge/models/productLineItems');
-        var TotalsModel = require('*/cartridge/models/totals');
-        var URLUtils = require('dw/web/URLUtils');
-        var reportingUrlsHelper = require('*/cartridge/scripts/reportingUrls');
-        var validationHelpers = require('*/cartridge/scripts/helpers/basketValidationHelpers');
-
-        var currentBasket = BasketMgr.getCurrentBasket();
-        var reportingURLs;
-
-        if (!currentBasket) {
-            res.redirect(URLUtils.url('Cart-Show'));
-            return next();
-        }
-
-        var validatedProducts = validationHelpers.validateProducts(currentBasket);
-        if (validatedProducts.error) {
-            res.redirect(URLUtils.url('Cart-Show'));
-            return next();
-        }
-
-        if (req.currentCustomer.profile) {
-            res.redirect(URLUtils.url('Checkout-Begin'));
-        } else {
-            var rememberMe = false;
-            var userName = '';
-            var actionUrl = URLUtils.url('Account-Login', 'rurl', 2);
-            var totalsModel = new TotalsModel(currentBasket);
-            var details = {
-                subTotal: totalsModel.subTotal,
-                totalQuantity: ProductLineItemsModel.getTotalQuantity(
-                    currentBasket.productLineItems
-                )
-            };
-
-            if (req.currentCustomer.credentials) {
-                rememberMe = true;
-                userName = req.currentCustomer.credentials.username;
-            }
-
-            reportingURLs = reportingUrlsHelper.getCheckoutReportingURLs(
-                currentBasket.UUID,
-                1,
-                'CheckoutMethod'
-            );
-
-            res.render('/checkout/checkoutLogin', {
-                rememberMe: rememberMe,
-                userName: userName,
-                actionUrl: actionUrl,
-                details: details,
-                reportingURLs: reportingURLs,
-                oAuthReentryEndpoint: 2
-            });
-        }
-
-        return next();
-    }
-);
-
-
-// Main entry point for Checkout
+/**
+ * Checkout-Begin : The Checkout-Begin endpoint will render the checkout shipping page for both guest shopper and returning shopper
+ * @name Base/Checkout-Begin
+ * @function
+ * @memberof Checkout
+ * @param {middleware} - server.middleware.https
+ * @param {middleware} - consentTracking.consent
+ * @param {middleware} - csrfProtection.generateToken
+ * @param {querystringparameter} - stage - a flag indicates the checkout stage
+ * @param {category} - sensitive
+ * @param {renders} - isml
+ * @param {serverfunction} - get
+ */
 server.get(
     'Begin',
     server.middleware.https,
@@ -106,8 +55,8 @@ server.get(
             return next();
         }
 
-        var currentStage = req.querystring.stage ? req.querystring.stage : 'shipping';
-
+        var requestStage = req.querystring.stage;
+        var currentStage = requestStage || 'customer';
         var billingAddress = currentBasket.billingAddress;
 
         var currentCustomer = req.currentCustomer.raw;
@@ -147,8 +96,10 @@ server.get(
 
         COHelpers.recalculateBasket(currentBasket);
 
-        var shippingForm = COHelpers.prepareShippingForm(currentBasket);
-        var billingForm = COHelpers.prepareBillingForm(currentBasket);
+        var guestCustomerForm = COHelpers.prepareCustomerForm('coCustomer');
+        var registeredCustomerForm = COHelpers.prepareCustomerForm('coRegisteredCustomer');
+        var shippingForm = COHelpers.prepareShippingForm();
+        var billingForm = COHelpers.prepareBillingForm();
         var usingMultiShipping = req.session.privacyCache.get('usingMultiShipping');
 
         if (preferredAddress) {
@@ -187,16 +138,38 @@ server.get(
             'Shipping'
         );
 
+        if (currentStage === 'customer') {
+            if (accountModel.registeredUser) {
+                // Since the shopper already login upon starting checkout, fast forward to shipping stage
+                currentStage = 'shipping';
+
+                // Only need to update email address in basket if start checkout from other page like cart or mini-cart
+                // and not on checkout page reload.
+                if (!requestStage) {
+                    Transaction.wrap(function () {
+                        currentBasket.customerEmail = accountModel.profile.email;
+                        orderModel.orderEmail = accountModel.profile.email;
+                    });
+                }
+            } else if (currentBasket.customerEmail) {
+                // Email address has already collected so fast forward to shipping stage
+                currentStage = 'shipping';
+            }
+        }
+
         res.render('checkout/checkout', {
             order: orderModel,
             customer: accountModel,
             forms: {
+                guestCustomerForm: guestCustomerForm,
+                registeredCustomerForm: registeredCustomerForm,
                 shippingForm: shippingForm,
                 billingForm: billingForm
             },
             expirationYears: creditCardExpirationYears,
             currentStage: currentStage,
-            reportingURLs: reportingURLs
+            reportingURLs: reportingURLs,
+            oAuthReentryEndpoint: 2
         });
 
         return next();

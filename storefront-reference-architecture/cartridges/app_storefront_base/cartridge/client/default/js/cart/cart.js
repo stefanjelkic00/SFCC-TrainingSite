@@ -88,12 +88,17 @@ function updateCartTotals(data) {
     }
 
     data.items.forEach(function (item) {
+        if (data.totals.orderLevelDiscountTotal.value > 0) {
+            $('.coupons-and-promos').empty().append(data.totals.discountsHtml);
+        }
         if (item.renderedPromotions) {
             $('.item-' + item.UUID).empty().append(item.renderedPromotions);
+        } else {
+            $('.item-' + item.UUID).empty();
         }
-        if (item.priceTotal && item.priceTotal.renderedPrice) {
-            $('.item-total-' + item.UUID).empty().append(item.priceTotal.renderedPrice);
-        }
+        $('.uuid-' + item.UUID + ' .unit-price').empty().append(item.renderedPrice);
+        $('.line-item-price-' + item.UUID + ' .unit-price').empty().append(item.renderedPrice);
+        $('.item-total-' + item.UUID).empty().append(item.priceTotal.renderedPrice);
     });
 }
 
@@ -143,23 +148,25 @@ function updateAvailability(data, uuid) {
         }
     }
 
-    $('.availability-' + lineItem.UUID).empty();
+    if (lineItem != null) {
+        $('.availability-' + lineItem.UUID).empty();
 
-    if (lineItem.availability) {
-        if (lineItem.availability.messages) {
-            lineItem.availability.messages.forEach(function (message) {
-                messages += '<p class="line-item-attributes">' + message + '</p>';
-            });
+        if (lineItem.availability) {
+            if (lineItem.availability.messages) {
+                lineItem.availability.messages.forEach(function (message) {
+                    messages += '<p class="line-item-attributes">' + message + '</p>';
+                });
+            }
+
+            if (lineItem.availability.inStockDate) {
+                messages += '<p class="line-item-attributes line-item-instock-date">'
+                    + lineItem.availability.inStockDate
+                    + '</p>';
+            }
         }
 
-        if (lineItem.availability.inStockDate) {
-            messages += '<p class="line-item-attributes line-item-instock-date">'
-                + lineItem.availability.inStockDate
-                + '</p>';
-        }
+        $('.availability-' + lineItem.UUID).html(messages);
     }
-
-    $('.availability-' + lineItem.UUID).html(messages);
 }
 
 /**
@@ -168,7 +175,7 @@ function updateAvailability(data, uuid) {
  * @param {function} match - function that takes an element and returns a boolean indicating if the match is made
  * @returns {Object|null} - returns an element of the array that matched the query.
  */
-function findItem(array, match) {
+function findItem(array, match) { // eslint-disable-line no-unused-vars
     for (var i = 0, l = array.length; i < l; i++) {
         if (match.call(this, array[i])) {
             return array[i];
@@ -183,59 +190,7 @@ function findItem(array, match) {
  * @param {string} uuid - The uuid of the product line item to update
  */
 function updateProductDetails(data, uuid) {
-    var lineItem = findItem(data.cartModel.items, function (item) {
-        return item.UUID === uuid;
-    });
-
-    if (lineItem.variationAttributes) {
-        var colorAttr = findItem(lineItem.variationAttributes, function (attr) {
-            return attr.attributeId === 'color';
-        });
-
-        if (colorAttr) {
-            var colorSelector = '.Color-' + uuid;
-            var newColor = 'Color: ' + colorAttr.displayValue;
-            $(colorSelector).text(newColor);
-        }
-
-        var sizeAttr = findItem(lineItem.variationAttributes, function (attr) {
-            return attr.attributeId === 'size';
-        });
-
-        if (sizeAttr) {
-            var sizeSelector = '.Size-' + uuid;
-            var newSize = 'Size: ' + sizeAttr.displayValue;
-            $(sizeSelector).text(newSize);
-        }
-
-        var imageSelector = '.card.product-info.uuid-' + uuid + ' .item-image > img';
-        $(imageSelector).attr('src', lineItem.images.small[0].url);
-        $(imageSelector).attr('alt', lineItem.images.small[0].alt);
-        $(imageSelector).attr('title', lineItem.images.small[0].title);
-    }
-
-    if (lineItem.options && lineItem.options.length) {
-        var option = lineItem.options[0];
-        var optSelector = '.lineItem-options-values[data-option-id="' + option.optionId + '"]';
-        $(optSelector).data('value-id', option.selectedValueId);
-        $(optSelector + ' .line-item-attributes').text(option.displayName);
-    }
-
-    var qtySelector = '.quantity[data-uuid="' + uuid + '"]';
-    $(qtySelector).val(lineItem.quantity);
-    $(qtySelector).data('pid', data.newProductId);
-
-    $('.remove-product[data-uuid="' + uuid + '"]').data('pid', data.newProductId);
-
-    var priceSelector = '.line-item-price-' + uuid + ' .sales .value';
-    $(priceSelector).text(lineItem.price.sales.formatted);
-    $(priceSelector).attr('content', lineItem.price.sales.decimalPrice);
-
-    if (lineItem.price.list) {
-        var listPriceSelector = '.line-item-price-' + uuid + ' .list .value';
-        $(listPriceSelector).text(lineItem.price.list.formatted);
-        $(listPriceSelector).attr('content', lineItem.price.list.decimalPrice);
-    }
+    $('.card.product-info.uuid-' + uuid).replaceWith(data.renderedTemplate);
 }
 
 /**
@@ -300,6 +255,7 @@ function fillModalElement(editProductUrl) {
             $('#editProductModal .modal-header .close .sr-only').text(data.closeButtonText);
             $('#editProductModal .enter-message').text(data.enterDialogMessage);
             $('#editProductModal').modal('show');
+            $('body').trigger('editproductmodal:ready');
             $.spinner().stop();
         },
         error: function () {
@@ -363,6 +319,9 @@ module.exports = function () {
         $('body > .modal-backdrop').remove();
 
         $.spinner().start();
+
+        $('body').trigger('cart:beforeUpdate');
+
         $.ajax({
             url: url,
             type: 'get',
@@ -402,7 +361,7 @@ module.exports = function () {
                     validateBasket(data.basket);
                 }
 
-                $('body').trigger('cart:update');
+                $('body').trigger('cart:update', data);
 
                 $.spinner().stop();
             },
@@ -433,6 +392,8 @@ module.exports = function () {
 
         $(this).parents('.card').spinner().start();
 
+        $('body').trigger('cart:beforeUpdate');
+
         $.ajax({
             url: url,
             type: 'get',
@@ -447,7 +408,7 @@ module.exports = function () {
                 validateBasket(data);
                 $(this).data('pre-select-qty', quantity);
 
-                $('body').trigger('cart:update');
+                $('body').trigger('cart:update', data);
 
                 $.spinner().stop();
                 if ($(this).parents('.product-info').hasClass('bonus-product-line-item') && $('.cart-page').length) {
@@ -474,6 +435,7 @@ module.exports = function () {
         // url = appendToUrl(url, urlParams);
 
         $('.totals').spinner().start();
+        $('body').trigger('cart:beforeShippingMethodSelected');
         $.ajax({
             url: url,
             type: 'post',
@@ -488,6 +450,8 @@ module.exports = function () {
                     updateApproachingDiscounts(data.approachingDiscounts);
                     validateBasket(data);
                 }
+
+                $('body').trigger('cart:shippingMethodSelected', data);
                 $.spinner().stop();
             },
             error: function (err) {
@@ -516,6 +480,7 @@ module.exports = function () {
         var $form = $('.promo-code-form');
         $('.promo-code-form .form-control').removeClass('is-invalid');
         $('.coupon-error-message').empty();
+        $('body').trigger('promotion:beforeUpdate');
 
         $.ajax({
             url: $form.attr('action'),
@@ -527,16 +492,19 @@ module.exports = function () {
                     $('.promo-code-form .form-control').addClass('is-invalid');
                     $('.promo-code-form .form-control').attr('aria-describedby', 'invalidCouponCode');
                     $('.coupon-error-message').empty().append(data.errorMessage);
+                    $('body').trigger('promotion:error', data);
                 } else {
                     $('.coupons-and-promos').empty().append(data.totals.discountsHtml);
                     updateCartTotals(data);
                     updateApproachingDiscounts(data.approachingDiscounts);
                     validateBasket(data);
+                    $('body').trigger('promotion:success', data);
                 }
                 $('.coupon-code-field').val('');
                 $.spinner().stop();
             },
             error: function (err) {
+                $('body').trigger('promotion:error', err);
                 if (err.responseJSON.redirectUrl) {
                     window.location.href = err.responseJSON.redirectUrl;
                 } else {
@@ -578,6 +546,7 @@ module.exports = function () {
         $('body > .modal-backdrop').remove();
 
         $.spinner().start();
+        $('body').trigger('promotion:beforeUpdate');
         $.ajax({
             url: url,
             type: 'get',
@@ -588,8 +557,10 @@ module.exports = function () {
                 updateApproachingDiscounts(data.approachingDiscounts);
                 validateBasket(data);
                 $.spinner().stop();
+                $('body').trigger('promotion:success', data);
             },
             error: function (err) {
+                $('body').trigger('promotion:error', err);
                 if (err.responseJSON.redirectUrl) {
                     window.location.href = err.responseJSON.redirectUrl;
                 } else {
@@ -741,6 +712,9 @@ module.exports = function () {
         };
 
         $(this).parents('.card').spinner().start();
+
+        $('body').trigger('cart:beforeUpdate');
+
         if (updateProductUrl) {
             $.ajax({
                 url: updateProductUrl,
@@ -763,7 +737,7 @@ module.exports = function () {
 
                     validateBasket(data.cartModel);
 
-                    $('body').trigger('cart:update');
+                    $('body').trigger('cart:update', data);
 
                     $.spinner().stop();
                 },

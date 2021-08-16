@@ -1,5 +1,7 @@
 'use strict';
 
+var focusHelper = require('../components/focus');
+
 /**
  * Renders a modal window that will track the users consenting to accepting site tracking policy
  */
@@ -16,7 +18,7 @@ function showConsentModal() {
     var textHeader = $('.tracking-consent').data('heading');
 
     var htmlString = '<!-- Modal -->'
-        + '<div class="modal show" id="consent-tracking" role="dialog" style="display: block;">'
+        + '<div class="modal show" id="consent-tracking" aria-modal="true" role="dialog" style="display: block;">'
         + '<div class="modal-dialog">'
         + '<!-- Modal content-->'
         + '<div class="modal-content">'
@@ -26,10 +28,10 @@ function showConsentModal() {
         + '<div class="modal-body"></div>'
         + '<div class="modal-footer">'
         + '<div class="button-wrapper">'
-        + '<button class="affirm btn btn-primary" data-url="' + urlAccept + '">'
+        + '<button class="affirm btn btn-primary" data-url="' + urlAccept + '" autofocus data-dismiss="modal">'
         + textYes
         + '</button>'
-        + '<button class="decline btn btn-primary" data-url="' + urlReject + '">'
+        + '<button class="decline btn btn-primary" data-url="' + urlReject + '" data-dismiss="modal" >'
         + textNo
         + '</button>'
         + '</div>'
@@ -46,6 +48,7 @@ function showConsentModal() {
         dataType: 'html',
         success: function (response) {
             $('.modal-body').html(response);
+            $('#consent-tracking').modal('show');
         },
         error: function () {
             $('#consent-tracking').remove();
@@ -81,4 +84,24 @@ module.exports = function () {
             showConsentModal();
         });
     }
+
+    $('body').on('shown.bs.modal', '#consent-tracking', function () {
+        $('#consent-tracking').siblings().attr('aria-hidden', 'true');
+        $('#consent-tracking .close').focus();
+    });
+
+    $('body').on('hidden.bs.modal', '#consent-tracking', function () {
+        $('#consent-tracking').siblings().attr('aria-hidden', 'false');
+    });
+
+    $('body').on('keydown', '#consent-tracking', function (e) {
+        var focusParams = {
+            event: e,
+            containerSelector: '#consent-tracking',
+            firstElementSelector: '.affirm',
+            lastElementSelector: '.decline',
+            nextToLastElementSelector: '.affirm'
+        };
+        focusHelper.setTabNextFocus(focusParams);
+    });
 };

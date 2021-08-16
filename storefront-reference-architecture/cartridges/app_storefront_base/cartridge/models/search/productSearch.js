@@ -46,6 +46,7 @@ function getRefinements(productSearch, refinements, refinementDefinitions) {
             isCategoryRefinement: definition.categoryRefinement,
             isAttributeRefinement: definition.attributeRefinement,
             isPriceRefinement: definition.priceRefinement,
+            isPromotionRefinement: definition.promotionRefinement,
             values: values
         };
     });
@@ -70,25 +71,6 @@ function getSelectedFilters(refinements) {
     });
 
     return selectedFilters;
-}
-
-/**
- * Retrieves banner image URL
- *
- * @param {dw.catalog.Category} category - Subject category
- * @return {string} - Banner's image URL
- */
-function getBannerImageUrl(category) {
-    var url = null;
-
-    if (category.custom && 'slotBannerImage' in category.custom &&
-        category.custom.slotBannerImage) {
-        url = category.custom.slotBannerImage.getURL();
-    } else if (category.image) {
-        url = category.image.getURL();
-    }
-
-    return url;
 }
 
 /**
@@ -200,6 +182,8 @@ function getPhrases(suggestedPhrases) {
  * @param {dw.catalog.Category} rootCategory - Search result's root category if applicable
  */
 function ProductSearch(productSearch, httpParams, sortingRule, sortingOptions, rootCategory) {
+    var searchHelper = require('*/cartridge/scripts/helpers/searchHelpers');
+
     this.pageSize = parseInt(httpParams.sz, 10) || DEFAULT_PAGE_SIZE;
     this.productSearch = productSearch;
     var startIdx = httpParams.start || 0;
@@ -224,7 +208,7 @@ function ProductSearch(productSearch, httpParams, sortingRule, sortingOptions, r
     this.searchKeywords = productSearch.searchPhrase;
 
     this.resetLink = getResetLink(productSearch, httpParams);
-    this.bannerImageUrl = productSearch.category ? getBannerImageUrl(productSearch.category) : null;
+    this.bannerImageUrl = productSearch.category ? searchHelper.getBannerImageUrl(productSearch.category) : null;
     this.productIds = collections.map(paging.pageElements, function (item) {
         return {
             productID: item.productID,

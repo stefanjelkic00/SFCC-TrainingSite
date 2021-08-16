@@ -29,7 +29,7 @@
                     <span class="col-12 item" id="product-${listindex.index}" role="option">
                         <div class="row">
                             <div class="col-xs-12 col-sm-10">
-                                <a href="${product.url}" aria‐label="${product.name}">
+                                <a href="${product.url}" aria-label="${product.name}">
                                     <img class="swatch-circle hidden-xs-down" alt="${product.name}" src="${product.imageUrl}" />
                                     <span class="name">${product.name}</span>
                                 </a>
@@ -54,11 +54,11 @@
                                     <a href="${category.url}">
                                         <img class="swatch-circle hidden-xs-down" alt="${category.name}" src="${category.imageUrl}" />
                                         <span class="name">
-		                                	${category.name}
-		                                    <isif condition="${category.parentID !== 'root'}">
-		                                        <span class="category-parent"> ${Resource.msg('label.suggest.in', 'search', null)} ${category.parentName}</span>
-		                                    </isif>
-		                            	</span>
+                                            ${category.name}
+                                            <isif condition="${category.parentID !== 'root'}">
+                                                <span class="category-parent"> ${Resource.msg('label.suggest.in', 'search', null)} ${category.parentName}</span>
+                                            </isif>
+                                        </span>
                                     </a>
                                 </isif>
                             </div>
