@@ -18,6 +18,7 @@ module.exports.render = function (context, modelIn) {
 
     var ProductFactory = require('*/cartridge/scripts/factories/product');
     var pageMetaHelper = require('*/cartridge/scripts/helpers/pageMetaHelper');
+    var URLUtils = require('dw/web/URLUtils');
 
     var page = context.page;
     model.page = page;
@@ -29,6 +30,7 @@ module.exports.render = function (context, modelIn) {
 
         pageMetaHelper.setPageMetaData(request.pageMetaData, product);
         pageMetaHelper.setPageMetaTags(request.pageMetaData, product);
+        model.canonicalUrl = URLUtils.url('Product-Show', 'pid', product.id);
     }
 
     // automatically register configured regions
@@ -41,6 +43,8 @@ module.exports.render = function (context, modelIn) {
         model.resetEditPDMode = true;
     }
 
+    // instruct 24 hours relative pagecache as default
+    // this might be adjusted by the components used within the page
     var expires = new Date();
     expires.setDate(expires.getDate() + 1); // this handles overflow automatically
     response.setExpires(expires);

@@ -49,8 +49,17 @@ function getPageDesignerCategoryPage(categoryID) {
     var HashMap = require('dw/util/HashMap');
 
     var category = CatalogMgr.getCategory(categoryID.toLowerCase());
-    var page = PageMgr.getPage(category, true, 'plp');
-    var invisiblePage = PageMgr.getPage(category, false, 'plp');
+
+    if (category === null) {
+        return {
+            page: null,
+            invisiblePage: null,
+            aspectAttributes: null
+        };
+    }
+
+    var page = PageMgr.getPageByCategory(category, true, 'plp');
+    var invisiblePage = PageMgr.getPageByCategory(category, false, 'plp');
 
     if (page) {
         var aspectAttributes = new HashMap();

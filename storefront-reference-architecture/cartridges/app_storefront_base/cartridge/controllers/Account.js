@@ -342,11 +342,13 @@ server.get(
     userLoggedIn.validateLoggedIn,
     consentTracking.consent,
     function (req, res, next) {
+        var ContentMgr = require('dw/content/ContentMgr');
         var Resource = require('dw/web/Resource');
         var URLUtils = require('dw/web/URLUtils');
         var accountHelpers = require('*/cartridge/scripts/account/accountHelpers');
 
         var accountModel = accountHelpers.getAccountModel(req);
+        var content = ContentMgr.getContent('tracking_hint');
         var profileForm = server.forms.getForm('profile');
         profileForm.clear();
         profileForm.customer.firstname.value = accountModel.profile.firstName;
@@ -354,6 +356,8 @@ server.get(
         profileForm.customer.phone.value = accountModel.profile.phone;
         profileForm.customer.email.value = accountModel.profile.email;
         res.render('account/profile', {
+            consentApi: Object.prototype.hasOwnProperty.call(req.session.raw, 'setTrackingAllowed'),
+            caOnline: content ? content.online : false,
             profileForm: profileForm,
             breadcrumbs: [
                 {
@@ -719,8 +723,10 @@ server.get('PasswordReset', server.middleware.https, function (req, res, next) {
     next();
 });
 
+
 /**
- * Account-SetNewPassword : The Account-SetNewPassword endpoint renders the page that displays the password reset form
+ * Account-SetNewPassword : The Account-SetNewPassword GET endpoint removes the reset token from the
+ * URL and redirects to the Account-SetNewPassword POST endpoint
  * @name Base/Account-SetNewPassword
  * @function
  * @memberof Account
@@ -735,9 +741,37 @@ server.get('SetNewPassword', server.middleware.https, consentTracking.consent, f
     var CustomerMgr = require('dw/customer/CustomerMgr');
     var URLUtils = require('dw/web/URLUtils');
 
+    var token = req.querystring.Token;
+    var resettingCustomer = CustomerMgr.getCustomerByToken(token);
+    if (!resettingCustomer) {
+        var passwordForm = server.forms.getForm('newPasswords');
+        passwordForm.clear();
+        res.redirect(URLUtils.url('Account-PasswordReset'));
+    } else {
+        res.render('account/password/newPasswordRedirect', { token: token });
+    }
+    next();
+});
+
+/**
+ * Account-DoSetNewPassword : The Account-DoSetNewPassword endpoint renders the page that displays the password reset form
+ * @name Base/Account-DoSetNewPassword
+ * @function
+ * @memberof Account
+ * @param {middleware} - server.middleware.https
+ * @param {middleware} - consentTracking.consent
+ * @param {httpparameter} - token - SFRA utilizes this token to retrieve the shopper
+ * @param {category} - sensitive
+ * @param {renders} - isml
+ * @param {serverfunction} - post
+ */
+server.post('DoSetNewPassword', server.middleware.https, consentTracking.consent, function (req, res, next) {
+    var CustomerMgr = require('dw/customer/CustomerMgr');
+    var URLUtils = require('dw/web/URLUtils');
+
     var passwordForm = server.forms.getForm('newPasswords');
     passwordForm.clear();
-    var token = req.querystring.Token;
+    var token = req.form.token;
     var resettingCustomer = CustomerMgr.getCustomerByToken(token);
     if (!resettingCustomer) {
         res.redirect(URLUtils.url('Account-PasswordReset'));
@@ -753,7 +787,7 @@ server.get('SetNewPassword', server.middleware.https, consentTracking.consent, f
  * @function
  * @memberof Account
  * @param {middleware} - server.middleware.https
- * @param {querystringparameter} - Token - SFRA utilizes this token to retrieve the shopper
+ * @param {httpparameter} - token - SFRA utilizes this token to retrieve the shopper
  * @param {httpparameter} - dwfrm_newPasswords_newpassword - Input field for the shopper's new password
  * @param {httpparameter} - dwfrm_newPasswords_newpasswordconfirm  - Input field to confirm the shopper's new password
  * @param {httpparameter} - save - unutilized param
@@ -766,7 +800,8 @@ server.post('SaveNewPassword', server.middleware.https, function (req, res, next
     var Resource = require('dw/web/Resource');
 
     var passwordForm = server.forms.getForm('newPasswords');
-    var token = req.querystring.Token;
+    // Token used to be a query parameter, now it's in the body. Support both.
+    var token = req.form.token || req.querystring.Token;
 
     if (passwordForm.newpassword.value !== passwordForm.newpasswordconfirm.value) {
         passwordForm.valid = false;
