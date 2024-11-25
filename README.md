@@ -32,7 +32,7 @@ The latest version of SFRA is 6.0.0
 
 5. Run `npm run uploadCartridge`. It will upload `app_storefront_base`, `modules` and `bm_app_storefront_base` cartridges to the sandbox you specified in `dw.json` file.
 
-6. Use https://github.com/SalesforceCommerceCloud/storefrontdata to zip and import site data on your sandbox.
+6. Import default SFRA website in adminstration/site import export on your sandbox to get SFRA catalogs and data.
 
 7. Add the `app_storefront_base` cartridge to your cartridge path in _Administration >  Sites >  Manage Sites > RefArch - Settings_ (Note: This should already be populated by the sample data in Step 6).
 
