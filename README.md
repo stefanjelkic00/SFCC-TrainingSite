@@ -30,11 +30,11 @@ The latest version of SFRA is 6.0.0
 }
 ```
 
-5. Run `npm run uploadCartridge`. It will upload `app_storefront_base`, `modules` and `bm_app_storefront_base` cartridges to the sandbox you specified in `dw.json` file.
+5. Import default SFRA website in adminstration/site import export on your sandbox to get SFRA catalogs and data.
 
-6. Import default SFRA website in adminstration/site import export on your sandbox to get SFRA catalogs and data.
+6. Import site using prophet extension.
 
-7. Add the `app_storefront_base` cartridge to your cartridge path in _Administration >  Sites >  Manage Sites > RefArch - Settings_ (Note: This should already be populated by the sample data in Step 6).
+7. Add the `app_storefront_base` cartridge to your cartridge path in _Administration >  Sites >  Manage Sites > RefArch - Settings_ (Note: This should already be populated by the sample data in Step 5).
 
 8. You should now be ready to navigate to and use your site.
 
@@ -51,17 +51,15 @@ Use the provided NPM scripts to compile and upload changes to your Sandbox.
 
 ## Linting your code
 
-`npm run lint` - Execute linting for all JavaScript and SCSS files in the project. You should run this command before committing your code.
+`npm run lint` - Execute linting for all JavaScript and SCSS files in the project. You should run this command before committing your code. For the training purpose we can disable lint.
 
 ## Watching for changes and uploading
 
-`npm run watch` - Watches everything and recompiles (if necessary) and uploads to the sandbox. Requires a valid `dw.json` file at the root that is configured for the sandbox to upload.
+`use extension propeth watch` - Watches everything and recompiles (if necessary) and uploads to the sandbox. Requires a valid `dw.json` file at the root that is configured for the sandbox to upload.
 
 ## Uploading
 
-`npm run uploadCartridge` - Will upload `app_storefront_base`, `modules` and `bm_app_storefront_base` to the server. Requires a valid `dw.json` file at the root that is configured for the sandbox to upload.
-
-`npm run upload <filepath>` - Will upload a given file to the server. Requires a valid `dw.json` file.
+`use propeth extension clean and upload option` - Will upload `app_storefront_base`, `modules` and `bm_app_storefront_base` to the server. Requires a valid `dw.json` file at the root that is configured for the sandbox to upload.
 
 # Testing
 ## Running unit tests
