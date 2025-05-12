@@ -10,7 +10,7 @@ Your feedback on the ease-of-use and limitations of this new architecture is inv
 
 # The latest version
 
-The latest version of SFRA is 6.3.0
+The latest version of SFRA is 6.0.0
 
 # Getting Started
 
@@ -20,21 +20,21 @@ The latest version of SFRA is 6.3.0
 
 3. Run `npm run compile:js` from the command line that would compile all client-side JS files. Run `npm run compile:scss` and `npm run compile:fonts` that would do the same for css and fonts.
 
-4. Create `dw.json` file in the root of the project. Providing a [WebDAV access key from BM](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2Fcontent%2Fb2c_commerce%2Ftopics%2Fadmin%2Fb2c_access_keys_for_business_manager.html) in the `password` field is optional, as you will be prompted if it is not provided.
+4. Create `dw.json` file in the root of the project:
 ```json
 {
     "hostname": "your-sandbox-hostname.demandware.net",
-    "username": "AM username like me.myself@company.com",
-    "password": "your_webdav_access_key",
+    "username": "yourlogin",
+    "password": "yourpwd",
     "code-version": "version_to_upload_to"
 }
 ```
 
-5. Run `npm run uploadCartridge`. It will upload `app_storefront_base`, `modules` and `bm_app_storefront_base` cartridges to the sandbox you specified in `dw.json` file.
+5. Import default SFRA website in adminstration/site import export on your sandbox to get SFRA catalogs and data.
 
-6. Use https://github.com/SalesforceCommerceCloud/storefrontdata to zip and import site data on your sandbox.
+6. Import site using prophet extension.
 
-7. Add the `app_storefront_base` cartridge to your cartridge path in _Administration >  Sites >  Manage Sites > RefArch - Settings_ (Note: This should already be populated by the sample data in Step 6).
+7. Add the `app_storefront_base` cartridge to your cartridge path in _Administration >  Sites >  Manage Sites > RefArch - Settings_ (Note: This should already be populated by the sample data in Step 5).
 
 8. You should now be ready to navigate to and use your site.
 
@@ -51,17 +51,15 @@ Use the provided NPM scripts to compile and upload changes to your Sandbox.
 
 ## Linting your code
 
-`npm run lint` - Execute linting for all JavaScript and SCSS files in the project. You should run this command before committing your code.
+`npm run lint` - Execute linting for all JavaScript and SCSS files in the project. You should run this command before committing your code. For the training purpose we can disable lint.
 
 ## Watching for changes and uploading
 
-`npm run watch` - Watches everything and recompiles (if necessary) and uploads to the sandbox. Requires a valid `dw.json` file at the root that is configured for the sandbox to upload.
+`use extension propeth watch` - Watches everything and recompiles (if necessary) and uploads to the sandbox. Requires a valid `dw.json` file at the root that is configured for the sandbox to upload.
 
 ## Uploading
 
-`npm run uploadCartridge` - Will upload `app_storefront_base`, `modules` and `bm_app_storefront_base` to the server. Requires a valid `dw.json` file at the root that is configured for the sandbox to upload.
-
-`npm run upload <filepath>` - Will upload a given file to the server. Requires a valid `dw.json` file.
+`use propeth extension clean and upload option` - Will upload `app_storefront_base`, `modules` and `bm_app_storefront_base` to the server. Requires a valid `dw.json` file at the root that is configured for the sandbox to upload.
 
 # Testing
 ## Running unit tests
@@ -97,5 +95,5 @@ npm run test:integration -- --baseUrl devxx-sitegenesis-dw.demandware.net
 
 # [Contributing to SFRA](./CONTRIBUTING.md)
 
-# Page Designer Components for Storefront Reference Architecture
+#Page Designer Components for Storefront Reference Architecture
 See: [Page Designer Components](./page-designer-components.md)
