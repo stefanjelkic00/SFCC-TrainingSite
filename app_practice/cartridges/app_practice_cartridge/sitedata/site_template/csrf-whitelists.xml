@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<csrf-whitelists xmlns="http://www.demandware.com/xml/impex/csrfwhitelists/2017-02-09">
+    <pipelines/>
+
+    <user-agents/>
+
+</csrf-whitelists>

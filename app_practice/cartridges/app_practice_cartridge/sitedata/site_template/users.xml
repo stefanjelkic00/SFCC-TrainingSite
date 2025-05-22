@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users xmlns="http://www.demandware.com/xml/impex/user/2007-09-05">
+    <user login="stefanjelkic@gmail.com" enabled-flag="true">
+        <credentials>
+            <external-id>531f741f-e24c-4acf-beac-4be6f33b2757</external-id>
+        </credentials>
+        <profile>
+            <first-name>Nikola</first-name>
+            <last-name>Gorjanac</last-name>
+            <email>stefanjelkic@gmail.com</email>
+            <preferred-data-locale>none</preferred-data-locale>
+        </profile>
+    </user>
+
+    <user login="n.korica@beeit.rs" enabled-flag="true">
+        <credentials>
+            <external-id>e8854e14-6569-4d00-a007-4b6287d17389</external-id>
+        </credentials>
+        <profile>
+            <first-name>Nikola</first-name>
+            <last-name>Korica</last-name>
+            <email>n.korica@beeit.rs</email>
+            <preferred-data-locale>none</preferred-data-locale>
+        </profile>
+    </user>
+
+</users>
