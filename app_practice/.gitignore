@@ -1,0 +1,27 @@
+# Node.js
+node_modules/
+npm-debug.log
+package-lock.json
+package.json
+# VSCode lokalne konfiguracije
+.vscode/
+*.code-workspace
+
+# SFCC statični i generisani fajlovi
+static/
+*.log
+site_template/static/
+sitedata/**/static/
+.project
+.settings
+
+
+
+# DW JSON file (osetljive informacije)
+dw.json
+
+# OS specifični fajlovi
+.DS_Store
+Thumbs.db
+
+
