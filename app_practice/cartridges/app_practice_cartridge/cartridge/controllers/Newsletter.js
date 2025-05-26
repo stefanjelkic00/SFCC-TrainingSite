@@ -29,32 +29,6 @@ server.post('Save',
     csrfProtection.validateAjaxRequest,
     function (req, res, next) {
 
-    const { firstName, lastName, email } = req.form;
-    const forbiddenWords = ['email', 'test', 'user','demo','hack'];
-
-    let errors = {};
-    
-    if (!nameRegex.test(firstName)) {
-        errors.newsletterFirstName = 'First name must contain only letters.';
-    }
-
-    if (!nameRegex.test(lastName)) {
-        errors.newsletterLastName = 'Last name must contain only letters.';
-    }
-    
-    if (!emailRegex.test(email)) {
-        errors.newsletterEmail = 'Invalid email format.';
-    }
-    
-    if (forbiddenWords.some(word => email.toLowerCase().includes(word))) {
-        errors.newsletterEmail = 'Email contains forbidden words.';
-    }
-
-    if (Object.keys(errors).length > 0) {
-        res.json({ success: false, errors: errors });
-        return next();
-    }
-
     const profile = req.currentCustomer.raw && req.currentCustomer.raw.profile;
     if (profile && profile.custom) {
         Transaction.wrap(function () {

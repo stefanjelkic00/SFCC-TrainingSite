@@ -1,42 +1,23 @@
+<?xml version="1.0"?>
 
-<form xmlns="http://www.demandware.com/xml/form/2008-04-19" secure="false"
- validation="${require('~/cartridge/scripts/forms/validate/newsletterFormCustomValidate').validate(formgroup);}">
-    <group formid="newsletter">
-        <field
-            formid="newsletterFirstName"
-            label="label.input.newsletterfirstname.profile"
-            mandatory="true"
-            max-length="50"
-            type="string"
-            regexp="^[A-Za-z]+$"
-            missing-error="error.message.required"
-            range-error="error.message.lessthan50"
-            >
-            <regexp>^[A-Za-z]+$</regexp>
-            <error>First name must contain only letters.</error>
-        </field>
-        <field
-            formid="newsletterLastName"
-            label="label.input.newsletterlastname.profile"
-            mandatory="true"
-            max-length="50"
-            type="string"
-            regexp="^[A-Za-z]+$"
-            missing-error="error.message.required"
-            range-error="error.message.lessthan50"
-            >
-        </field>
-        <field
-            formid="newsletterEmail"
-            label="label.input.newsletteremail.profile"
-            mandatory="true"
-            max-length="50"
-            type="email"
-            regexp="^[\w.%+-]+@[\w.-]+\.[\w]{2,6}$"
-            missing-error="error.message.required"
-            parse-error="error.message.parse.email.profile.form"
-            range-error="error.message.lessthan50">
-            <error>Invalid email format.</error>
-        </field>
-    </group>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19"
+
+      validation="~/cartridge/scripts/forms/validate/newsletterFormCustomValidate.validate">
+
+  <field formid="firstName" label="label.input.firstname.newsletter" type="string"
+         mandatory="false" max-length="50"
+         missing-error="error.message.required"
+         range-error="error.message.lessthan50"/>
+
+  <field formid="lastName" label="label.input.lastname.newsletter" type="string"
+         mandatory="false" max-length="50"
+         missing-error="error.message.required"
+         range-error="error.message.lessthan50"/>
+         
+  <field formid="email" label="label.input.email.newsletter" type="string"
+         mandatory="true" max-length="100"
+         regexp="^[\\w.%+-]+@[\\w.-]+\\.[\\w]{2,6}$"
+         missing-error="error.message.required"
+         parse-error="error.message.parse.email"/>
+
 </form>
