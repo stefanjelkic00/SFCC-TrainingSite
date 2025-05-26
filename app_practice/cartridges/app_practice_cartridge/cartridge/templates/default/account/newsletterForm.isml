@@ -1,0 +1,53 @@
+<isdecorate template="common/layout/page">
+    <div class="container">
+        <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
+        <div class="row justify-content-center">
+            <div class="col-sm-8 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Newsletter Subscription</h2>
+                    </div>
+                    <div class="card-body">
+                        <form
+                            action="${URLUtils.url('Newsletter-Save')}"
+                            class="newsletter-form"
+                            method="POST"
+                            autocomplete="off">
+                            <div class="form-group required">
+                                <dt>${Resource.msg('label.profile.firstname','account',null)}</dt>
+                                <input type="text" class="form-control" id="newsletterFirstName" name="firstName"
+                                    value="${pdict.newsletterFirstName}" required autocomplete="given-name">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="form-group required">
+                                <dt>${Resource.msg('label.profile.lastname','account',null)}</dt>
+                                <input type="text" class="form-control" id="newsletterLastName" name="lastName"
+                                    value="${pdict.newsletterLastName}" required autocomplete="family-name">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="form-group required">
+                                <dt>${Resource.msg('label.profile.email','account',null)}</dt>
+                                <input type="email" class="form-control" id="newsletterEmail" name="email"
+                                    value="${pdict.newsletterEmail}" required autocomplete="email">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+                            <div class="row">
+                                <div class="col-12">
+                                    <button type="submit" name="save" class="btn btn-save btn-block btn-primary js-submit-btn">
+                                        ${Resource.msg('Subscribe','forms',null)}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="${URLUtils.url('Account-Show')}" class="btn btn-link">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="${URLUtils.staticURL('/js/newsletterForm.js')}"></script>
