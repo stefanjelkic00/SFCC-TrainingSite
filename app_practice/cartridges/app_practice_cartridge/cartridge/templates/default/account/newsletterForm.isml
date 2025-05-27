@@ -13,25 +13,45 @@
                             class="newsletter-form"
                             method="POST"
                             autocomplete="off">
+                            
                             <div class="form-group required">
                                 <dt>${Resource.msg('label.profile.firstname','account',null)}</dt>
-                                <input type="text" class="form-control" id="newsletterFirstName" name="firstName"
-                                    value="${pdict.newsletterFirstName}" required autocomplete="given-name">
+                                <input type="text"
+                                       class="form-control"
+                                       id="newsletterFirstName"
+                                       name="firstName"
+                                       value="${pdict.newsletterFirstName}"
+                                       required
+                                       autocomplete="given-name">
                                 <div class="invalid-feedback"></div>
                             </div>
+
                             <div class="form-group required">
                                 <dt>${Resource.msg('label.profile.lastname','account',null)}</dt>
-                                <input type="text" class="form-control" id="newsletterLastName" name="lastName"
-                                    value="${pdict.newsletterLastName}" required autocomplete="family-name">
+                                <input type="text"
+                                       class="form-control"
+                                       id="newsletterLastName"
+                                       name="lastName"
+                                       value="${pdict.newsletterLastName}"
+                                       required
+                                       autocomplete="family-name">
                                 <div class="invalid-feedback"></div>
                             </div>
+
                             <div class="form-group required">
                                 <dt>${Resource.msg('label.profile.email','account',null)}</dt>
-                                <input type="email" class="form-control" id="newsletterEmail" name="email"
-                                    value="${pdict.newsletterEmail}" required autocomplete="email">
+                                <input type="email"
+                                       class="form-control"
+                                       id="newsletterEmail"
+                                       name="email"
+                                       value="${pdict.newsletterEmail}"
+                                       required
+                                       autocomplete="email">
                                 <div class="invalid-feedback"></div>
                             </div>
-                            <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
+
+                            <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}" />
+
                             <div class="row">
                                 <div class="col-12">
                                     <button type="submit" name="save" class="btn btn-save btn-block btn-primary js-submit-btn">
@@ -49,5 +69,6 @@
         </div>
     </div>
 </isdecorate>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="${URLUtils.staticURL('/js/newsletterForm.js')}"></script>

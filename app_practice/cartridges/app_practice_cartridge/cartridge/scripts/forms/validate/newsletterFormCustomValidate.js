@@ -1,33 +1,28 @@
 'use strict';
 
+const Site = require('dw/system/Site');
+
 /**
- * Validacija newsletter forme: provera imena, prezimena i e-mail adrese
- * @param {dw.web.FormGroup} formGroup - instanca forme newsletter
- * @returns {boolean} true ako su svi unosi validni, false ako su pronađene greške
+ * Proverava da li email sadrži zabranjenu reč iz site preference liste
  */
-
-function validate(formGroup) {
-    var isValid = true;
-
-    var emailVal = formGroup.email.value;
-
-    // Provera email adrese: built-in validacija (regexp, obavezno) + zabranjene reči
-    if (!empty(emailVal)) {
-        var lowerEmail = emailVal.toLowerCase();
-        // Lista zabranjenih reči
-        var forbiddenWords = ['test', 'admin', 'spam', 'dummy', 'invalid'];
-        for (var i = 0; i < forbiddenWords.length; i++) {
-            if (lowerEmail.indexOf(forbiddenWords[i]) !== -1) {
-                formGroup.email.invalidateFormElement('error.email.forbidden.word');
-                isValid = false;
-                break;
-            }
-        }
-    }
-
-    // Vraćamo true samo ako nisu pronađene greške
-    return isValid;
+function containsForbiddenEmailDomain(email) {
+    const forbiddenWords = Site.getCurrent().getCustomPreferenceValue('emailForbiddenWords') || [];
+    return forbiddenWords.some((word) => email.toLowerCase().includes(word.toLowerCase()));
 }
 
-// Eksportujemo funkciju da bismo je mogli koristiti u XML formi
-module.exports = { validate: validate };
+function validate(form) {
+    const result = {
+        firstName: { valid: true, error: '' },
+        lastName: { valid: true, error: '' },
+        email: { valid: true, error: '' }
+    };
+
+    if (containsForbiddenEmailDomain(form.email.value)) {
+        result.email.valid = false;
+        result.email.error = 'Email contains a forbidden word.';
+    }
+
+    return result;
+}
+
+exports.validate = validate;
