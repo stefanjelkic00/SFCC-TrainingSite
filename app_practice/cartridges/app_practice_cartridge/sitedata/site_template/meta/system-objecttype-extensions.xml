@@ -4739,6 +4739,27 @@
                 <externally-managed-flag>false</externally-managed-flag>
                 <default-value>false</default-value>
             </attribute-definition>
+            <attribute-definition attribute-id="emailForbiddenWords">
+                <display-name xml:lang="x-default">Email Forbidden Words</display-name>
+                <description xml:lang="x-default">List of forbidden keywords that must not be contained in the newsletter email address (e.g., gmail, yahoo, hotmail).</description>
+                <type>enum-of-string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">gmail</display>
+                        <value>gmail</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">yahoo</display>
+                        <value>yahoo</value>
+                    </value-definition>
+                    <value-definition>
+                        <display xml:lang="x-default">hotmail</display>
+                        <value>hotmail</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
             <attribute-definition attribute-id="enableInfiniteScroll">
                 <display-name xml:lang="x-default">Enable Infinite Scroll</display-name>
                 <description xml:lang="x-default">This Boolean toggles the option for infinite scrolling or pagination from within the search grid.</description>
