@@ -2,11 +2,11 @@
     <div class="card-header clearfix">
         <h2 class="pull-left">Newsletter</h2>
         <isif condition="${pdict.newsletterEmail || pdict.newsletterFirstName || pdict.newsletterLastName}">
-            <a href="${URLUtils.url('Newsletter-Edit')}" class="pull-right" aria-label="Edit Newsletter">
+            <a href="${URLUtils.url('Newsletter-Show')}" class="pull-right" aria-label="Edit Newsletter">
                 Edit
             </a>
         <iselse>
-            <a href="${URLUtils.url('Newsletter-Edit')}" class="pull-right" aria-label="Add Newsletter">
+            <a href="${URLUtils.url('Newsletter-Show')}" class="pull-right" aria-label="Add Newsletter">
                 Add Newsletter
             </a>
         </isif>

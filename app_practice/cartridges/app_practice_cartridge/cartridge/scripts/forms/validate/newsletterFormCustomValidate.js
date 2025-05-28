@@ -2,27 +2,24 @@
 
 const Site = require('dw/system/Site');
 
-/**
- * Proverava da li email sadrži zabranjenu reč iz site preference liste
- */
-function containsForbiddenEmailDomain(email) {
-    const forbiddenWords = Site.getCurrent().getCustomPreferenceValue('emailForbiddenWords') || [];
-    return forbiddenWords.some((word) => email.toLowerCase().includes(word.toLowerCase()));
-}
+exports.validate = function (form) {
+    
+    const forbiddenWordsPref = Site.getCurrent().getCustomPreferenceValue('emailForbiddenWords');
 
-function validate(form) {
-    const result = {
-        firstName: { valid: true, error: '' },
-        lastName: { valid: true, error: '' },
-        email: { valid: true, error: '' }
-    };
+    if (form.email.value && forbiddenWordsPref && forbiddenWordsPref.length) {
 
-    if (containsForbiddenEmailDomain(form.email.value)) {
-        result.email.valid = false;
-        result.email.error = 'Email contains a forbidden word.';
+        const email = form.email.value.toLowerCase();
+
+        const emailName = email.split('@')[0]; 
+
+        for (let i = 0; i < forbiddenWordsPref.length; i++) {
+            
+            if (emailName.includes(forbiddenWordsPref[i])) {
+                form.email.invalidateFormElement('Email, Yahoo, Hotmail cant be set before @!');
+                return false;
+            }
+        }
     }
 
-    return result;
-}
-
-exports.validate = validate;
+    return true;
+};

@@ -12,46 +12,51 @@
                             action="${URLUtils.url('Newsletter-Save')}"
                             class="newsletter-form"
                             method="POST"
-                            autocomplete="off">
+                            <isprint value="${pdict.newsletterForm.attributes}" encoding="off" />>
                             
-                            <div class="form-group required">
-                                <dt>${Resource.msg('label.profile.firstname','account',null)}</dt>
+                            <!-- First Name -->
+                            <div class="form-group ${pdict.newsletterForm.firstName.mandatory ? 'required' : ''}">
+                                <label for="firstName">
+                                    ${Resource.msg('label.profile.firstname','account',null)}
+                                </label>
                                 <input type="text"
                                        class="form-control"
-                                       id="newsletterFirstName"
-                                       name="firstName"
-                                       value="${pdict.newsletterFirstName}"
-                                       required
-                                       autocomplete="given-name">
+                                       id="firstName"
+                                       autocomplete="given-name"
+                                       <isprint value="${pdict.newsletterForm.firstName.attributes}" encoding="off" />>
                                 <div class="invalid-feedback"></div>
                             </div>
 
-                            <div class="form-group required">
-                                <dt>${Resource.msg('label.profile.lastname','account',null)}</dt>
+                            <!-- Last Name -->
+                            <div class="form-group ${pdict.newsletterForm.lastName.mandatory ? 'required' : ''}">
+                                <label for="lastName">
+                                    ${Resource.msg('label.profile.lastname','account',null)}
+                                </label>
                                 <input type="text"
                                        class="form-control"
-                                       id="newsletterLastName"
-                                       name="lastName"
-                                       value="${pdict.newsletterLastName}"
-                                       required
-                                       autocomplete="family-name">
+                                       id="lastName"
+                                       autocomplete="family-name"
+                                       <isprint value="${pdict.newsletterForm.lastName.attributes}" encoding="off" />>
                                 <div class="invalid-feedback"></div>
                             </div>
 
-                            <div class="form-group required">
-                                <dt>${Resource.msg('label.profile.email','account',null)}</dt>
+                            <!-- Email -->
+                            <div class="form-group ${pdict.newsletterForm.email.mandatory ? 'required' : ''}">
+                                <label for="email">
+                                    ${Resource.msg('label.profile.email','account',null)}
+                                </label>
                                 <input type="email"
                                        class="form-control"
-                                       id="newsletterEmail"
-                                       name="email"
-                                       value="${pdict.newsletterEmail}"
-                                       required
-                                       autocomplete="email">
+                                       id="email"
+                                       autocomplete="email"
+                                       <isprint value="${pdict.newsletterForm.email.attributes}" encoding="off" />>
                                 <div class="invalid-feedback"></div>
                             </div>
 
+                            <!-- CSRF -->
                             <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}" />
 
+                            <!-- Submit Button -->
                             <div class="row">
                                 <div class="col-12">
                                     <button type="submit" name="save" class="btn btn-save btn-block btn-primary js-submit-btn">
@@ -61,6 +66,8 @@
                             </div>
                         </form>
                     </div>
+
+                    <!-- Footer -->
                     <div class="card-footer text-center">
                         <a href="${URLUtils.url('Account-Show')}" class="btn btn-link">Cancel</a>
                     </div>
@@ -70,5 +77,6 @@
     </div>
 </isdecorate>
 
+<!-- JS -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="${URLUtils.staticURL('/js/newsletterForm.js')}"></script>

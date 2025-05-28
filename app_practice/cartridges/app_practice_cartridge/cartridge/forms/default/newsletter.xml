@@ -1,23 +1,30 @@
 <?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19"  
+validation="${require('~/cartridge/scripts/forms/validate/newsletterFormCustomValidate').validate(formgroup)}">
+       
 
-<form xmlns="http://www.demandware.com/xml/form/2008-04-19"
+    <field formid="firstName" label="label.input.firstname" type="string" mandatory="true"
+        max-length="50"
+        regexp="^[A-Za-z]+$"
+        missing-error="newsletter.firstname.missing"
+        parse-error="newsletter.firstname.invalid"
+        range-error="error.message.50orless"/>
 
-      validation="~/cartridge/scripts/forms/validate/newsletterFormCustomValidate.validate">
+    <field formid="lastName" label="label.input.lastname" type="string" mandatory="true"
+        max-length="50"
+        regexp="^[A-Za-z]+$"
+        missing-error="newsletter.lastname.missing"
+        parse-error="newsletter.lastname.invalid"
+        range-error="error.message.50orless"/>
 
-  <field formid="firstName" label="label.input.firstname.newsletter" type="string"
-         mandatory="false" max-length="50"
-         missing-error="error.message.required"
-         range-error="error.message.lessthan50"/>
+    <field formid="email" label="label.input.email" type="string" mandatory="true"
+        binding="email" max-length="100"
+        regexp="^[^@\s]+@[^@\s]+\.[^@\s]+$"
+        missing-error="newsletter.email.missing"
+        parse-error="error.message.parse.email"
+        range-error="error.message.100orless"/>
 
-  <field formid="lastName" label="label.input.lastname.newsletter" type="string"
-         mandatory="false" max-length="50"
-         missing-error="error.message.required"
-         range-error="error.message.lessthan50"/>
-         
-  <field formid="email" label="label.input.email.newsletter" type="string"
-         mandatory="true" max-length="100"
-         regexp="^[\\w.%+-]+@[\\w.-]+\\.[\\w]{2,6}$"
-         missing-error="error.message.required"
-         parse-error="error.message.parse.email"/>
+
+    <action formid="submit" valid-form="true"/>
 
 </form>
