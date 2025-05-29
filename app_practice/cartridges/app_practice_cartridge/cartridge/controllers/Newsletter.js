@@ -21,9 +21,14 @@ server.get(
 
         const customer = CustomerMgr.getCustomerByCustomerNumber(req.currentCustomer.profile.customerNo);
         if (customer) {
-            newsletterForm.firstName.value = customer.profile.custom.newsletterFirstName || '';
-            newsletterForm.lastName.value = customer.profile.custom.newsletterLastName || '';
-            newsletterForm.email.value = customer.profile.custom.newsletterEmail || '';
+
+            const newsletterData = {
+                firstName: customer.profile.custom.newsletterFirstName || '',
+                lastName: customer.profile.custom.newsletterLastName || '',
+                email: customer.profile.custom.newsletterEmail || ''
+            };
+            
+            newsletterForm.copyFrom(newsletterData);
         }
 
         res.render('account/newsletterForm', {
@@ -40,24 +45,15 @@ server.get(
 );
 
 server.post('Save', csrfProtection.validateAjaxRequest, function (req, res, next) {
-    const Logger = require('dw/system/Logger');
+
     let newsletterForm;
+    
+    newsletterForm = server.forms.getForm('newsletter');
 
-    try {
-        newsletterForm = server.forms.getForm('newsletter');
-
-        if (!newsletterForm.valid) {
-            res.json({
-                success: false,
-                fields: formErrors.getFormErrors(newsletterForm)
-            });
-            return next();
-        }
-    } catch (e) {
-        Logger.error('Newsletter form processing failed: {0}', e.message);
+    if (!newsletterForm.valid) {
         res.json({
             success: false,
-            msg: 'Unexpected error occurred while saving newsletter.'
+            fields: formErrors.getFormErrors(newsletterForm)
         });
         return next();
     }
