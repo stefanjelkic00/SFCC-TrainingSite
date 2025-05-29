@@ -1,32 +1,28 @@
 'use strict';
+
 (function () {
-    function formValidation($form, data) {
-        if (!data || !data.fields) return;
-
-        $form.find('.is-invalid').removeClass('is-invalid');
-        $form.find('.invalid-feedback').text('');
-
-        Object.keys(data.fields).forEach(function (fieldName) {
-            var field = $form.find('[name="' + fieldName + '"]');
-            var errorEl = field.siblings('.invalid-feedback');
-            field.addClass('is-invalid');
-            errorEl.text(data.fields[fieldName]);
-        });
-
-        const $button = $form.find('button[type="submit"]');
-        $button.removeAttr('disabled');
-    }
     function displayMessage(data, $form) {
-
         const $button = $form.find('button[type="submit"]');
-
         const status = data.success ? 'alert-success' : 'alert-danger';
-
         let emailSignupMsg = document.querySelector('.email-signup-message');
 
+        // Handle field validation errors
+        if (!data.success && data.fields) {
+            $form.find('.is-invalid').removeClass('is-invalid');
+            $form.find('.invalid-feedback').text('');
 
-        if (!data.success && data.fields) return;
+            Object.keys(data.fields).forEach(function (fieldName) {
+                var field = $form.find('[name="' + fieldName + '"]');
+                var errorEl = field.siblings('.invalid-feedback');
+                field.addClass('is-invalid');
+                errorEl.text(data.fields[fieldName]);
+            });
 
+            $button.removeAttr('disabled');
+            return;
+        }
+
+        // Handle general messages
         if (!emailSignupMsg) {
             emailSignupMsg = document.createElement('div');
             emailSignupMsg.className = 'email-signup-message';
@@ -40,22 +36,22 @@
 
         setTimeout(() => {
             emailSignupMsg.remove();
-            $button.removeAttr('disabled'); 
-
+            $button.removeAttr('disabled');
         }, 3000);
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-
         const form = document.querySelector('.newsletter-form');
 
         if (!form) return;
+
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
             const formData = new FormData(form);
             const submitButton = form.querySelector('button[type="submit"]');
             submitButton.disabled = true;
+
             fetch(form.action, {
                 method: form.method,
                 headers: {
@@ -65,11 +61,9 @@
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    formValidation($(form), data);
                     if (data.success && data.redirectUrl) {
                         window.location.href = data.redirectUrl;
-                    } else if (!data.success && !data.fields) {
-
+                    } else {
                         displayMessage(data, $(form));
                     }
                 })
@@ -80,6 +74,3 @@
         });
     });
 })();
-
-
-
