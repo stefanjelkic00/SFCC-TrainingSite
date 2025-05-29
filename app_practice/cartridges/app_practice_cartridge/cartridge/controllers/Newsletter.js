@@ -21,9 +21,13 @@ server.get(
 
         const customer = CustomerMgr.getCustomerByCustomerNumber(req.currentCustomer.profile.customerNo);
         if (customer) {
-            newsletterForm.firstName.value = customer.profile.custom.newsletterFirstName || '';
-            newsletterForm.lastName.value = customer.profile.custom.newsletterLastName || '';
-            newsletterForm.email.value = customer.profile.custom.newsletterEmail || '';
+            const newsletterData = {
+                firstName: customer.profile.custom.newsletterFirstName || '',
+                lastName: customer.profile.custom.newsletterLastName || '',
+                email: customer.profile.custom.newsletterEmail || ''
+            };
+            
+            newsletterForm.copyFrom(newsletterData);
         }
 
         res.render('account/newsletterForm', {
@@ -38,7 +42,6 @@ server.get(
         next();
     }
 );
-
 server.post('Save', csrfProtection.validateAjaxRequest, function (req, res, next) {
 
    let newsletterForm = server.forms.getForm('newsletter');
