@@ -16,19 +16,11 @@ server.get(
     userLoggedIn.validateLoggedIn,
     consentTracking.consent,
     function (req, res, next) {
-        const newsletterForm = server.forms.getForm('newsletter');
-        newsletterForm.clear();
 
-        const customer = CustomerMgr.getCustomerByCustomerNumber(req.currentCustomer.profile.customerNo);
-        if (customer) {
-            const newsletterData = {
-                firstName: customer.profile.custom.newsletterFirstName || '',
-                lastName: customer.profile.custom.newsletterLastName || '',
-                email: customer.profile.custom.newsletterEmail || ''
-            };
-            
-            newsletterForm.copyFrom(newsletterData);
-        }
+        const newsletterForm = server.forms.getForm('newsletter');
+        
+        newsletterForm.clear();
+        newsletterForm.copyFrom(req.currentCustomer.profile || {});
 
         res.render('account/newsletterForm', {
             newsletterForm: newsletterForm,
@@ -42,6 +34,8 @@ server.get(
         next();
     }
 );
+
+
 server.post('Save', csrfProtection.validateAjaxRequest, function (req, res, next) {
 
    let newsletterForm = server.forms.getForm('newsletter');
