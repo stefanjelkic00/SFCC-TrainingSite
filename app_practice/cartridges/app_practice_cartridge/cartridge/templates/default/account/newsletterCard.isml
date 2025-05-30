@@ -1,0 +1,34 @@
+<div class="card">
+    <div class="card-header clearfix">
+        <h2 class="pull-left">Newsletter</h2>
+        <isif condition="${pdict.newsletterEmail || pdict.newsletterFirstName || pdict.newsletterLastName}">
+            <a href="${URLUtils.url('Newsletter-Show')}" class="pull-right" aria-label="Edit Newsletter">
+                Edit
+            </a>
+        <iselse>
+            <a href="${URLUtils.url('Newsletter-Show')}" class="pull-right" aria-label="Add Newsletter">
+                Add Newsletter
+            </a>
+        </isif>
+    </div>
+    <div class="card-body">
+        <isif condition="${pdict.newsletterEmail || pdict.newsletterFirstName || pdict.newsletterLastName}">
+            <div>
+                <dl>
+                    <dt>${Resource.msg('label.profile.firstname','account',null)}</dt>
+                    <dd> ${pdict.newsletterFirstName}</dd>
+                </dl>
+                 <dl>
+                    <dt>${Resource.msg('label.profile.lastname','account',null)}</dt>
+                    <dd>${pdict.newsletterLastName}</dd>
+                 </dl>
+                <dl>
+                    <dt>${Resource.msg('label.profile.email','account',null)}</dt>
+                    <dd>${pdict.newsletterEmail}</dd>
+                </dl>
+            </div>
+        <iselse>
+            <div>No newsletter subscription data.</div>
+        </isif>
+    </div>
+</div>

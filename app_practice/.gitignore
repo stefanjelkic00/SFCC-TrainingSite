@@ -8,7 +8,6 @@ package.json
 *.code-workspace
 
 # SFCC statični i generisani fajlovi
-static/
 *.log
 site_template/static/
 sitedata/**/static/

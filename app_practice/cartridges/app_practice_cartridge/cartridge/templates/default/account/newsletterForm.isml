@@ -1,0 +1,82 @@
+<isdecorate template="common/layout/page">
+    <div class="container">
+        <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
+        <div class="row justify-content-center">
+            <div class="col-sm-8 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Newsletter Subscription</h2>
+                    </div>
+                    <div class="card-body">
+                        <form
+                            action="${URLUtils.url('Newsletter-Save')}"
+                            class="newsletter-form"
+                            method="POST"
+                            <isprint value="${pdict.newsletterForm.attributes}" encoding="off" />>
+                            
+                            <!-- First Name -->
+                            <div class="form-group ${pdict.newsletterForm.firstName.mandatory ? 'required' : ''}">
+                                <label for="firstName">
+                                    ${Resource.msg('label.profile.firstname','account',null)}
+                                </label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="firstName"
+                                       autocomplete="given-name"
+                                       <isprint value="${pdict.newsletterForm.firstName.attributes}" encoding="off" />>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <!-- Last Name -->
+                            <div class="form-group ${pdict.newsletterForm.lastName.mandatory ? 'required' : ''}">
+                                <label for="lastName">
+                                    ${Resource.msg('label.profile.lastname','account',null)}
+                                </label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="lastName"
+                                       autocomplete="family-name"
+                                       <isprint value="${pdict.newsletterForm.lastName.attributes}" encoding="off" />>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group ${pdict.newsletterForm.email.mandatory ? 'required' : ''}">
+                                <label for="email">
+                                    ${Resource.msg('label.profile.email','account',null)}
+                                </label>
+                                <input type="email"
+                                       class="form-control"
+                                       id="email"
+                                       autocomplete="email"
+                                       <isprint value="${pdict.newsletterForm.email.attributes}" encoding="off" />>
+                                <div class="invalid-feedback"></div>
+                            </div>
+
+                            <!-- CSRF -->
+                            <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}" />
+
+                            <!-- Submit Button -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <button type="submit" name="save" class="btn btn-save btn-block btn-primary js-submit-btn">
+                                        ${Resource.msg('Subscribe','forms',null)}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="card-footer text-center">
+                        <a href="${URLUtils.url('Account-Show')}" class="btn btn-link">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>
+
+<!-- JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="${URLUtils.staticURL('/js/newsletterForm.js')}"></script>

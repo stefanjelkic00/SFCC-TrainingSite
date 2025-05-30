@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-04-19"  
+validation="${require('~/cartridge/scripts/forms/validate/newsletterFormCustomValidate').validate(formgroup)}">
+       
+
+    <field formid="firstName" label="label.input.firstname" type="string" mandatory="true"
+        max-length="50"
+        regexp="^[A-Za-z]+$"
+        missing-error="newsletter.firstname.missing"
+        parse-error="newsletter.firstname.invalid"
+        range-error="error.message.50orless"/>
+
+    <field formid="lastName" label="label.input.lastname" type="string" mandatory="true"
+        max-length="50"
+        regexp="^[A-Za-z]+$"
+        missing-error="newsletter.lastname.missing"
+        parse-error="newsletter.lastname.invalid"
+        range-error="error.message.50orless"/>
+
+    <field formid="email" label="label.input.email" type="string" mandatory="true"
+        binding="email" max-length="100"
+        regexp="^[^@\s]+@[^@\s]+\.[^@\s]+$"
+        missing-error="newsletter.email.missing"
+        parse-error="error.message.parse.email"
+        range-error="error.message.100orless"/>
+
+
+    <action formid="submit" valid-form="true"/>
+
+</form>
