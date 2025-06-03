@@ -292,11 +292,15 @@ function updateCustomer(customerData, debugMode) {
             }
             
             if (modifiedData.lastname && profile.lastName !== modifiedData.lastname) {
+                importLogger.info('BEFORE UPDATE: customer ' + customerData.customerNo + ' profile.lastName = "' + profile.lastName + '"');
                 profile.lastName = modifiedData.lastname;
+                importLogger.info('AFTER UPDATE: customer ' + customerData.customerNo + ' profile.lastName = "' + profile.lastName + '"');
                 updated = true;
                 if (debugMode) {
                     importLogger.info('Updated lastName for customer ' + customerData.customerNo + ': ' + customerData.lastname + ' → ' + modifiedData.lastname);
                 }
+            } else {
+                importLogger.warn('LASTNAME NOT UPDATED: customer ' + customerData.customerNo + ' - modifiedData.lastname="' + modifiedData.lastname + '", profile.lastName="' + profile.lastName + '"');
             }
             
             if (modifiedData.email && profile.email !== modifiedData.email) {
