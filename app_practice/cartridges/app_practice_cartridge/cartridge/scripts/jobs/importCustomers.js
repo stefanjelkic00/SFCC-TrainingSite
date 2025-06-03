@@ -23,11 +23,6 @@ function execute(parameters, stepExecution) {
         var filePattern = parameters.FilePattern || 'customer_export_*.xml';
         var postProcessAction = parameters.PostProcessAction || 'archive';
         var archivePath = parameters.ArchivePath || 'src/archive/customers';
-        var debugMode = parameters.DebugMode === 'true';
-        
-        if (debugMode) {
-            importLogger.info('Debug mode enabled - ImpexPath: ' + impexPath + ', FilePattern: ' + filePattern);
-        }
         
         // Find XML files matching pattern
         var xmlFiles = findXMLFiles(impexPath, filePattern);
@@ -49,7 +44,7 @@ function execute(parameters, stepExecution) {
             try {
                 importLogger.info('Processing file ' + (i + 1) + '/' + xmlFiles.length + ': ' + xmlFile.getName());
                 
-                var result = processXMLFile(xmlFile, debugMode);
+                var result = processXMLFile(xmlFile);
                 totalProcessed += result.processed;
                 totalUpdated += result.updated;
                 totalErrors += result.errors;
@@ -127,7 +122,7 @@ function findXMLFiles(impexPath, filePattern) {
     return files;
 }
 
-function processXMLFile(xmlFile, debugMode) {
+function processXMLFile(xmlFile) {
     var fileReader = null;
     var xmlReader = null;
     
@@ -154,9 +149,6 @@ function processXMLFile(xmlFile, debugMode) {
                 
                 if (elementName === 'customers') {
                     inCustomersElement = true;
-                    if (debugMode) {
-                        importLogger.info('Started parsing customers XML');
-                    }
                 } else if (elementName === 'customer' && inCustomersElement) {
                     inCustomerElement = true;
                     currentCustomerData = {
@@ -178,7 +170,7 @@ function processXMLFile(xmlFile, debugMode) {
                     // ALWAYS LOG CUSTOMER PROCESSING - regardless of debug mode
                     importLogger.info('PROCESSING CUSTOMER: ' + currentCustomerData.customerNo + ' with data: ' + JSON.stringify(currentCustomerData));
                     
-                    var updateResult = updateCustomer(currentCustomerData, debugMode);
+                    var updateResult = updateCustomer(currentCustomerData);
                     if (updateResult.success) {
                         result.updated++;
                         importLogger.info('SUCCESS: Updated customer ' + currentCustomerData.customerNo);
@@ -227,7 +219,7 @@ function readElementText(xmlReader) {
     return '';
 }
 
-function applyDataTransformations(customerData, debugMode) {
+function applyDataTransformations(customerData) {
     var modifiedData = {};
     
     // Create copy of customer data
@@ -252,15 +244,10 @@ function applyDataTransformations(customerData, debugMode) {
         importLogger.warn('NO LASTNAME: Customer ' + customerData.customerNo + ' has no lastname field');
     }
     
-    if (debugMode) {
-        importLogger.info('Data transformation applied for customer ' + customerData.customerNo + ':');
-        importLogger.info('  lastName: ' + customerData.lastname + ' → ' + modifiedData.lastname);
-    }
-    
     return modifiedData;
 }
 
-function updateCustomer(customerData, debugMode) {
+function updateCustomer(customerData) {
     try {
         if (!customerData.customerNo) {
             return { success: false, error: 'Missing customer number' };
@@ -277,7 +264,7 @@ function updateCustomer(customerData, debugMode) {
         }
         
         // APPLY AUTOMATIC DATA TRANSFORMATIONS
-        var modifiedData = applyDataTransformations(customerData, debugMode);
+        var modifiedData = applyDataTransformations(customerData);
         
         var updated = false;
         
@@ -286,9 +273,6 @@ function updateCustomer(customerData, debugMode) {
             if (modifiedData.firstname && profile.firstName !== modifiedData.firstname) {
                 profile.firstName = modifiedData.firstname;
                 updated = true;
-                if (debugMode) {
-                    importLogger.info('Updated firstName for customer ' + customerData.customerNo);
-                }
             }
             
             if (modifiedData.lastname && profile.lastName !== modifiedData.lastname) {
@@ -296,9 +280,6 @@ function updateCustomer(customerData, debugMode) {
                 profile.lastName = modifiedData.lastname;
                 importLogger.info('AFTER UPDATE: customer ' + customerData.customerNo + ' profile.lastName = "' + profile.lastName + '"');
                 updated = true;
-                if (debugMode) {
-                    importLogger.info('Updated lastName for customer ' + customerData.customerNo + ': ' + customerData.lastname + ' → ' + modifiedData.lastname);
-                }
             } else {
                 importLogger.warn('LASTNAME NOT UPDATED: customer ' + customerData.customerNo + ' - modifiedData.lastname="' + modifiedData.lastname + '", profile.lastName="' + profile.lastName + '"');
             }
@@ -306,9 +287,6 @@ function updateCustomer(customerData, debugMode) {
             if (modifiedData.email && profile.email !== modifiedData.email) {
                 profile.email = modifiedData.email;
                 updated = true;
-                if (debugMode) {
-                    importLogger.info('Updated email for customer ' + customerData.customerNo);
-                }
             }
             
             // Update custom attributes
@@ -319,18 +297,12 @@ function updateCustomer(customerData, debugMode) {
                     // Reset export flag when subscription changes (as per Task 5 requirement)
                     profile.custom.isExported = false;
                     updated = true;
-                    if (debugMode) {
-                        importLogger.info('Updated newsletter subscription for customer ' + customerData.customerNo);
-                    }
                 }
             }
             
             if (modifiedData['newsletter-email'] && profile.custom.newsletterEmail !== modifiedData['newsletter-email']) {
                 profile.custom.newsletterEmail = modifiedData['newsletter-email'];
                 updated = true;
-                if (debugMode) {
-                    importLogger.info('Updated newsletter email for customer ' + customerData.customerNo);
-                }
             }
             
             // Add import timestamp to track when customer was last imported
