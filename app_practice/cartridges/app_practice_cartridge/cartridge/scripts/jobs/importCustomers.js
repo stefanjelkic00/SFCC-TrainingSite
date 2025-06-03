@@ -25,6 +25,7 @@ function execute(parameters, stepExecution) {
         const archivePath = parameters.ArchivePath || 'src/archive/customers';
         
         const xmlFiles = findXMLFiles(impexPath, filePattern);
+        importLogger.info('Found ' + xmlFiles.length + ' XML files matching pattern: ' + filePattern);
         
         if (xmlFiles.length === 0) {
             return new Status(Status.OK, 'NO_FILES_FOUND', 'No XML files found for import');
@@ -105,6 +106,7 @@ function findXMLFiles(impexPath, filePattern) {
         for (let i = 0; i < allFiles.length; i++) {
             const file = allFiles[i];
             if (file.isFile() && regex.test(file.getName())) {
+                importLogger.info('Found matching file: ' + file.getName() + ' (full path: ' + file.getFullPath() + ')');
                 files.push(file);
             }
         }
