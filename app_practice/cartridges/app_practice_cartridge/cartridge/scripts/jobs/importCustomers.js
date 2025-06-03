@@ -4,38 +4,38 @@
  */
 'use strict';
 
-var Logger = require('dw/system/Logger');
-var Status = require('dw/system/Status');
-var CustomerMgr = require('dw/customer/CustomerMgr');
-var File = require('dw/io/File');
-var FileReader = require('dw/io/FileReader');
-var XMLStreamReader = require('dw/io/XMLStreamReader');
-var Transaction = require('dw/system/Transaction');
-var FileSystemHelper = require('~/cartridge/scripts/helpers/impexHelpers');
+const Logger = require('dw/system/Logger');
+const Status = require('dw/system/Status');
+const CustomerMgr = require('dw/customer/CustomerMgr');
+const File = require('dw/io/File');
+const FileReader = require('dw/io/FileReader');
+const XMLStreamReader = require('dw/io/XMLStreamReader');
+const Transaction = require('dw/system/Transaction');
+const FileSystemHelper = require('~/cartridge/scripts/helpers/impexHelpers');
 
-var importLogger = Logger.getLogger('CustomerImport', 'CustomerImport');
+const importLogger = Logger.getLogger('CustomerImport', 'CustomerImport');
 
 function execute(parameters, stepExecution) {
     try {
         importLogger.info('Customer import started');
         
-        var impexPath = parameters.ImpexPath || 'src/export/customers';
-        var filePattern = parameters.FilePattern || 'customer_export_*.xml';
-        var postProcessAction = parameters.PostProcessAction || 'archive';
-        var archivePath = parameters.ArchivePath || 'src/archive/customers';
+        const impexPath = parameters.ImpexPath || 'src/export/customers';
+        const filePattern = parameters.FilePattern || 'customer_export_*.xml';
+        const postProcessAction = parameters.PostProcessAction || 'archive';
+        const archivePath = parameters.ArchivePath || 'src/archive/customers';
         
         // Find XML files matching pattern
-        var xmlFiles = findXMLFiles(impexPath, filePattern);
+        const xmlFiles = findXMLFiles(impexPath, filePattern);
         
         if (xmlFiles.length === 0) {
             importLogger.info('No XML files found matching pattern: ' + filePattern);
             return new Status(Status.OK, 'NO_FILES_FOUND', 'No XML files found for import');
         }
         
-        var totalProcessed = 0;
-        var totalUpdated = 0;
-        var totalErrors = 0;
-        var warnings = [];
+        let totalProcessed = 0;
+        let totalUpdated = 0;
+        let totalErrors = 0;
+        let warnings = [];
         
         // Process each XML file
         for (var i = 0; i < xmlFiles.length; i++) {
@@ -44,7 +44,7 @@ function execute(parameters, stepExecution) {
             try {
                 importLogger.info('Processing file ' + (i + 1) + '/' + xmlFiles.length + ': ' + xmlFile.getName());
                 
-                var result = processXMLFile(xmlFile);
+                const result = processXMLFile(xmlFile);
                 totalProcessed += result.processed;
                 totalUpdated += result.updated;
                 totalErrors += result.errors;
@@ -55,7 +55,7 @@ function execute(parameters, stepExecution) {
                 
                 // Post-process file after successful processing
                 if (result.processed > 0) {
-                    var postProcessResult = postProcessFile(xmlFile, postProcessAction, archivePath);
+                    const postProcessResult = postProcessFile(xmlFile, postProcessAction, archivePath);
                     if (!postProcessResult.success) {
                         warnings.push('Failed to ' + postProcessAction + ' file ' + xmlFile.getName() + ': ' + postProcessResult.error);
                     }
@@ -68,7 +68,7 @@ function execute(parameters, stepExecution) {
             }
         }
         
-        var message = 'Processed ' + xmlFiles.length + ' files, updated ' + totalUpdated + ' customers, ' + totalErrors + ' errors';
+        const message = 'Processed ' + xmlFiles.length + ' files, updated ' + totalUpdated + ' customers, ' + totalErrors + ' errors';
         importLogger.info('Import completed: ' + message);
         
         if (totalErrors > 0 || warnings.length > 0) {
