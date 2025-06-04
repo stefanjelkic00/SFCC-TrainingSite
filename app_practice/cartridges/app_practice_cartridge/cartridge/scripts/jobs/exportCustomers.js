@@ -1,7 +1,3 @@
-/**
- * Customer Export Job - Exports non-exported customers and tracks subscription changes
- * Path: app_practice_cartridge/cartridge/scripts/jobs/exportCustomers.js
- */
 'use strict';
 
 const Logger = require('dw/system/Logger');
@@ -13,174 +9,116 @@ const XMLStreamWriter = require('dw/io/XMLStreamWriter');
 const Transaction = require('dw/system/Transaction');
 const FileSystemHelper = require('~/cartridge/scripts/helpers/fileSystemHelpers');
 
-const exportLogger = Logger.getLogger('CustomerExport', 'CustomerExport');
-
 function execute(parameters, stepExecution) {
-    try {
-        exportLogger.info('Customer export started');
-        
-        const impexPath = parameters.ImpexPath || 'customers';
-        const fileName = parameters.FileName || 'customer_export';
-        
-        const exportDirectory = FileSystemHelper.ensureImpexPath(impexPath);
-        if (!exportDirectory) {
-            throw new Error(`Failed to create export directory: ${impexPath}`);
-        }
-        
-        const customersFound = getCustomersCount();
-        
-        if (customersFound === 0) {
-            exportLogger.info('No customers found for export');
-            return new Status(Status.OK, 'NO_EXPORT_NEEDED', 'No customers require export');
-        }
-        
-        // Add timestamp to filename according to company standard
-        const timestamp = new Date().getTime();
-        const fullFileName = `${fileName}_${timestamp}.xml`;
-        const xmlFilePath = `${exportDirectory.getFullPath()}${File.SEPARATOR}${fullFileName}`;
-        
-        const exportedCount = exportCustomersStreaming(xmlFilePath);
-        
-        exportLogger.info(`Export completed: ${exportedCount} customers exported`);
-        return new Status(Status.OK, 'EXPORT_SUCCESS', 
-            `Successfully exported ${exportedCount} customers to ${fullFileName}`);
-        
-    } catch (error) {
-        exportLogger.error(`Customer export failed: ${error.message}`);
-        return new Status(Status.ERROR, 'EXPORT_FAILED', error.message);
-    }
-}
-
-function getCustomersCount() {
-    let customerIterator = null;
-    let count = 0;
+    const impexPath = parameters.ImpexPath || 'customers';
+    const fileNamePattern = parameters.FileName || 'customer_export_{TIMESTAMP}.xml';
+    const exportDirectory = FileSystemHelper.ensureImpexPath(impexPath);
     
-    try {
-        const query = 'custom.isExported != {0} OR custom.isExported = {1}';
-        customerIterator = CustomerMgr.searchProfiles(query, 'lastModified asc', [true, null]);
-        
-        while (customerIterator.hasNext() && count < 10000) {
-            customerIterator.next();
-            count++;
-        }
-        
-    } finally {
-        if (customerIterator) {
-            customerIterator.close();
-        }
-    }
+    if (!exportDirectory) return new Status(Status.ERROR, 'EXPORT_FAILED', 'Failed to create export directory: ' + impexPath);
     
-    return count;
+    const timestamp = new Date().getTime();
+    const fullFileName = fileNamePattern.replace('{TIMESTAMP}', timestamp);
+    const xmlFilePath = exportDirectory.getFullPath() + File.SEPARATOR + fullFileName;
+    const exportedCount = exportCustomersStreaming(xmlFilePath);
+    
+    if (exportedCount === 0) return new Status(Status.OK, 'NO_EXPORT_NEEDED', 'No customers require export');
+    
+    return new Status(Status.OK, 'EXPORT_SUCCESS', 'Successfully exported ' + exportedCount + ' customers to ' + fullFileName);
 }
 
 function exportCustomersStreaming(xmlFilePath) {
-    let file = null;
-    let fileWriter = null;
-    let xmlWriter = null;
-    let customerIterator = null;
+    const file = new File(xmlFilePath);
+    const fileWriter = new FileWriter(file, 'UTF-8');
+    const xmlWriter = new XMLStreamWriter(fileWriter);
+    const query = 'custom.isExported != {0} OR custom.isExported = {1}';
+    const customerIterator = CustomerMgr.searchProfiles(query, 'lastModified asc', [true, null]);
+    let count = 0;
     let exportedCount = 0;
     
-    try {
-        // Setup XML writer
-        file = new File(xmlFilePath);
-        fileWriter = new FileWriter(file, 'UTF-8');
-        xmlWriter = new XMLStreamWriter(fileWriter);
-        
-        xmlWriter.writeStartDocument('UTF-8', '1.0');
-        xmlWriter.writeStartElement('customers');
-        
-        // ADD TIMESTAMP ATTRIBUTE TO ROOT ELEMENT
-        const exportTimestamp = new Date();
-        xmlWriter.writeAttribute('exportTimestamp', exportTimestamp.toISOString());
-        
-        // Setup customer iterator
-        const query = 'custom.isExported != {0} OR custom.isExported = {1}';
-        customerIterator = CustomerMgr.searchProfiles(query, 'lastModified asc', [true, null]);
-        
-        let count = 0;
-        while (customerIterator.hasNext() && count < 10000) {
-            const profile = customerIterator.next();
-            count++;
-            
-            const customerData = extractCustomerData(profile);
-            
-            // Write to XML
-            xmlWriter.writeStartElement('customer');
-            xmlWriter.writeAttribute('no', customerData.customerNo);
-            
-            writeCustomerXML(xmlWriter, customerData);
-            xmlWriter.writeEndElement(); // customer
-            
-            // Mark as exported immediately
-            markSingleCustomerAsExported(profile);
-            
-            exportedCount++;
-        }
-        
-        xmlWriter.writeEndElement(); // customers
-        xmlWriter.writeEndDocument();
-        
-        return exportedCount;
-        
-    } catch (error) {
-        exportLogger.error(`Error during streaming export: ${error.message}`);
-        throw error;
-    } finally {
-        if (customerIterator) {
-            customerIterator.close();
-        }
-        if (xmlWriter) {
-            xmlWriter.close();
-        }
-        if (fileWriter) {
-            fileWriter.close();
-        }
-    }
-}
-
-function extractCustomerData(profile) {
-    return {
-        customerNo: profile.customerNo,
-        email: profile.email,
-        firstName: profile.firstName,
-        lastName: profile.lastName,
-        newsletterSubscribed: profile.custom.newsletterSubscribed || false,
-        newsletterEmail: profile.custom.newsletterEmail || profile.email,
-        isExported: profile.custom.isExported || false
-    };
-}
-
-function markSingleCustomerAsExported(profile) {
-    try {
-        Transaction.wrap(() => {
-            profile.custom.isExported = true;
-        });
-    } catch (error) {
-        exportLogger.error(`Error marking customer ${profile.customerNo}: ${error.message}`);
-    }
-}
-
-function writeCustomerXML(xmlWriter, customerData) {
-    const fields = {
-        'firstname': customerData.firstName,
-        'lastname': customerData.lastName,
-        'email': customerData.email,
-        'newsletter-subscribed': customerData.newsletterSubscribed.toString(),
-        'newsletter-email': customerData.newsletterEmail
-    };
+    xmlWriter.writeStartDocument('UTF-8', '1.0');
+    xmlWriter.writeStartElement('customers');
     
-    Object.entries(fields).forEach(([tag, value]) => {
-        if (value) {
-            writeXMLElement(xmlWriter, tag, value);
+    while (customerIterator.hasNext()) {
+        const profile = customerIterator.next();
+        
+        xmlWriter.writeStartElement('customer');
+        xmlWriter.writeAttribute('no', profile.customerNo);
+        writeCustomerXML(xmlWriter, profile);
+        xmlWriter.writeEndElement();
+        
+        Transaction.wrap(function() { 
+            profile.custom.isExported = true; 
+        });
+        count++;
+        exportedCount++;
+    }
+    
+    xmlWriter.writeEndElement();
+    xmlWriter.writeEndDocument();
+    
+    customerIterator && customerIterator.close();
+    xmlWriter && xmlWriter.close();
+    fileWriter && fileWriter.close();
+    
+    return exportedCount;
+}
+
+function extractCustomerAddresses(profile) {
+    const customerAddresses = profile.getAddressBook().getAddresses();
+    const addresses = [];
+    
+    for (let i = 0; i < customerAddresses.length; i++) {
+        const addr = customerAddresses[i];
+        addresses.push({
+            id: addr.getID(),
+            address1: addr.getAddress1() || '',
+            address2: addr.getAddress2() || '',
+            city: addr.getCity() || '',
+            houseNr: addr.custom.houseNr || ''
+        });
+    }
+    
+    return addresses;
+}
+
+function writeCustomerXML(xmlWriter, profile) {
+    const fields = [
+        ['firstname', profile.firstName],
+        ['lastname', profile.lastName], 
+        ['email', profile.email],
+        ['newsletter-subscribed', (profile.custom.newsletterSubscribed || false).toString()],
+        ['newsletter-email', profile.custom.newsletterEmail || profile.email]
+    ];
+    
+    for (let i = 0; i < fields.length; i++) {
+        const [fieldName, value] = fields[i];
+        value && writeXMLElement(xmlWriter, fieldName, value);
+    }
+    
+    const addresses = extractCustomerAddresses(profile);
+    if (addresses && addresses.length > 0) {
+        xmlWriter.writeStartElement('addresses');
+        
+        for (let i = 0; i < addresses.length; i++) {
+            const address = addresses[i];
+            xmlWriter.writeStartElement('address');
+            xmlWriter.writeAttribute('id', address.id);
+            
+            writeXMLElement(xmlWriter, 'address1', address.address1);
+            writeXMLElement(xmlWriter, 'address2', address.address2);
+            writeXMLElement(xmlWriter, 'city', address.city);
+            writeXMLElement(xmlWriter, 'house-nr', address.houseNr);
+            
+            xmlWriter.writeEndElement();
         }
-    });
+        
+        xmlWriter.writeEndElement();
+    }
 }
 
 function writeXMLElement(xmlWriter, elementName, value) {
     xmlWriter.writeStartElement(elementName);
-    if (value !== null && value !== undefined && value !== '') {
-        xmlWriter.writeCharacters(value.toString());
-    }
+    value && xmlWriter.writeCharacters(value.toString());
     xmlWriter.writeEndElement();
 }
 

@@ -59,90 +59,40 @@ function processXMLFile(xmlFile) {
     fileReader.close();
 }
 
-// function updateCustomer(customerXML) {
-//     let customerNo = customerXML.@no.toString();
-//     let customer = customerNo && CustomerMgr.getCustomerByCustomerNumber(customerNo);
-//     let profile = customer && customer.getProfile();
-    
-//     if (profile && customerXML.lastname) {
-//         let newLastName = customerXML.lastname.toString().replace(/-(?:IMPORTED.*|CHANGED.*|I)$/, '') + '-I';
-        
-//         if (profile.lastName !== newLastName) {
-//             Transaction.wrap(() => profile.lastName = newLastName);
-//         }
-//     }
-// }
 
-
-
-// function updateCustomer(customerXML) {
-//     let customerNo = customerXML.@no.toString();
-//     let customer = customerNo && CustomerMgr.getCustomerByCustomerNumber(customerNo);
-//     let profile = customer && customer.getProfile();
+function updateCustomer(customerXML) {
+    let customerNo = customerXML.@no.toString();
+    let customer = customerNo && CustomerMgr.getCustomerByCustomerNumber(customerNo);
+    let profile = customer && customer.getProfile();
     
-//     // Postojeći lastName update
-//     if (profile && customerXML.lastname) {
-//         let newLastName = customerXML.lastname.toString().replace(/-(?:IMPORTED.*|CHANGED.*|I)$/, '') + '-I';
-        
-//         if (profile.lastName !== newLastName) {
-//             Transaction.wrap(() => profile.lastName = newLastName);
-//         }
-//     }
+    if (profile && customerXML.lastname) {
+        let newLastName = customerXML.lastname.toString().replace(/-(?:IMPORTED.*|CHANGED.*|I)$/, '') + '-I';
+        profile.lastName !== newLastName && Transaction.wrap(() => profile.lastName = newLastName);
+    }
     
-//     // DODATI: Address handling
-//     if (customer && customerXML.addresses) {
-//         handleCustomerAddresses(customer, customerXML.addresses);
-//     }
-// }
+    customer && customerXML.addresses && handleCustomerAddresses(customer, customerXML.addresses);
+}
 
-// function handleCustomerAddresses(customer, addressesXML) {
-//     let addressBook = customer.getProfile().getAddressBook();
+function handleCustomerAddresses(customer, addressesXML) {
+    let addresses = addressesXML.address;
+    if (!addresses) return;
     
-//     // Umesto for each, probajte obična iteracija
-//     let addresses = addressesXML.address;
-//     if (!addresses.length) {
-//         addresses = [addresses]; // ako je jedna adresa
-//     }
+    let addressBook = customer.getProfile().getAddressBook();
+    addresses = addresses.length ? addresses : [addresses];
     
-//     for (let i = 0; i < addresses.length; i++) {
-//         let addressXML = addresses[i];
-//         let addressId = addressXML.@addressId.toString();
-        
-//         importLogger.info('Processing address: ' + addressId); // debug
-        
-//         let existingAddress = addressBook.getAddress(addressId);
-        
-//         if (existingAddress) {
-//             Transaction.wrap(() => updateExistingAddress(existingAddress, addressXML));
-//         } else {
-//             Transaction.wrap(() => createNewAddress(addressBook, addressId, addressXML));
-//         }
-//     }
-// }
+    for each (let addressXML in addresses) {
+        let addressId = addressXML.@id.toString();
+        let address = addressBook.getAddress(addressId) || addressBook.createAddress(addressId);
+        Transaction.wrap(() => updateAddressFields(address, addressXML));
+    }
+}
 
-// function updateExistingAddress(address, addressXML) {
-//     if (addressXML.firstName) address.setFirstName(addressXML.firstName.toString());
-//     if (addressXML.lastName) address.setLastName(addressXML.lastName.toString());
-//     if (addressXML.address1) address.setAddress1(addressXML.address1.toString());
-//     if (addressXML.city) address.setCity(addressXML.city.toString());
-//     if (addressXML.postalCode) address.setPostalCode(addressXML.postalCode.toString());
-//     if (addressXML.countryCode) address.setCountryCode(addressXML.countryCode.toString());
-//     if (addressXML.stateCode) address.setStateCode(addressXML.stateCode.toString());
-//     if (addressXML.phone) address.setPhone(addressXML.phone.toString());
-// }
-
-// function createNewAddress(addressBook, addressId, addressXML) {
-//     let newAddress = addressBook.createAddress(addressId);
-    
-//     if (addressXML.firstName) newAddress.setFirstName(addressXML.firstName.toString());
-//     if (addressXML.lastName) newAddress.setLastName(addressXML.lastName.toString());
-//     if (addressXML.address1) newAddress.setAddress1(addressXML.address1.toString());
-//     if (addressXML.city) newAddress.setCity(addressXML.city.toString());
-//     if (addressXML.postalCode) newAddress.setPostalCode(addressXML.postalCode.toString());
-//     if (addressXML.countryCode) newAddress.setCountryCode(addressXML.countryCode.toString());
-//     if (addressXML.stateCode) newAddress.setStateCode(addressXML.stateCode.toString());
-//     if (addressXML.phone) newAddress.setPhone(addressXML.phone.toString());
-// }
+function updateAddressFields(address, addressXML) {
+    if (addressXML.address1) address.setAddress1(addressXML.address1.toString());
+    if (addressXML.address2) address.setAddress2(addressXML.address2.toString());
+    if (addressXML.city) address.setCity(addressXML.city.toString());
+    if (addressXML['house-nr']) address.custom.houseNr = addressXML['house-nr'].toString();
+}
 
 
 exports.execute = execute;
