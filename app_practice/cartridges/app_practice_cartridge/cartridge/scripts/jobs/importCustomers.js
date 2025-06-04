@@ -1,7 +1,3 @@
-/**
- * Customer Import Job - Imports customers from XML files and updates customer data
- * Path: app_practice_cartridge/cartridge/scripts/jobs/importCustomers.js
- */
 'use strict';
 
 const Logger = require('dw/system/Logger');
@@ -11,332 +7,142 @@ const File = require('dw/io/File');
 const FileReader = require('dw/io/FileReader');
 const XMLStreamReader = require('dw/io/XMLStreamReader');
 const Transaction = require('dw/system/Transaction');
-const FileSystemHelper = require('~/cartridge/scripts/helpers/impexHelpers');
+const FileSystemHelper = require('~/cartridge/scripts/helpers/fileSystemHelpers');
 
 const importLogger = Logger.getLogger('CustomerImport', 'CustomerImport');
 
 function execute(parameters, stepExecution) {
-    try {
-        importLogger.info('Customer import started');
-        
-        const impexPath = parameters.ImpexPath || 'src/export/customers';
-        const filePattern = parameters.FilePattern || 'customer_export_*.xml';
-        const postProcessAction = parameters.PostProcessAction || 'archive';
-        const archivePath = parameters.ArchivePath || 'src/archive/customers';
-        
-        const xmlFiles = findXMLFiles(impexPath, filePattern);
-        
-        if (xmlFiles.length === 0) {
-            importLogger.info('No XML files found matching pattern: ' + filePattern);
-            return new Status(Status.OK, 'NO_FILES_FOUND', 'No XML files found for import');
-        }
-        
-        let totalProcessed = 0;
-        let totalUpdated = 0;
-        let totalErrors = 0;
-        let warnings = [];
-        
-        // KRITIČNO: Mora ostati var za for loop zbog DW scoping
-        for (var i = 0; i < xmlFiles.length; i++) {
-            var xmlFile = xmlFiles[i];
-            
-            try {
-                importLogger.info('Processing file ' + (i + 1) + '/' + xmlFiles.length + ': ' + xmlFile.getName());
-                
-        const result = processXMLFile(xmlFile);
-                totalProcessed += result.processed;
-                totalUpdated += result.updated;
-                totalErrors += result.errors;
-                
-                if (result.warnings.length > 0) {
-                    warnings = warnings.concat(result.warnings);
-                }
-                
-                if (result.processed > 0) {
-                    try {
-                        postProcessFile(xmlFile, postProcessAction, archivePath);
-                    } catch (error) {
-                        warnings.push('Failed to ' + postProcessAction + ' file ' + xmlFile.getName() + ': ' + error.message);
-                    }
-                }
-                
-            } catch (error) {
-                importLogger.error('Error processing file ' + xmlFile.getName() + ': ' + error.message);
-                totalErrors++;
-                warnings.push('Failed to process file ' + xmlFile.getName() + ': ' + error.message);
-            }
-        }
-        
-        const message = 'Processed ' + xmlFiles.length + ' files, updated ' + totalUpdated + ' customers, ' + totalErrors + ' errors';
-        importLogger.info('Import completed: ' + message);
-        
-        if (totalErrors > 0 || warnings.length > 0) {
-            return new Status(Status.ERROR, 'IMPORT_WITH_WARNINGS', 
-                message + '. Warnings: ' + warnings.join('; '));
-        }
-        
-        return new Status(Status.OK, 'IMPORT_SUCCESS', message);
-        
-    } catch (error) {
-        importLogger.error('Customer import failed: ' + error.message);
-        return new Status(Status.ERROR, 'IMPORT_FAILED', error.message);
-    }
-}
-
-function findXMLFiles(impexPath, filePattern) {
-    let files = [];
+    const impexPath = parameters.ImpexPath || 'src/export/customers';
+    const filePattern = parameters.FilePattern || 'customer_export_*.xml';
+    const postProcessAction = parameters.PostProcessAction || 'archive';
+    const archiveSubfolder = parameters.ArchiveSubfolder || 'archive';
     
-    try {
-        var directory = new File(File.IMPEX + File.SEPARATOR + impexPath);
-        
-        if (!directory.exists() || !directory.isDirectory()) {
-            importLogger.warn('IMPEX directory does not exist: ' + directory.getFullPath());
-            return files;
-        }
-        
-        const allFiles = directory.listFiles();
-        if (!allFiles) {
-            return files;
-        }
-        
-        const regexPattern = filePattern
-            .replace(/\./g, '\\.')
-            .replace(/\*/g, '.*');
-        
-        const regex = new RegExp('^' + regexPattern + '$');
-        
-        // KRITIČNO: Mora ostati var za for loop zbog DW file handling
-        for (var i = 0; i < allFiles.length; i++) {
-            var file = allFiles[i];
-            if (file.isFile() && regex.test(file.getName())) {
-                files.push(file);
-                importLogger.info('Found matching file: ' + file.getName());
-            }
-        }
-        
-    } catch (error) {
-        importLogger.error('Error finding XML files: ' + error.message);
+    let directory = new File(File.IMPEX + File.SEPARATOR + impexPath);
+    const allFiles = directory.listFiles();
+    
+    if (!directory.exists() || !directory.isDirectory() || !allFiles) {
+        importLogger.warn('IMPEX directory does not exist or is empty: ' + directory.getFullPath());
+        return new Status(Status.OK, 'NO_FILES_FOUND', 'No XML files found for import');
     }
     
-    return files;
+    const regex = new RegExp('^' + filePattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+    let filesProcessed = 0;
+    
+    for (let i = 0; i < allFiles.length; i++) {
+        let file = allFiles[i];
+        if (file.isFile() && regex.test(file.getName())) {
+            filesProcessed++;
+            processXMLFile(file);
+            FileSystemHelper.postProcessFile(file, postProcessAction, impexPath, archiveSubfolder);
+        }
+    }
+    
+    const message = filesProcessed === 0 ? 
+        'No XML files found matching pattern: ' + filePattern : 
+        'Processed ' + filesProcessed + ' files';
+    
+    return new Status(Status.OK, filesProcessed === 0 ? 'NO_FILES_FOUND' : 'IMPORT_SUCCESS', message);
 }
 
 function processXMLFile(xmlFile) {
-    var fileReader = null;
-    var xmlReader = null;
+    let fileReader = new FileReader(xmlFile, 'UTF-8');
+    let xmlReader = new XMLStreamReader(fileReader);
     
-    const result = {
-        processed: 0,
-        updated: 0,
-        errors: 0,
-        warnings: []
-    };
-    
-    try {
-        fileReader = new FileReader(xmlFile, 'UTF-8');
-        xmlReader = new XMLStreamReader(fileReader);
-        
-        let inCustomersElement = false;
-        let inCustomerElement = false;
-        let currentCustomerData = {};
-        
-        while (xmlReader.hasNext()) {
-            var event = xmlReader.next();
-            
-            if (event === 1) {
-                var elementName = xmlReader.getLocalName();
-                
-                if (elementName === 'customers') {
-                    inCustomersElement = true;
-                } else if (elementName === 'customer' && inCustomersElement) {
-                    inCustomerElement = true;
-                    currentCustomerData = {
-                        customerNo: xmlReader.getAttributeValue(null, 'no')
-                    };
-                } else if (inCustomerElement) {
-                    var elementValue = readElementText(xmlReader);
-                    currentCustomerData[elementName] = elementValue;
-                }
-                
-            } else if (event === 2) {
-                var elementName = xmlReader.getLocalName();
-                
-                if (elementName === 'customer' && inCustomerElement) {
-                    result.processed++;
-                    
-                    try {
-                        var updated = updateCustomer(currentCustomerData);
-                        if (updated) {
-                            result.updated++;
-                        }
-                    } catch (error) {
-                        result.errors++;
-                        result.warnings.push('Customer ' + currentCustomerData.customerNo + ': ' + error.message);
-                        importLogger.error('Customer ' + currentCustomerData.customerNo + ' failed: ' + error.message);
-                    }
-                    
-                    inCustomerElement = false;
-                    currentCustomerData = {};
-                    
-                } else if (elementName === 'customers') {
-                    inCustomersElement = false;
-                }
-            }
-        }
-        
-    } catch (error) {
-        importLogger.error('Error parsing XML file ' + xmlFile.getName() + ': ' + error.message);
-        result.errors++;
-        result.warnings.push('XML parsing error: ' + error.message);
-    } finally {
-        if (xmlReader) {
-            xmlReader.close();
-        }
-        if (fileReader) {
-            fileReader.close();
+    while (xmlReader.hasNext()) {
+        if (xmlReader.next() == 1 && xmlReader.getLocalName() === 'customer') {
+            let customerXML = xmlReader.getXMLObject();
+            updateCustomer(customerXML);
         }
     }
     
-    return result;
+    xmlReader.close();
+    fileReader.close();
 }
 
-function readElementText(xmlReader) {
-    try {
-        if (xmlReader.hasNext()) {
-            var event = xmlReader.next();
-            if (event === 4) {
-                return xmlReader.getText();
-            }
-        }
-    } catch (error) {
-        importLogger.warn('Error reading element text: ' + error.message);
-    }
-    return '';
-}
+// function updateCustomer(customerXML) {
+//     let customerNo = customerXML.@no.toString();
+//     let customer = customerNo && CustomerMgr.getCustomerByCustomerNumber(customerNo);
+//     let profile = customer && customer.getProfile();
+    
+//     if (profile && customerXML.lastname) {
+//         let newLastName = customerXML.lastname.toString().replace(/-(?:IMPORTED.*|CHANGED.*|I)$/, '') + '-I';
+        
+//         if (profile.lastName !== newLastName) {
+//             Transaction.wrap(() => profile.lastName = newLastName);
+//         }
+//     }
+// }
 
-function applyDataTransformations(customerData) {
-    const modifiedData = Object.assign({}, customerData);
-    const timestamp = new Date().getTime();
-    
-    if (modifiedData.lastname) {
-        const cleanLastName = modifiedData.lastname.replace(/-IMPORTED.*$/, '').replace(/-CHANGED.*$/, '');
-        modifiedData.lastname = cleanLastName + '-IMPORTED-' + timestamp;
-    } else {
-        importLogger.warn('Customer ' + customerData.customerNo + ' has no lastname field');
-    }
-    
-    return modifiedData;
-}
 
-function updateCustomer(customerData) {
-    if (!customerData.customerNo) {
-        throw new Error('Missing customer number');
-    }
-    
-    var customer = CustomerMgr.getCustomerByCustomerNumber(customerData.customerNo);
-    if (!customer) {
-        throw new Error('Customer not found');
-    }
-    
-    var profile = customer.getProfile();
-    if (!profile) {
-        throw new Error('Customer profile not found');
-    }
-    
-        const modifiedData = applyDataTransformations(customerData);
-    let updated = false;
-    
-    Transaction.wrap(function() {
-        if (modifiedData.firstname && profile.firstName !== modifiedData.firstname) {
-            profile.firstName = modifiedData.firstname;
-            updated = true;
-        }
-        
-        if (modifiedData.lastname && profile.lastName !== modifiedData.lastname) {
-            profile.lastName = modifiedData.lastname;
-            updated = true;
-        }
-        
-        if (modifiedData.email && profile.email !== modifiedData.email) {
-            profile.email = modifiedData.email;
-            updated = true;
-        }
-        
-        if (modifiedData['newsletter-subscribed']) {
-            const newsletterSubscribed = modifiedData['newsletter-subscribed'] === 'true';
-            if (profile.custom.newsletterSubscribed !== newsletterSubscribed) {
-                profile.custom.newsletterSubscribed = newsletterSubscribed;
-                profile.custom.isExported = false;
-                updated = true;
-            }
-        }
-        
-        if (modifiedData['newsletter-email'] && profile.custom.newsletterEmail !== modifiedData['newsletter-email']) {
-            profile.custom.newsletterEmail = modifiedData['newsletter-email'];
-            updated = true;
-        }
-    });
-    
-    return updated;
-}
 
-function postProcessFile(xmlFile, action, archivePath) {
-    switch (action) {
-        case 'remove':
-            removeFile(xmlFile);
-            break;
+// function updateCustomer(customerXML) {
+//     let customerNo = customerXML.@no.toString();
+//     let customer = customerNo && CustomerMgr.getCustomerByCustomerNumber(customerNo);
+//     let profile = customer && customer.getProfile();
+    
+//     // Postojeći lastName update
+//     if (profile && customerXML.lastname) {
+//         let newLastName = customerXML.lastname.toString().replace(/-(?:IMPORTED.*|CHANGED.*|I)$/, '') + '-I';
         
-        case 'archive':
-            archiveFile(xmlFile, archivePath);
-            break;
+//         if (profile.lastName !== newLastName) {
+//             Transaction.wrap(() => profile.lastName = newLastName);
+//         }
+//     }
+    
+//     // DODATI: Address handling
+//     if (customer && customerXML.addresses) {
+//         handleCustomerAddresses(customer, customerXML.addresses);
+//     }
+// }
+
+// function handleCustomerAddresses(customer, addressesXML) {
+//     let addressBook = customer.getProfile().getAddressBook();
+    
+//     // Umesto for each, probajte obična iteracija
+//     let addresses = addressesXML.address;
+//     if (!addresses.length) {
+//         addresses = [addresses]; // ako je jedna adresa
+//     }
+    
+//     for (let i = 0; i < addresses.length; i++) {
+//         let addressXML = addresses[i];
+//         let addressId = addressXML.@addressId.toString();
         
-        case 'archive_zip':
-            archiveFileZipped(xmlFile, archivePath);
-            break;
+//         importLogger.info('Processing address: ' + addressId); // debug
         
-        default:
-            throw new Error('Unknown post-process action: ' + action);
-    }
-}
+//         let existingAddress = addressBook.getAddress(addressId);
+        
+//         if (existingAddress) {
+//             Transaction.wrap(() => updateExistingAddress(existingAddress, addressXML));
+//         } else {
+//             Transaction.wrap(() => createNewAddress(addressBook, addressId, addressXML));
+//         }
+//     }
+// }
 
-function removeFile(xmlFile) {
-    const deleted = xmlFile.remove();
-    if (!deleted) {
-        throw new Error('Failed to delete file');
-    }
-}
+// function updateExistingAddress(address, addressXML) {
+//     if (addressXML.firstName) address.setFirstName(addressXML.firstName.toString());
+//     if (addressXML.lastName) address.setLastName(addressXML.lastName.toString());
+//     if (addressXML.address1) address.setAddress1(addressXML.address1.toString());
+//     if (addressXML.city) address.setCity(addressXML.city.toString());
+//     if (addressXML.postalCode) address.setPostalCode(addressXML.postalCode.toString());
+//     if (addressXML.countryCode) address.setCountryCode(addressXML.countryCode.toString());
+//     if (addressXML.stateCode) address.setStateCode(addressXML.stateCode.toString());
+//     if (addressXML.phone) address.setPhone(addressXML.phone.toString());
+// }
 
-function archiveFile(xmlFile, archivePath) {
-    var archiveDirectory = FileSystemHelper.ensureImpexPath(archivePath);
-    if (!archiveDirectory) {
-        throw new Error('Failed to create archive directory');
-    }
+// function createNewAddress(addressBook, addressId, addressXML) {
+//     let newAddress = addressBook.createAddress(addressId);
     
-    var archiveFile = new File(archiveDirectory.getFullPath() + File.SEPARATOR + xmlFile.getName());
-    const moved = xmlFile.renameTo(archiveFile);
-    
-    if (!moved) {
-        throw new Error('Failed to move file to archive');
-    }
-}
+//     if (addressXML.firstName) newAddress.setFirstName(addressXML.firstName.toString());
+//     if (addressXML.lastName) newAddress.setLastName(addressXML.lastName.toString());
+//     if (addressXML.address1) newAddress.setAddress1(addressXML.address1.toString());
+//     if (addressXML.city) newAddress.setCity(addressXML.city.toString());
+//     if (addressXML.postalCode) newAddress.setPostalCode(addressXML.postalCode.toString());
+//     if (addressXML.countryCode) newAddress.setCountryCode(addressXML.countryCode.toString());
+//     if (addressXML.stateCode) newAddress.setStateCode(addressXML.stateCode.toString());
+//     if (addressXML.phone) newAddress.setPhone(addressXML.phone.toString());
+// }
 
-function archiveFileZipped(xmlFile, archivePath) {
-    var archiveDirectory = FileSystemHelper.ensureImpexPath(archivePath);
-    if (!archiveDirectory) {
-        throw new Error('Failed to create archive directory');
-    }
-    
-    const originalName = xmlFile.getName();
-    const baseName = originalName.substring(0, originalName.lastIndexOf('.'));
-    const zipFileName = baseName + '.zip';
-    const zipFilePath = archiveDirectory.getFullPath() + File.SEPARATOR + zipFileName;
-    
-    var zipFile = new File(zipFilePath);
-    var moved = xmlFile.renameTo(zipFile);
-    
-    if (!moved) {
-        throw new Error('Failed to archive as zip');
-    }
-}
 
 exports.execute = execute;
