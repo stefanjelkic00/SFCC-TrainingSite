@@ -72,15 +72,17 @@ function updateCustomer(customerXML) {
 function handleCustomerAddresses(customer, addressesXML) {
     let addresses = addressesXML.address;
     if (!addresses) return;
-    
+
     let addressBook = customer.getProfile().getAddressBook();
     addresses = addresses.length ? addresses : [addresses];
-    
-    for each (let addressXML in addresses) {
-        let addressId = addressXML.@id.toString();
-        let address = addressBook.getAddress(addressId) || addressBook.createAddress(addressId);
-        Transaction.wrap(() => updateAddressFields(address, addressXML));
-    }
+
+    Transaction.wrap(() => {
+        for each (let addressXML in addresses) {
+            let addressId = addressXML.@id.toString();
+            let address = addressBook.getAddress(addressId) || addressBook.createAddress(addressId);
+            updateAddressFields(address, addressXML);
+        }
+    });
 }
 
 function updateAddressFields(address, addressXML) {
