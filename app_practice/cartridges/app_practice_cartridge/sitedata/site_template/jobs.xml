@@ -9,7 +9,7 @@
                 <description>Reads XML files from IMPEX directory, updates customer data (name, email, newsletter subscription), and archives processed files</description>
                 <parameters>
                     <parameter name="ImpexPath">src/export/customers</parameter>
-                    <parameter name="FilePattern">customer_export_*.xml</parameter>
+                    <parameter name="FilePattern">customer_import_*.xml</parameter>
                     <parameter name="PostProcessAction">archive</parameter>
                     <parameter name="ArchivePath">src/archive/customers</parameter>
                     <parameter name="DebugMode">false</parameter>
