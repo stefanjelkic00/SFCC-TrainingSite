@@ -8,7 +8,6 @@ const FileReader = require('dw/io/FileReader');
 const XMLStreamReader = require('dw/io/XMLStreamReader');
 const Transaction = require('dw/system/Transaction');
 const FileSystemHelper = require('~/cartridge/scripts/helpers/fileSystemHelpers');
-
 const importLogger = Logger.getLogger('CustomerImport', 'CustomerImport');
 
 function execute(parameters, stepExecution) {
@@ -59,7 +58,6 @@ function processXMLFile(xmlFile) {
     fileReader.close();
 }
 
-
 function updateCustomer(customerXML) {
     let customerNo = customerXML.@no.toString();
     let customer = customerNo && CustomerMgr.getCustomerByCustomerNumber(customerNo);
@@ -88,11 +86,10 @@ function handleCustomerAddresses(customer, addressesXML) {
 }
 
 function updateAddressFields(address, addressXML) {
-    if (addressXML.address1) address.setAddress1(addressXML.address1.toString());
-    if (addressXML.address2) address.setAddress2(addressXML.address2.toString());
-    if (addressXML.city) address.setCity(addressXML.city.toString());
-    if (addressXML['house-nr']) address.custom.houseNr = addressXML['house-nr'].toString();
+    addressXML.address1 && address.setAddress1(addressXML.address1.toString());
+    addressXML.address2 && address.setAddress2(addressXML.address2.toString());
+    addressXML.city && address.setCity(addressXML.city.toString());
+    addressXML['house-nr'] && (address.custom.houseNr = addressXML['house-nr'].toString());
 }
-
 
 exports.execute = execute;

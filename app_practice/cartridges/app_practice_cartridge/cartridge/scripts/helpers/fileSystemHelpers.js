@@ -2,6 +2,9 @@
 
 const Logger = require('dw/system/Logger');
 const File = require('dw/io/File');
+const FileWriter = require('dw/io/FileWriter');
+const XMLStreamWriter = require('dw/io/XMLStreamWriter');
+
 const logger = Logger.getLogger('fileSystemHelpers', 'fileSystemHelpers');
 
 function ensureImpexPath(impexPath) {
@@ -13,6 +16,24 @@ function ensureImpexPath(impexPath) {
     }
     
     return directory;
+}
+
+function writeXMLElement(xmlWriter, elementName, value) {
+    xmlWriter.writeStartElement(elementName);
+    value && xmlWriter.writeCharacters(value.toString());
+    xmlWriter.writeEndElement();
+}
+
+function createXMLWriter(xmlFilePath) {
+    const file = new File(xmlFilePath);
+    const fileWriter = new FileWriter(file, 'UTF-8');
+    const xmlWriter = new XMLStreamWriter(fileWriter);
+    return { xmlWriter, fileWriter };
+}
+
+function closeXMLWriter(xmlWriter, fileWriter) {
+    xmlWriter && xmlWriter.close();
+    fileWriter && fileWriter.close();
 }
 
 function postProcessFile(xmlFile, action, sourcePath, archiveSubfolder) {
@@ -31,16 +52,16 @@ function postProcessFile(xmlFile, action, sourcePath, archiveSubfolder) {
 
 function archiveFile(xmlFile, sourcePath, archiveSubfolder) {
     const archivePath = sourcePath + File.SEPARATOR + archiveSubfolder;
-    let archiveDirectory = ensureImpexPath(archivePath);
+    const archiveDirectory = ensureImpexPath(archivePath);
     if (!archiveDirectory) return;
     
-    let archiveFile = new File(archiveDirectory.getFullPath() + File.SEPARATOR + xmlFile.getName());
+    const archiveFile = new File(archiveDirectory.getFullPath() + File.SEPARATOR + xmlFile.getName());
     xmlFile.renameTo(archiveFile);
 }
 
 function archiveFileZipped(xmlFile, sourcePath, archiveSubfolder) {
     const archivePath = sourcePath + File.SEPARATOR + archiveSubfolder;
-    let archiveDirectory = ensureImpexPath(archivePath);
+    const archiveDirectory = ensureImpexPath(archivePath);
     if (!archiveDirectory) return;
     
     const originalName = xmlFile.getName();
@@ -48,11 +69,14 @@ function archiveFileZipped(xmlFile, sourcePath, archiveSubfolder) {
     const zipFileName = baseName + '.zip';
     const zipFilePath = archiveDirectory.getFullPath() + File.SEPARATOR + zipFileName;
     
-    let zipFile = new File(zipFilePath);
+    const zipFile = new File(zipFilePath);
     xmlFile.renameTo(zipFile);
 }
 
 module.exports = {
     ensureImpexPath: ensureImpexPath,
+    writeXMLElement: writeXMLElement,
+    createXMLWriter: createXMLWriter,
+    closeXMLWriter: closeXMLWriter,
     postProcessFile: postProcessFile
 };

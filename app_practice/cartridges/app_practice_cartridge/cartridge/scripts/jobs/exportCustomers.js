@@ -4,8 +4,6 @@ const Logger = require('dw/system/Logger');
 const Status = require('dw/system/Status');
 const CustomerMgr = require('dw/customer/CustomerMgr');
 const File = require('dw/io/File');
-const FileWriter = require('dw/io/FileWriter');
-const XMLStreamWriter = require('dw/io/XMLStreamWriter');
 const Transaction = require('dw/system/Transaction');
 const FileSystemHelper = require('~/cartridge/scripts/helpers/fileSystemHelpers');
 
@@ -27,12 +25,8 @@ function execute(parameters, stepExecution) {
 }
 
 function exportCustomersStreaming(xmlFilePath) {
-    const file = new File(xmlFilePath);
-    const fileWriter = new FileWriter(file, 'UTF-8');
-    const xmlWriter = new XMLStreamWriter(fileWriter);
-    const query = 'custom.isExported != {0} OR custom.isExported = {1}';
-    const customerIterator = CustomerMgr.searchProfiles(query, 'lastModified asc', [true, null]);
-    let count = 0;
+    const { xmlWriter, fileWriter } = FileSystemHelper.createXMLWriter(xmlFilePath);
+    const customerIterator = CustomerMgr.searchProfiles('custom.isExported != {0} OR custom.isExported = {1}', 'lastModified asc', [true, null]);
     let exportedCount = 0;
     
     xmlWriter.writeStartDocument('UTF-8', '1.0');
@@ -40,41 +34,33 @@ function exportCustomersStreaming(xmlFilePath) {
     
     while (customerIterator.hasNext()) {
         const profile = customerIterator.next();
-        
         xmlWriter.writeStartElement('customer');
         xmlWriter.writeAttribute('no', profile.customerNo);
         writeCustomerXML(xmlWriter, profile);
         xmlWriter.writeEndElement();
-        
-        Transaction.wrap(function() { 
-            profile.custom.isExported = true; 
-        });
-        count++;
+        Transaction.wrap(function() { profile.custom.isExported = true; });
         exportedCount++;
     }
     
     xmlWriter.writeEndElement();
     xmlWriter.writeEndDocument();
-    
     customerIterator && customerIterator.close();
-    xmlWriter && xmlWriter.close();
-    fileWriter && fileWriter.close();
+    FileSystemHelper.closeXMLWriter(xmlWriter, fileWriter);
     
     return exportedCount;
 }
 
 function extractCustomerAddresses(profile) {
-    const customerAddresses = profile.getAddressBook().getAddresses();
     const addresses = [];
+    const customerAddresses = profile.getAddressBook().getAddresses();
     
     for (let i = 0; i < customerAddresses.length; i++) {
-        const addr = customerAddresses[i];
         addresses.push({
-            id: addr.getID(),
-            address1: addr.getAddress1() || '',
-            address2: addr.getAddress2() || '',
-            city: addr.getCity() || '',
-            houseNr: addr.custom.houseNr || ''
+            id: customerAddresses[i].getID(),
+            address1: customerAddresses[i].getAddress1() || '',
+            address2: customerAddresses[i].getAddress2() || '',
+            city: customerAddresses[i].getCity() || '',
+            houseNr: customerAddresses[i].custom.houseNr || ''
         });
     }
     
@@ -90,36 +76,36 @@ function writeCustomerXML(xmlWriter, profile) {
         ['newsletter-email', profile.custom.newsletterEmail || profile.email]
     ];
     
-    for (let i = 0; i < fields.length; i++) {
-        const [fieldName, value] = fields[i];
-        value && writeXMLElement(xmlWriter, fieldName, value);
-    }
+    fields.forEach(function(field) {
+        const fieldName = field[0];
+        const value = field[1];
+        value && FileSystemHelper.writeXMLElement(xmlWriter, fieldName, value);
+    });
     
     const addresses = extractCustomerAddresses(profile);
     if (addresses && addresses.length > 0) {
         xmlWriter.writeStartElement('addresses');
         
-        for (let i = 0; i < addresses.length; i++) {
-            const address = addresses[i];
+        addresses.forEach(function(address) {
             xmlWriter.writeStartElement('address');
             xmlWriter.writeAttribute('id', address.id);
             
-            writeXMLElement(xmlWriter, 'address1', address.address1);
-            writeXMLElement(xmlWriter, 'address2', address.address2);
-            writeXMLElement(xmlWriter, 'city', address.city);
-            writeXMLElement(xmlWriter, 'house-nr', address.houseNr);
-            
+            const addressFields = [
+                ['address1', address.address1],
+                ['address2', address.address2], 
+                ['city', address.city],
+                ['house-nr', address.houseNr]
+            ];
+            addressFields.forEach(function(addressField) {
+                const field = addressField[0];
+                const value = addressField[1];
+                FileSystemHelper.writeXMLElement(xmlWriter, field, value);
+            });
             xmlWriter.writeEndElement();
-        }
+        });
         
         xmlWriter.writeEndElement();
     }
-}
-
-function writeXMLElement(xmlWriter, elementName, value) {
-    xmlWriter.writeStartElement(elementName);
-    value && xmlWriter.writeCharacters(value.toString());
-    xmlWriter.writeEndElement();
 }
 
 exports.execute = execute;
