@@ -17,30 +17,28 @@ function execute(parameters, stepExecution) {
     const archiveSubfolder = parameters.ArchiveSubfolder || 'archive';
     
     let directory = new File(File.IMPEX + File.SEPARATOR + impexPath);
-    const allFiles = directory.listFiles();
     
-    if (!directory.exists() || !directory.isDirectory() || !allFiles) {
+    if (!directory.exists() || !directory.isDirectory()) {
         importLogger.warn('IMPEX directory does not exist or is empty: ' + directory.getFullPath());
         return new Status(Status.OK, 'NO_FILES_FOUND', 'No XML files found for import');
     }
     
     const regex = new RegExp('^' + filePattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
-    let filesProcessed = 0;
     
-    for (let i = 0; i < allFiles.length; i++) {
-        let file = allFiles[i];
-        if (file.isFile() && regex.test(file.getName())) {
-            filesProcessed++;
-            processXMLFile(file);
-            FileSystemHelper.postProcessFile(file, postProcessAction, impexPath, archiveSubfolder);
-        }
+    const matchingFiles = directory.listFiles(function(file) {
+        return file.isFile() && regex.test(file.getName());
+    });
+    
+    if (!matchingFiles || matchingFiles.length === 0) {
+        return new Status(Status.OK, 'NO_FILES_FOUND', 'No XML files found matching pattern: ' + filePattern);
     }
     
-    const message = filesProcessed === 0 ? 
-        'No XML files found matching pattern: ' + filePattern : 
-        'Processed ' + filesProcessed + ' files';
+    for each (var file in matchingFiles) {
+        processXMLFile(file);
+        FileSystemHelper.postProcessFile(file, postProcessAction, impexPath, archiveSubfolder);
+    }
     
-    return new Status(Status.OK, filesProcessed === 0 ? 'NO_FILES_FOUND' : 'IMPORT_SUCCESS', message);
+    return new Status(Status.OK, 'IMPORT_SUCCESS', 'Processed ' + matchingFiles.length + ' files');
 }
 
 function processXMLFile(xmlFile) {
