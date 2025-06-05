@@ -50,60 +50,26 @@ function exportCustomersStreaming(xmlFilePath) {
     return exportedCount;
 }
 
-function extractCustomerAddresses(profile) {
-    const addresses = [];
-    const customerAddresses = profile.getAddressBook().getAddresses();
-    
-    for (let i = 0; i < customerAddresses.length; i++) {
-        addresses.push({
-            id: customerAddresses[i].getID(),
-            address1: customerAddresses[i].getAddress1() || '',
-            address2: customerAddresses[i].getAddress2() || '',
-            city: customerAddresses[i].getCity() || '',
-            houseNr: customerAddresses[i].custom.houseNr || ''
-        });
-    }
-    
-    return addresses;
-}
-
 function writeCustomerXML(xmlWriter, profile) {
-    const fields = [
-        ['firstname', profile.firstName],
-        ['lastname', profile.lastName], 
-        ['email', profile.email],
-        ['newsletter-subscribed', (profile.custom.newsletterSubscribed || false).toString()],
-        ['newsletter-email', profile.custom.newsletterEmail || profile.email]
-    ];
+    profile.firstName && FileSystemHelper.writeXMLElement(xmlWriter, 'firstname', profile.firstName);
+    profile.lastName && FileSystemHelper.writeXMLElement(xmlWriter, 'lastname', profile.lastName);
+    profile.email && FileSystemHelper.writeXMLElement(xmlWriter, 'email', profile.email);
+    FileSystemHelper.writeXMLElement(xmlWriter, 'newsletter-subscribed', (profile.custom.newsletterSubscribed || false).toString());
+    FileSystemHelper.writeXMLElement(xmlWriter, 'newsletter-email', profile.custom.newsletterEmail || profile.email);
     
-    fields.forEach(function(field) {
-        const fieldName = field[0];
-        const value = field[1];
-        value && FileSystemHelper.writeXMLElement(xmlWriter, fieldName, value);
-    });
-    
-    const addresses = extractCustomerAddresses(profile);
+    const addresses = profile.getAddressBook().getAddresses();
     if (addresses && addresses.length > 0) {
         xmlWriter.writeStartElement('addresses');
-        
-        addresses.forEach(function(address) {
+        for (let i = 0; i < addresses.length; i++) {
+            const addr = addresses[i];
             xmlWriter.writeStartElement('address');
-            xmlWriter.writeAttribute('id', address.id);
-            
-            const addressFields = [
-                ['address1', address.address1],
-                ['address2', address.address2], 
-                ['city', address.city],
-                ['house-nr', address.houseNr]
-            ];
-            addressFields.forEach(function(addressField) {
-                const field = addressField[0];
-                const value = addressField[1];
-                FileSystemHelper.writeXMLElement(xmlWriter, field, value);
-            });
+            xmlWriter.writeAttribute('id', addr.getID());
+            FileSystemHelper.writeXMLElement(xmlWriter, 'address1', addr.getAddress1() || '');
+            FileSystemHelper.writeXMLElement(xmlWriter, 'address2', addr.getAddress2() || '');
+            FileSystemHelper.writeXMLElement(xmlWriter, 'city', addr.getCity() || '');
+            FileSystemHelper.writeXMLElement(xmlWriter, 'house-nr', addr.custom.houseNr || '');
             xmlWriter.writeEndElement();
-        });
-        
+        }
         xmlWriter.writeEndElement();
     }
 }
