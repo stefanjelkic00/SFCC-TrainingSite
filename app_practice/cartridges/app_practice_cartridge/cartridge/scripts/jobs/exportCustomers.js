@@ -1,6 +1,6 @@
+
 'use strict';
 
-const Logger = require('dw/system/Logger');
 const Status = require('dw/system/Status');
 const CustomerMgr = require('dw/customer/CustomerMgr');
 const File = require('dw/io/File');
@@ -39,7 +39,7 @@ function exportCustomersStreaming(xmlFilePath) {
     xmlWriter.writeStartElement('customers');
     
     while (customerIterator.hasNext()) {
-        const profile = customerIterator.next();
+        let profile = customerIterator.next();
         
         xmlWriter.writeStartElement('customer');
         xmlWriter.writeAttribute('no', profile.customerNo);
@@ -84,19 +84,11 @@ function writeCustomerXML(xmlWriter, profile) {
     let addressBook = profile.getAddressBook();
     let addresses = addressBook.getAddresses();
     
-    
     if (addresses && addresses.length > 0) {
         xmlWriter.writeStartElement('addresses');
         
-        let addressArray = [];
-        let iterator = addresses.iterator();
-        while (iterator.hasNext()) {
-            addressArray.push(iterator.next());
-        }
-        
-        for (let i = 0; i < addressArray.length; i++) {
-            let addr = addressArray[i];
-            Logger.info('Processing address ' + i + ' (ID: ' + addr.getID() + ') for customer ' + profile.customerNo);
+        for (let i = 0; i < addresses.length; i++) {
+            let addr = addresses[i]; 
             writeAddressXML(xmlWriter, addr, addressBook, i);
         }
         
@@ -104,14 +96,9 @@ function writeCustomerXML(xmlWriter, profile) {
     }
 }
 
-function writeAddressXML(xmlWriter, addr, addressBook, index) {
+function writeAddressXML(xmlWriter, addr) {
     xmlWriter.writeStartElement('address');
-    xmlWriter.writeAttribute('id', addr.getID());
-    xmlWriter.writeAttribute('index', index.toString());
-    
-    let preferredAddress = addressBook.getPreferredAddress();
-    let isPreferred = preferredAddress && (addr.getID() === preferredAddress.getID());
-    xmlWriter.writeAttribute('preferred', isPreferred.toString());
+    xmlWriter.writeAttribute('id', addr.getID()); 
     
     FileSystemHelper.writeXMLElement(xmlWriter, 'address1', addr.getAddress1() || '');
     FileSystemHelper.writeXMLElement(xmlWriter, 'address2', addr.getAddress2() || '');

@@ -24,21 +24,22 @@ function execute(parameters, stepExecution) {
     }
     
     const regex = new RegExp('^' + filePattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+    let processedCount = 0;
     
-    const matchingFiles = directory.listFiles(function(file) {
-        return file.isFile() && regex.test(file.getName());
+    directory.listFiles(function(file) {
+        if (file.isFile() && regex.test(file.getName())) {
+            processXMLFile(file);
+            FileSystemHelper.postProcessFile(file, postProcessAction, impexPath, archiveSubfolder);
+            processedCount++;
+        }
+        return false; 
     });
     
-    if (!matchingFiles || matchingFiles.length === 0) {
+    if (processedCount === 0) {
         return new Status(Status.OK, 'NO_FILES_FOUND', 'No XML files found matching pattern: ' + filePattern);
     }
     
-    for each (var file in matchingFiles) {
-        processXMLFile(file);
-        FileSystemHelper.postProcessFile(file, postProcessAction, impexPath, archiveSubfolder);
-    }
-    
-    return new Status(Status.OK, 'IMPORT_SUCCESS', 'Processed ' + matchingFiles.length + ' files');
+    return new Status(Status.OK, 'IMPORT_SUCCESS', 'Processed ' + processedCount + ' files');
 }
 
 function processXMLFile(xmlFile) {
@@ -47,8 +48,7 @@ function processXMLFile(xmlFile) {
     
     while (xmlReader.hasNext()) {
         if (xmlReader.next() == 1 && xmlReader.getLocalName() === 'customer') {
-            let customerXML = xmlReader.getXMLObject();
-            updateCustomer(customerXML);
+            updateCustomer(xmlReader.getXMLObject());
         }
     }
     
@@ -58,24 +58,44 @@ function processXMLFile(xmlFile) {
 
 function updateCustomer(customerXML) {
     let customerNo = customerXML.@no.toString();
-    let customer = customerNo && CustomerMgr.getCustomerByCustomerNumber(customerNo);
-    let profile = customer && customer.getProfile();
     
-    if (profile && customerXML.lastname) {
-        let newLastName = customerXML.lastname.toString().replace(/-(?:IMPORTED.*|CHANGED.*|I)$/, '') + '-I';
-        profile.lastName !== newLastName && Transaction.wrap(() => profile.lastName = newLastName);
+    if (!customerNo) {
+        return; 
     }
     
-    customer && customerXML.addresses && handleCustomerAddresses(customer, customerXML.addresses);
+    let customer = CustomerMgr.getCustomerByCustomerNumber(customerNo);
+    if (!customer) {
+        return; 
+    }
+    
+    let profile = customer.getProfile();
+    if (!profile) {
+        return; 
+    }
+    
+    if (customerXML.lastname) {
+        let newLastName = customerXML.lastname.toString().replace(/-(?:IMPORTED.*|CHANGED.*|I)$/, '') + '-I';
+        if (profile.lastName !== newLastName) {
+            Transaction.wrap(() => {
+                profile.lastName = newLastName;
+            });
+        }
+    }
+    
+    if (customerXML.addresses) {
+        handleCustomerAddresses(customer, customerXML.addresses);
+    }
 }
 
 function handleCustomerAddresses(customer, addressesXML) {
     let addresses = addressesXML.address;
-    if (!addresses) return;
-
+    if (!addresses) {
+        return;
+    }
+    
     let addressBook = customer.getProfile().getAddressBook();
     addresses = addresses.length ? addresses : [addresses];
-
+    
     Transaction.wrap(() => {
         for each (let addressXML in addresses) {
             let addressId = addressXML.@id.toString();
@@ -86,10 +106,21 @@ function handleCustomerAddresses(customer, addressesXML) {
 }
 
 function updateAddressFields(address, addressXML) {
-    addressXML.address1 && address.setAddress1(addressXML.address1.toString());
-    addressXML.address2 && address.setAddress2(addressXML.address2.toString());
-    addressXML.city && address.setCity(addressXML.city.toString());
-    addressXML['house-nr'] && (address.custom.houseNr = addressXML['house-nr'].toString());
+    if (addressXML.address1) {
+        address.setAddress1(addressXML.address1.toString());
+    }
+    
+    if (addressXML.address2) {
+        address.setAddress2(addressXML.address2.toString());
+    }
+    
+    if (addressXML.city) {
+        address.setCity(addressXML.city.toString());
+    }
+    
+    if (addressXML['house-nr']) {
+        address.custom.houseNr = addressXML['house-nr'].toString();
+    }
 }
 
 exports.execute = execute;
