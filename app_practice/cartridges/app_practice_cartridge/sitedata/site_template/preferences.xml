@@ -3,7 +3,7 @@
     <standard-preferences>
         <all-instances>
             <preference preference-id="ActiveLocales">de:it_IT:fr_CA:en:it:fr:fr_FR:ja_JP:es:zh:de_DE:default:en_GB:en_CA:en_US:ja:zh_CN:nl</preference>
-            <preference preference-id="CustomCartridges">bm_app_storefront_base:bm_custom_plugin</preference>
+            <preference preference-id="CustomCartridges">app_practice_bm_cartridge:app_practice_cartridge:app_storefront_base:modules:bm_app_storefront_base</preference>
             <preference preference-id="CustomEmailConfiguration">{"enabled":false}</preference>
             <preference preference-id="CustomImpexFolders"/>
             <preference preference-id="CustomProductListColumns">null:null:null:null:null</preference>

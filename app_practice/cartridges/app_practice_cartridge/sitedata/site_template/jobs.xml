@@ -1,5 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jobs xmlns="http://www.demandware.com/xml/impex/jobs/2015-07-01">
+    <job job-id="CustomerImportJob">
+        <description>Import and update customers from XML files</description>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="ImportCustomers" type="custom.CustomerImport" enforce-restart="false">
+                <description>Reads XML files from IMPEX directory, updates customer data (name, email, newsletter subscription), and archives processed files</description>
+                <parameters>
+                    <parameter name="ImpexPath">src/export/customers</parameter>
+                    <parameter name="FilePattern">customer_import_*.xml</parameter>
+                    <parameter name="PostProcessAction">archive</parameter>
+                    <parameter name="ArchivePath">src/archive/customers</parameter>
+                    <parameter name="DebugMode">false</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2025-06-02Z</date>
+                <time>14:22:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    
+    <job job-id="CustomerExportJob">
+        <description/>
+        <parameters>
+            <parameter name="SiteScope"/>
+        </parameters>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="CustomerExportStep" type="custom.CustomerExport" enforce-restart="false">
+                <description>Export customers with subscription tracking</description>
+                <parameters>
+                    <parameter name="ImpexPath">src/export/customers</parameter>
+                    <parameter name="FileName">customer_export_{TIMESTAMP}.xml</parameter>
+                    <parameter name="DebugMode">false</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2025-05-30Z</date>
+                <time>13:02:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+    
     <job job-id="RebuildURLs">
         <description/>
         <parameters/>
@@ -23,7 +73,7 @@
             </run-once>
         </triggers>
     </job>
-
+    
     <job job-id="Reindex">
         <description/>
         <parameters/>
@@ -52,5 +102,4 @@
             </run-once>
         </triggers>
     </job>
-
 </jobs>

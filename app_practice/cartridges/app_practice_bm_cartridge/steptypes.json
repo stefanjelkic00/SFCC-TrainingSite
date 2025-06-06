@@ -1,0 +1,127 @@
+{
+  "step-types": {
+    "script-module-step": [
+      {
+        "@type-id": "custom.CustomerExport",
+        "@supports-parallel-execution": "false",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "description": "Export customers to XML with subscription tracking",
+        "module": "app_practice_bm_cartridge/cartridge/scripts/jobs/exportCustomers",
+        "function": "execute",
+        "transactional": "false",
+        "timeout-in-seconds": "900",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "ImpexPath",
+              "@type": "string",
+              "@required": "false",
+              "description": "Export directory path",
+              "default-value": "src/export/customers"
+            },
+            {
+              "@name": "FileName",
+              "@type": "string",
+              "@required": "false",
+              "description": "Export file name",
+              "default-value": "customer_export"
+            },
+            {
+              "@name": "DebugMode",
+              "@type": "boolean",
+              "@required": "false",
+              "description": "Enable debug logging",
+              "default-value": "false"
+            }
+          ]
+        },
+        "status-codes": {
+          "status": [
+            {
+              "@code": "ERROR",
+              "description": "Used when the step failed with an error."
+            },
+            {
+              "@code": "OK",
+              "description": "Used when the step finished successfully."
+            }
+          ]
+        }
+      },
+      {
+        "@type-id": "custom.CustomerImport",
+        "@supports-parallel-execution": "false",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "description": "Import customers from XML files and update customer data",
+        "module": "app_practice_bm_cartridge/cartridge/scripts/jobs/importCustomers",
+        "function": "execute",
+        "transactional": "false",
+        "timeout-in-seconds": "1800",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "ImpexPath",
+              "@type": "string",
+              "@required": "false",
+              "description": "Import directory path where XML files are located",
+              "default-value": "src/export/customers"
+            },
+            {
+              "@name": "FilePattern",
+              "@type": "string",
+              "@required": "false",
+              "description": "File pattern to match XML files (e.g., customer_export_*.xml)",
+              "default-value": "customer_export_*.xml"
+            },
+            {
+              "@name": "PostProcessAction",
+              "@type": "string",
+              "@required": "false",
+              "description": "Action after processing: remove, archive, archive_zip",
+              "default-value": "archive",
+              "enum-values": {
+                "value": [
+                  "remove",
+                  "archive", 
+                  "archive_zip"
+                ]
+              }
+            },
+            {
+              "@name": "ArchivePath",
+              "@type": "string",
+              "@required": "false",
+              "description": "Archive directory path for processed files",
+              "default-value": "src/archive/customers"
+            },
+            {
+              "@name": "DebugMode",
+              "@type": "boolean",
+              "@required": "false",
+              "description": "Enable debug logging",
+              "default-value": "false"
+            }
+          ]
+        },
+        "status-codes": {
+          "status": [
+            {
+              "@code": "ERROR",
+              "description": "Used when the step failed with an error."
+            },
+            {
+              "@code": "OK", 
+              "description": "Used when the step finished successfully."
+            },
+            {
+              "@code": "WARN",
+              "description": "Used when the step finished with warnings."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
