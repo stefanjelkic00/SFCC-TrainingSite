@@ -24,7 +24,7 @@ function writeXMLElement(xmlWriter, elementName, value) {
     xmlWriter.writeEndElement();
 }
 
-function createXMLWriter(xmlFilePath) {
+function getWritters(xmlFilePath) {
     const file = new File(xmlFilePath);
     const fileWriter = new FileWriter(file, 'UTF-8');
     const xmlWriter = new XMLStreamWriter(fileWriter);
@@ -76,7 +76,7 @@ function archiveFileZipped(xmlFile, sourcePath, archiveSubfolder) {
 module.exports = {
     ensureImpexPath: ensureImpexPath,
     writeXMLElement: writeXMLElement,
-    createXMLWriter: createXMLWriter,
+    getWritters: getWritters,
     closeXMLWriter: closeXMLWriter,
     postProcessFile: postProcessFile
 };

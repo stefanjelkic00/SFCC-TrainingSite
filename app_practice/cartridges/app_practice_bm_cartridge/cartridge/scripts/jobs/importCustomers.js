@@ -1,6 +1,5 @@
 'use strict';
 
-const Logger = require('dw/system/Logger');
 const Status = require('dw/system/Status');
 const CustomerMgr = require('dw/customer/CustomerMgr');
 const File = require('dw/io/File');
@@ -8,7 +7,6 @@ const FileReader = require('dw/io/FileReader');
 const XMLStreamReader = require('dw/io/XMLStreamReader');
 const Transaction = require('dw/system/Transaction');
 const FileSystemHelper = require('~/cartridge/scripts/helpers/fileSystemHelpers');
-const importLogger = Logger.getLogger('CustomerImport', 'CustomerImport');
 
 function execute(parameters, stepExecution) {
     const impexPath = parameters.ImpexPath || 'src/export/customers';
@@ -19,7 +17,6 @@ function execute(parameters, stepExecution) {
     let directory = new File(File.IMPEX + File.SEPARATOR + impexPath);
     
     if (!directory.exists() || !directory.isDirectory()) {
-        importLogger.warn('IMPEX directory does not exist or is empty: ' + directory.getFullPath());
         return new Status(Status.OK, 'NO_FILES_FOUND', 'No XML files found for import');
     }
     
@@ -73,11 +70,24 @@ function updateCustomer(customerXML) {
         return; 
     }
     
-    if (customerXML.lastname) {
-        let newLastName = customerXML.lastname.toString().replace(/-(?:IMPORTED.*|CHANGED.*|I)$/, '') + '-I';
-        if (profile.lastName !== newLastName) {
+    if (customerXML.firstname) {
+        let xmlFirstName = customerXML.firstname.toString();
+        let currentFirstName = profile.firstName || '';
+        
+        if (currentFirstName !== xmlFirstName) {
             Transaction.wrap(() => {
-                profile.lastName = newLastName;
+                profile.firstName = xmlFirstName;
+            });
+        }
+    }
+    
+    if (customerXML.lastname) {
+        let xmlLastName = customerXML.lastname.toString();
+        let currentLastName = profile.lastName || '';
+        
+        if (currentLastName !== xmlLastName) {
+            Transaction.wrap(() => {
+                profile.lastName = xmlLastName;
             });
         }
     }
