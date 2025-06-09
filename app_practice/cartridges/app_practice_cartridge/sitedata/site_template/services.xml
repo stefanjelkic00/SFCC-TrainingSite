@@ -1,2 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<services xmlns="http://www.demandware.com/xml/impex/services/2014-09-26"/>
+<services xmlns="http://www.demandware.com/xml/impex/services/2014-09-26">
+    <service-credential service-credential-id="ProductUpdateCredentials">
+        <url>https://run.mocky.io/v3/21047784-7385-4944-a7ce-3459243d3cb3</url>
+        <user-id/>
+        <password masked="true">********</password>
+    </service-credential>
+
+    <service-profile service-profile-id="ProductUpdateProfile">
+        <timeout-millis>30000</timeout-millis>
+        <rate-limit-enabled>false</rate-limit-enabled>
+        <rate-limit-calls>0</rate-limit-calls>
+        <rate-limit-millis>0</rate-limit-millis>
+        <cb-enabled>true</cb-enabled>
+        <cb-calls>5</cb-calls>
+        <cb-millis>60000</cb-millis>
+    </service-profile>
+
+    <service service-id="product.update.service">
+        <service-type>HTTP</service-type>
+        <enabled>true</enabled>
+        <log-prefix>ProductUpdateService</log-prefix>
+        <comm-log-enabled>true</comm-log-enabled>
+        <force-prd-enabled>true</force-prd-enabled>
+        <mock-mode-enabled>false</mock-mode-enabled>
+        <profile-id>ProductUpdateProfile</profile-id>
+        <credential-id>ProductUpdateCredentials</credential-id>
+    </service>
+
+</services>
