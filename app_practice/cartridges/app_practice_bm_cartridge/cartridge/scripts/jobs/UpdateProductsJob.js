@@ -1,26 +1,26 @@
 'use strict';
 
-var ProductUpdateService = require('*/cartridge/scripts/services/ProductUpdateService');
-var ProductMgr = require('dw/catalog/ProductMgr');
-var Transaction = require('dw/system/Transaction');
-var Status = require('dw/system/Status');
+const ProductUpdateService = require('*/cartridge/scripts/services/ProductUpdateService');
+const ProductMgr = require('dw/catalog/ProductMgr');
+const Transaction = require('dw/system/Transaction');
+const Status = require('dw/system/Status');
 
 function execute(parameters) {
-    var clientId = parameters.ClientId || "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const clientId = parameters.ClientId || "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     
-    var serviceResult = ProductUpdateService.callProductUpdateService({
+    const serviceResult = ProductUpdateService.callProductUpdateService({
         clientId: clientId
     });
     
     if (serviceResult.status !== 'OK') {
-        var errorMsg = 'Service call failed: ' + serviceResult.errorMessage;
+        const errorMsg = 'Service call failed: ' + serviceResult.errorMessage;
         return new Status(Status.ERROR, 'SERVICE_CALL_FAILED', errorMsg);
     }
     
-    var productsData = serviceResult.object;
+    const productsData = serviceResult.object;
     
-    for (var i = 0; i < productsData.length; i++) {
-        var productData = productsData[i];
+    for (let i = 0; i < productsData.length; i++) {
+        const productData = productsData[i];
         updateSingleProduct(productData);
     }
     
@@ -29,7 +29,7 @@ function execute(parameters) {
 }
 
 function updateSingleProduct(productData) {
-    var product = ProductMgr.getProduct(productData.productId);
+    const product = ProductMgr.getProduct(productData.productId);
     
     if (!product) {
         throw new Error('Product not found: ' + productData.productId);
