@@ -1,6 +1,7 @@
 'use strict';
 
 const LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
+const ParsingHelper = require('*/cartridge/scripts/helpers/ParsingHelpers');
 
 const productUpdateService = LocalServiceRegistry.createService('product.update.service', {
     
@@ -19,33 +20,17 @@ const productUpdateService = LocalServiceRegistry.createService('product.update.
     
     parseResponse: function(svc, client) {
         const responseText = client.text;
-        const statusCode = client.statusCode;
         
-        if (statusCode !== 200) {
-            throw new Error('Service returned status code: ' + statusCode);
-        }
-        
-        const responseData = JSON.parse(responseText);
-        
-        if (!Array.isArray(responseData)) {
-            throw new Error('Response is not an array');
-        }
-        
-        responseData.forEach(function(product, index) {
-            if (!product.productId || product.productHeight === undefined || 
-                product.productWidth === undefined || !product.productColor) {
-                throw new Error('Invalid product data at index ' + index);
-            }
-        });
+        const responseData = ParsingHelper.safeJsonParse(responseText, []);
         
         return responseData;
     }
 });
 
-function callProductUpdateService(params) {
+function getUpdates(params) {
     return productUpdateService.call(params || {});
 }
 
 module.exports = {
-    callProductUpdateService: callProductUpdateService
+    getUpdates: getUpdates
 };

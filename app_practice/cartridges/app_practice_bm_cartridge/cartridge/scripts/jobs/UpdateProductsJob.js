@@ -1,6 +1,6 @@
 'use strict';
 
-const ProductUpdateService = require('*/cartridge/scripts/services/ProductUpdateService');
+const Product = require('*/cartridge/scripts/services/Product');
 const ProductMgr = require('dw/catalog/ProductMgr');
 const Transaction = require('dw/system/Transaction');
 const Status = require('dw/system/Status');
@@ -8,7 +8,7 @@ const Status = require('dw/system/Status');
 function execute(parameters) {
     const clientId = parameters.ClientId || "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     
-    const serviceResult = ProductUpdateService.callProductUpdateService({
+    const serviceResult = Product.getUpdates({
         clientId: clientId
     });
     
@@ -19,10 +19,11 @@ function execute(parameters) {
     
     const productsData = serviceResult.object;
     
-    for (let i = 0; i < productsData.length; i++) {
-        const productData = productsData[i];
+    const productsArray = productsData.toArray();
+    
+    productsArray.forEach(function(productData) {
         updateSingleProduct(productData);
-    }
+    });
     
     return new Status(Status.OK, 'JOB_COMPLETED', 
         'Successfully updated all ' + productsData.length + ' products');
@@ -30,22 +31,6 @@ function execute(parameters) {
 
 function updateSingleProduct(productData) {
     const product = ProductMgr.getProduct(productData.productId);
-    
-    if (!product) {
-        throw new Error('Product not found: ' + productData.productId);
-    }
-    
-    if (productData.productHeight === undefined || productData.productHeight === null) {
-        throw new Error('Invalid productHeight value');
-    }
-    
-    if (productData.productWidth === undefined || productData.productWidth === null) {
-        throw new Error('Invalid productWidth value');
-    }
-    
-    if (!productData.productColor) {
-        throw new Error('Invalid productColor value');
-    }
     
     Transaction.wrap(function() {
         product.custom.productHeight = productData.productHeight;
