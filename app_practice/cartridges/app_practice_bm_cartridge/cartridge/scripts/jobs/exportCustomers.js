@@ -29,7 +29,7 @@ function execute(parameters, stepExecution) {
 }
 
 function exportCustomersStreaming(xmlFilePath) {
-    const result = FileSystemHelper.createXMLWriter(xmlFilePath);
+    const result = FileSystemHelper.getWritters(xmlFilePath);
     const xmlWriter = result.xmlWriter;
     const fileWriter = result.fileWriter;
     const customerIterator = CustomerMgr.searchProfiles('custom.isExported != {0}', 'lastModified asc', [true]);

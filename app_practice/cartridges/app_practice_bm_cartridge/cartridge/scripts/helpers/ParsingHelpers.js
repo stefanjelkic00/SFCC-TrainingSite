@@ -4,7 +4,7 @@ function safeJsonParse(jsonString, defaultValue) {
     try {
         return JSON.parse(jsonString);
     } catch (error) {
-        return defaultValue !== undefined ? defaultValue : null;
+        return defaultValue || null;
     }
 }
 

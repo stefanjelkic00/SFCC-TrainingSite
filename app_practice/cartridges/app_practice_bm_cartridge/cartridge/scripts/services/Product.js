@@ -21,9 +21,7 @@ const productUpdateService = LocalServiceRegistry.createService('product.update.
     parseResponse: function(svc, client) {
         const responseText = client.text;
         
-        const responseData = ParsingHelper.safeJsonParse(responseText, []);
-        
-        return responseData;
+        return ParsingHelper.safeJsonParse(responseText, []);
     }
 });
 

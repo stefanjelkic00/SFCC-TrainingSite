@@ -19,11 +19,7 @@ function execute(parameters) {
     
     const productsData = serviceResult.object;
     
-    const productsArray = productsData.toArray();
-    
-    productsArray.forEach(function(productData) {
-        updateSingleProduct(productData);
-    });
+    productsData.toArray().forEach(updateSingleProduct);
     
     return new Status(Status.OK, 'JOB_COMPLETED', 
         'Successfully updated all ' + productsData.length + ' products');
