@@ -3224,6 +3224,43 @@
                     </value-definition>
                 </value-definitions>
             </attribute-definition>
+            <attribute-definition attribute-id="productColor">
+                <display-name xml:lang="x-default">Product Color</display-name>
+                <description xml:lang="x-default">Color of the product</description>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="productHeight">
+                <display-name xml:lang="x-default">Product Height</display-name>
+                <description xml:lang="x-default">Height of the product in centimeters</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="productWidth">
+                <display-name xml:lang="x-default">Product Width</display-name>
+                <description xml:lang="x-default">Width of the product in centimeters</description>
+                <type>int</type>
+                <localizable-flag>false</localizable-flag>
+                <site-specific-flag>false</site-specific-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <visible-flag>false</visible-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <order-required-flag>false</order-required-flag>
+                <externally-defined-flag>false</externally-defined-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="refinementColor">
                 <display-name xml:lang="x-default">Refinement Color</display-name>
                 <type>enum-of-string</type>
@@ -3672,6 +3709,12 @@
                 <attribute attribute-id="sheets"/>
                 <attribute attribute-id="isSale"/>
             </attribute-group>
+            <attribute-group group-id="custom">
+                <display-name xml:lang="x-default">ProductCustom</display-name>
+                <attribute attribute-id="productWidth"/>
+                <attribute attribute-id="productColor"/>
+                <attribute attribute-id="productHeight"/>
+            </attribute-group>
         </group-definitions>
     </type-extension>
 
@@ -4065,6 +4108,13 @@
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
             </attribute-definition>
+            <attribute-definition attribute-id="isExported">
+                <display-name xml:lang="x-default">Is Exported</display-name>
+                <description xml:lang="x-default">Indicates if customer has been exported to external system</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
             <attribute-definition attribute-id="newsletterEmail">
                 <display-name xml:lang="x-default">Newsletter Email</display-name>
                 <description xml:lang="x-default">Email for newsletter subscription</description>
@@ -4129,6 +4179,7 @@
                 <attribute attribute-id="newsletterSubscribed"/>
                 <attribute attribute-id="newsletterEmail"/>
                 <attribute attribute-id="newsletterLastName"/>
+                <attribute attribute-id="isExported"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -4742,23 +4793,10 @@
             <attribute-definition attribute-id="emailForbiddenWords">
                 <display-name xml:lang="x-default">Email Forbidden Words</display-name>
                 <description xml:lang="x-default">List of forbidden keywords that must not be contained in the newsletter email address (e.g., gmail, yahoo, hotmail).</description>
-                <type>enum-of-string</type>
+                <type>set-of-string</type>
                 <mandatory-flag>false</mandatory-flag>
                 <externally-managed-flag>false</externally-managed-flag>
-                <value-definitions>
-                    <value-definition>
-                        <display xml:lang="x-default">gmail</display>
-                        <value>gmail</value>
-                    </value-definition>
-                    <value-definition>
-                        <display xml:lang="x-default">yahoo</display>
-                        <value>yahoo</value>
-                    </value-definition>
-                    <value-definition>
-                        <display xml:lang="x-default">hotmail</display>
-                        <value>hotmail</value>
-                    </value-definition>
-                </value-definitions>
+                <default-value>email, yahoo, hotmail</default-value>
             </attribute-definition>
             <attribute-definition attribute-id="enableInfiniteScroll">
                 <display-name xml:lang="x-default">Enable Infinite Scroll</display-name>
@@ -4959,6 +4997,7 @@
                 <attribute attribute-id="countryCode"/>
                 <attribute attribute-id="customerServiceEmail"/>
                 <attribute attribute-id="mapAPI"/>
+                <attribute attribute-id="emailForbiddenWords"/>
             </attribute-group>
         </group-definitions>
     </type-extension>

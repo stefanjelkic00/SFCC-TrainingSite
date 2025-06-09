@@ -9,7 +9,7 @@
                 <description>Reads XML files from IMPEX directory, updates customer data (name, email, newsletter subscription), and archives processed files</description>
                 <parameters>
                     <parameter name="ImpexPath">src/export/customers</parameter>
-                    <parameter name="FilePattern">customer_import_*.xml</parameter>
+                    <parameter name="FilePattern">customer_export_*.xml</parameter>
                     <parameter name="PostProcessAction">archive</parameter>
                     <parameter name="ArchivePath">src/archive/customers</parameter>
                     <parameter name="DebugMode">false</parameter>
@@ -24,7 +24,7 @@
             </run-once>
         </triggers>
     </job>
-    
+
     <job job-id="CustomerExportJob">
         <description/>
         <parameters>
@@ -49,7 +49,28 @@
             </run-once>
         </triggers>
     </job>
-    
+
+    <job job-id="UpdateProductsJob">
+        <description>Task 7 - Updates product custom attributes (height, width, color) by calling external API service</description>
+        <parameters/>
+        <flow>
+            <context site-id="RefArch"/>
+            <step step-id="UpdateProductsStep" type="custom.UpdateProducts" enforce-restart="false">
+                <description>Calls external API and updates product custom attributes (height, width, color)</description>
+                <parameters>
+                    <parameter name="ClientId">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</parameter>
+                </parameters>
+            </step>
+        </flow>
+        <rules/>
+        <triggers>
+            <run-once enabled="false">
+                <date>2025-06-06Z</date>
+                <time>14:20:00.000Z</time>
+            </run-once>
+        </triggers>
+    </job>
+
     <job job-id="RebuildURLs">
         <description/>
         <parameters/>
@@ -73,7 +94,7 @@
             </run-once>
         </triggers>
     </job>
-    
+
     <job job-id="Reindex">
         <description/>
         <parameters/>
@@ -102,4 +123,5 @@
             </run-once>
         </triggers>
     </job>
+
 </jobs>
