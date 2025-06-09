@@ -48,8 +48,11 @@ function execute(parameters) {
         
         Logger.info('UpdateProductsJob: Processing {0} products', productsData.length);
         
-        // Process each product
-        productsData.forEach(function(productData, index) {
+        // Process each product using standard for loop
+        for (var i = 0; i < productsData.length; i++) {
+            var productData = productsData[i];
+            var index = i;
+            
             try {
                 updateSingleProduct(productData);
                 jobResult.updatedProducts++;
@@ -62,7 +65,7 @@ function execute(parameters) {
                 jobResult.errors.push(errorMsg);
                 Logger.error('UpdateProductsJob: {0}', errorMsg);
             }
-        });
+        }
         
         // Log final results
         Logger.info('UpdateProductsJob: COMPLETED - Total: {0}, Updated: {1}, Failed: {2}', 
@@ -161,10 +164,11 @@ function testJobLogic(testData) {
     };
     
     try {
-        testData.forEach(function(productData) {
-            updateSingleProduct(productData);
+        // Using standard for loop here as well for consistency
+        for (var i = 0; i < testData.length; i++) {
+            updateSingleProduct(testData[i]);
             results.processedProducts++;
-        });
+        }
         
         results.message = 'Test completed successfully. Processed ' + results.processedProducts + ' products.';
         Logger.info('UpdateProductsJob: {0}', results.message);

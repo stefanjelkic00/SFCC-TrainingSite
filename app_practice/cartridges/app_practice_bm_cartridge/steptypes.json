@@ -121,6 +121,44 @@
             }
           ]
         }
+      },
+      {
+        "@type-id": "custom.UpdateProducts",
+        "@supports-parallel-execution": "false",
+        "@supports-site-context": "true",
+        "@supports-organization-context": "false",
+        "description": "Updates product custom attributes by calling external API service",
+        "module": "app_practice_bm_cartridge/cartridge/scripts/jobs/UpdateProductsJob",
+        "function": "execute",
+        "transactional": "true",
+        "timeout-in-seconds": "600",
+        "parameters": {
+          "parameter": [
+            {
+              "@name": "ClientId",
+              "@type": "string",
+              "@required": "false",
+              "description": "Client ID for external API call",
+              "default-value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            }
+          ]
+        },
+        "status-codes": {
+          "status": [
+            {
+              "@code": "ERROR",
+              "description": "Used when the step failed with an error."
+            },
+            {
+              "@code": "OK",
+              "description": "Used when the step finished successfully."
+            },
+            {
+              "@code": "WARN",
+              "description": "Used when the step finished with warnings."
+            }
+          ]
+        }
       }
     ]
   }
