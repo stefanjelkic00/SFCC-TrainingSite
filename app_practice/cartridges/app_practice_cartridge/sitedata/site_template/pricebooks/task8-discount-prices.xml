@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pricebooks xmlns="http://www.demandware.com/xml/impex/pricebook/2006-10-31">
+    <pricebook>
+        <header pricebook-id="task8-discount-prices">
+            <currency>USD</currency>
+            <display-name xml:lang="x-default">Task 8 Discount Price Book</display-name>
+            <description xml:lang="x-default">Discount price book for Task 8 testing. Contains lower prices than standard price book for master product, product set, and bundle.</description>
+            <online-flag>true</online-flag>
+        </header>
+
+        <price-tables>
+            <price-table product-id="008884303989M">
+                <amount quantity="1">39.99</amount>
+            </price-table>
+
+            <price-table product-id="008884303996M">
+                <amount quantity="1">39.99</amount>
+            </price-table>
+
+            <price-table product-id="008884304009M">
+                <amount quantity="1">59.99</amount>
+            </price-table>
+
+            <price-table product-id="008884304016M">
+                <amount quantity="1">19.99</amount>
+                <price-info>Discount price by 20% in $</price-info>
+            </price-table>
+
+            <price-table product-id="008884304023M">
+                <amount quantity="1">39.99</amount>
+            </price-table>
+
+            <price-table product-id="008884304030M">
+                <amount quantity="1">60.00</amount>
+                <price-info>Discounted Price by 20% in $</price-info>
+            </price-table>
+
+            <price-table product-id="008884304054M">
+                <amount quantity="1">59.99</amount>
+                <price-info>Discounted Price by 20% in $</price-info>
+            </price-table>
+
+            <price-table product-id="008884304061M">
+                <amount quantity="1">39.99</amount>
+                <price-info>Discounted Price by 20% in $</price-info>
+            </price-table>
+
+            <price-table product-id="11736753M">
+                <amount quantity="1">39.99</amount>
+                <price-info>Discounted Price by 20% in $</price-info>
+            </price-table>
+
+            <price-table product-id="womens-jewelry-bundleM">
+                <amount quantity="1">79.99</amount>
+                <price-info>Discounted Price by 20% in $</price-info>
+            </price-table>
+
+        </price-tables>
+    </pricebook>
+</pricebooks>

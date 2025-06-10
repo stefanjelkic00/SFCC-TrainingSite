@@ -21,7 +21,7 @@
             <preference preference-id="SiteInventoryList">inventory_m</preference>
             <preference preference-id="SiteLibrary">RefArchSharedLibrary</preference>
             <preference preference-id="SiteLocales">default:en_US</preference>
-            <preference preference-id="SitePriceBooks">cny-m-list-prices:cny-m-sale-prices:eur-m-list-prices:eur-m-sale-prices:jpy-m-list-prices:jpy-m-sale-prices:usd-m-list-prices:usd-m-sale-prices</preference>
+            <preference preference-id="SitePriceBooks">cny-m-list-prices:cny-m-sale-prices:eur-m-list-prices:eur-m-sale-prices:jpy-m-list-prices:jpy-m-sale-prices:task8-discount-prices:usd-m-list-prices:usd-m-sale-prices</preference>
             <preference preference-id="SiteTimezone">Etc/UTC</preference>
             <preference preference-id="StorefrontURLsEnabled">true</preference>
         </all-instances>
@@ -58,7 +58,13 @@
     </standard-preferences>
     <custom-preferences>
         <all-instances/>
-        <development/>
+        <development>
+            <preference preference-id="emailForbiddenWords">
+                <value>email</value>
+                <value>yahoo</value>
+                <value>hotmail</value>
+            </preference>
+        </development>
         <staging/>
         <production/>
     </custom-preferences>
