@@ -4496,6 +4496,29 @@
         <parent>root</parent>
         <template/>
         <page-attributes/>
+        <refinement-definitions>
+            <refinement-definition type="attribute" bucket-type="thresholds" attribute-id="productHeight" system="false">
+                <display-name xml:lang="x-default">Product Height</display-name>
+                <value-set>search-result</value-set>
+                <sort-mode>value-name</sort-mode>
+                <sort-direction>ascending</sort-direction>
+                <cutoff-threshold>5</cutoff-threshold>
+            </refinement-definition>
+            <refinement-definition type="attribute" bucket-type="thresholds" attribute-id="productWidth" system="false">
+                <display-name xml:lang="x-default">Product Width</display-name>
+                <value-set>search-result</value-set>
+                <sort-mode>value-name</sort-mode>
+                <sort-direction>ascending</sort-direction>
+                <cutoff-threshold>5</cutoff-threshold>
+            </refinement-definition>
+            <refinement-definition type="attribute" bucket-type="none" attribute-id="productColor" system="false">
+                <display-name xml:lang="x-default">Product Color</display-name>
+                <value-set>search-result</value-set>
+                <sort-mode>value-name</sort-mode>
+                <sort-direction>ascending</sort-direction>
+                <cutoff-threshold>5</cutoff-threshold>
+            </refinement-definition>
+        </refinement-definitions>
     </category>
 
     <category category-id="hidden">
