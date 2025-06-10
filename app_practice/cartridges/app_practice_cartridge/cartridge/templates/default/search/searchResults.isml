@@ -1,0 +1,145 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        var assets = require('*/cartridge/scripts/assets');
+        assets.addJs('/js/search.js');
+        assets.addCss('/css/search.css');
+    </isscript>
+
+    <isinclude template="search/searchResultsNoDecorator" />
+    
+    <!-- Task 10: FIXED Deep Linking - Waits for jQuery -->
+    <script>
+        (function() {
+            console.log('🚀 Task 10 - FIXED Deep Linking Started (with jQuery wait)');
+            
+            // KLJUČNA FUNKCIJA: Čeka da se jQuery učita
+            function waitForJQuery(callback) {
+                if (typeof $ !== 'undefined' && typeof $.fn !== 'undefined') {
+                    console.log('✅ jQuery is ready in template!');
+                    callback();
+                } else {
+                    console.log('⏳ Template waiting for jQuery...');
+                    setTimeout(function() {
+                        waitForJQuery(callback);
+                    }, 100);
+                }
+            }
+            
+            // PHASE 1: Handle incoming deep links (ne treba jQuery)
+            function handleIncomingDeepLink() {
+                var currentPath = window.location.pathname;
+                console.log('🔍 Checking path:', currentPath);
+                
+                if (currentPath.includes('/color/') && !window.location.search.includes('prefn1=refinementColor')) {
+                    console.log('📥 Processing incoming deep link:', currentPath);
+                    
+                    var pathMatch = currentPath.match(/\/color\/([^\/\?]+)/);
+                    if (pathMatch && pathMatch[1]) {
+                        var colorValue = decodeURIComponent(pathMatch[1]);
+                        console.log('🎨 Extracted color:', colorValue);
+                        
+                        var url = new URL(window.location.href);
+                        url.searchParams.set('prefn1', 'refinementColor');
+                        url.searchParams.set('prefv1', colorValue);
+                        
+                        if (!url.searchParams.has('_dl')) {
+                            url.searchParams.set('_dl', '1');
+                            console.log('🔄 Redirecting to:', url.toString());
+                            window.location.replace(url.toString());
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            
+            // PHASE 2: Setup outgoing deep linking (TREBA jQuery)
+            function setupOutgoingDeepLinking() {
+                console.log('🎯 Setting up outgoing deep linking...');
+                
+                $(document).ready(function() {
+                    console.log('📄 Document ready, monitoring AJAX...');
+                    
+                    // Monitor AJAX calls
+                    var originalAjax = $.ajax;
+                    $.ajax = function(options) {
+                        var originalSuccess = options.success;
+                        
+                        options.success = function(response) {
+                            if (originalSuccess) {
+                                originalSuccess.apply(this, arguments);
+                            }
+                            
+                            // Check if this was a color filter request
+                            if (options.url && options.url.includes('refinementColor')) {
+                                console.log('🎨 Color filter AJAX detected');
+                                setTimeout(function() {
+                                    updateURLAfterFilter(options.url);
+                                }, 150);
+                            }
+                        };
+                        
+                        return originalAjax.call(this, options);
+                    };
+                    
+                    function updateURLAfterFilter(requestUrl) {
+                        try {
+                            console.log('🔗 Updating URL after filter, request:', requestUrl);
+                            var url = new URL(requestUrl, window.location.origin);
+                            var colorValue = null;
+                            
+                            // Extract color value from request
+                            for (var i = 1; i <= 5; i++) {
+                                var prefn = url.searchParams.get('prefn' + i);
+                                var prefv = url.searchParams.get('prefv' + i);
+                                if (prefn === 'refinementColor' && prefv) {
+                                    colorValue = prefv;
+                                    console.log('🎨 Found color in request:', colorValue);
+                                    break;
+                                }
+                            }
+                            
+                            var currentPath = window.location.pathname;
+                            var newPath;
+                            
+                            if (colorValue) {
+                                var basePath = currentPath.replace(/\/color\/[^\/\?]+/g, '');
+                                newPath = basePath + '/color/' + encodeURIComponent(colorValue);
+                                console.log('✅ Adding color to URL:', newPath);
+                            } else {
+                                newPath = currentPath.replace(/\/color\/[^\/\?]+/g, '');
+                                console.log('🧹 Removing color from URL:', newPath);
+                            }
+                            
+                            if (newPath !== currentPath && newPath !== '') {
+                                window.history.replaceState({ deepLink: true }, '', newPath);
+                                console.log('🎯 URL successfully updated to:', newPath);
+                            }
+                            
+                        } catch (error) {
+                            console.error('❌ Error updating URL:', error);
+                        }
+                    }
+                    
+                    // Handle browser navigation
+                    $(window).on('popstate', function(event) {
+                        console.log('👈 Browser navigation detected');
+                        if (window.location.pathname.includes('/color/')) {
+                            console.log('🔄 Reloading for deep link');
+                            window.location.reload();
+                        }
+                    });
+                    
+                    console.log('✅ Outgoing deep linking setup complete!');
+                });
+            }
+            
+            // MAIN INITIALIZATION
+            if (!handleIncomingDeepLink()) {
+                // KLJUČNO: Čekaj jQuery pre setup-a outgoing linking-a
+                waitForJQuery(setupOutgoingDeepLinking);
+            }
+            
+        })();
+    </script>
+</isdecorate>
