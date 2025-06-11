@@ -77,6 +77,9 @@
         <product-value-identifier>prefv</product-value-identifier>
         <content-name-identifier>crefn</content-name-identifier>
         <content-value-identifier>crefv</content-value-identifier>
+        <custom-refinements>
+            <refinement name="refinementColor" url-segment="color"/>
+        </custom-refinements>
     </search-refinement-url-settings>
 </url-rules>
 
