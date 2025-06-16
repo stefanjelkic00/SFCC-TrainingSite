@@ -14,7 +14,16 @@
     <category-page-url-override>true</category-page-url-override>
     <category-trailing-slash>true</category-trailing-slash>
     <category-offline-url-generation>true</category-offline-url-generation>
-    <category-search-refinement-url-enabled>false</category-search-refinement-url-enabled>
+    <category-search-refinement-url-enabled>true</category-search-refinement-url-enabled>
+    <category-search-refinements xml:lang="x-default">
+        <url-search-refinements>
+            <search-refinement-name>constant</search-refinement-name>
+            <constant>true</constant>
+        </url-search-refinements>
+        <url-search-refinements>
+            <search-refinement-name>refinementColor</search-refinement-name>
+        </url-search-refinements>
+    </category-search-refinements>
     <product-rule>[ category ]</product-rule>
     <product-page-url-override>true</product-page-url-override>
     <product-id-separator>/</product-id-separator>
@@ -23,6 +32,12 @@
     <folder-trailing-slash>true</folder-trailing-slash>
     <folder-offline-url-generation>true</folder-offline-url-generation>
     <folder-search-refinement-url-enabled>false</folder-search-refinement-url-enabled>
+    <folder-search-refinements xml:lang="x-default">
+        <url-search-refinements>
+            <search-refinement-name>constant</search-refinement-name>
+            <constant>true</constant>
+        </url-search-refinements>
+    </folder-search-refinements>
     <content-rule>[ folder ]</content-rule>
     <content-page-url-override>true</content-page-url-override>
     <content-id-separator>/</content-id-separator>
@@ -69,17 +84,14 @@
     <search-refinement-url-settings>
         <position>after</position>
         <segment-delimiter>slash</segment-delimiter>
-        <refinements-delimiter>minus</refinements-delimiter>
-        <value-delimiter>underscore</value-delimiter>
+        <refinements-delimiter>slash</refinements-delimiter>
+        <value-delimiter>pipe</value-delimiter>
         <conflicting-value-delimiter>blank</conflicting-value-delimiter>
-        <exclude-pipeline-alias-type>none</exclude-pipeline-alias-type>
+        <exclude-pipeline-alias-type>catalog</exclude-pipeline-alias-type>
         <product-name-identifier>prefn</product-name-identifier>
         <product-value-identifier>prefv</product-value-identifier>
         <content-name-identifier>crefn</content-name-identifier>
         <content-value-identifier>crefv</content-value-identifier>
-        <custom-refinements>
-            <refinement name="refinementColor" url-segment="color"/>
-        </custom-refinements>
     </search-refinement-url-settings>
 </url-rules>
 
