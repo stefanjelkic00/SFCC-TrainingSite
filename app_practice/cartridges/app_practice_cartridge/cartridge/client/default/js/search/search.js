@@ -2,13 +2,13 @@
 
 const baseSearch = require('app_storefront_base/js/search/search');
 
-baseSearch.colorAttribute = function() {
-    $('.container').on('click', '.color-attribute button', function (e) {
-        e.preventDefault();
+baseSearch.seoAttributeFilter = function() {
+    $('.container').on('click', '[data-seo-href]', function (e) {
         const seoUrl = $(this).data('seo-href');
         const searchUrl = $(this).data('href');
         
         if (seoUrl && seoUrl !== '#' && seoUrl !== searchUrl) {
+            e.preventDefault();
             $.spinner().start();
             $(this).trigger('search:filter', e);
             
@@ -36,7 +36,7 @@ $(document).ready(function() {
     ['filter', 'closeRefinements', 'resize', 'sort', 'showMore', 'applyFilter', 'showContentTab']
         .forEach(method => baseSearch[method]());
     
-    baseSearch.colorAttribute();
+    baseSearch.seoAttributeFilter();
 });
 
 module.exports = baseSearch;
