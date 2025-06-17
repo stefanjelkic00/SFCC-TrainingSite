@@ -1,0 +1,14 @@
+<isif condition="${pdict.productSearch.productIds.length > 0}">
+    <select name="sort-order" class="custom-select" aria-label="${Resource.msg('label.sort.by', 'search', null)}">
+        <isloop items="${pdict.productSearch.productSort.options}" var="option">
+            <option class="${option.id}" value="${option.url}"
+                data-id="${option.id}"
+                data-ajax-url="${option.ajaxUrl}"
+                data-sort-rule="${option.sortRuleId}"
+                ${pdict.productSearch.productSort.ruleId === option.id ? 'selected' : '' }
+            >
+                ${option.displayName}
+            </option>
+        </isloop>
+    </select>
+</isif>
