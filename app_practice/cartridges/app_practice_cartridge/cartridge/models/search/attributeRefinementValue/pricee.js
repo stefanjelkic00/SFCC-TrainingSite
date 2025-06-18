@@ -55,9 +55,19 @@ PriceAttributeValue.prototype.getUrl = function (
     valueFrom,
     valueTo
 ) {
-    return selected
+    var url = selected
         ? productSearch.urlRelaxPrice(actionEndpoint).relative().toString()
         : productSearch.urlRefinePrice(actionEndpoint, valueFrom, valueTo).relative().toString();
+    
+    // DODAJ SORT PRESERVATION
+    if (url !== '#' && productSearch.sortingRule && productSearch.sortingRule.ID) {
+        var URLUtils = require('dw/web/URLUtils');
+        var urlObj = new URLUtils.URL(url);
+        urlObj.append('srule', productSearch.sortingRule.ID);
+        url = urlObj.toString();
+    }
+    
+    return url;
 };
 
 /**
@@ -70,9 +80,19 @@ PriceAttributeValue.prototype.getSeoUrl = function (
     valueFrom,
     valueTo
 ) {
-    return selected
+    var url = selected
         ? productSearch.urlRelaxPrice(actionEndpoint).relative().toString()
         : productSearch.urlRefinePrice(actionEndpoint, valueFrom, valueTo).relative().toString();
+    
+    // DODAJ SORT PRESERVATION I ZA SEO URL
+    if (url !== '#' && productSearch.sortingRule && productSearch.sortingRule.ID) {
+        var URLUtils = require('dw/web/URLUtils');
+        var urlObj = new URLUtils.URL(url);
+        urlObj.append('srule', productSearch.sortingRule.ID);
+        url = urlObj.toString();
+    }
+    
+    return url;
 };
 
 /**
