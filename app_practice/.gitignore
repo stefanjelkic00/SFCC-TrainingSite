@@ -15,7 +15,7 @@ sitedata/**/static/
 .settings
 
 cartridges/app_practice_cartridge/cartridge/static/default/js/search.js
-
+cartridges/app_practice_cartridge/cartridge/static/app_practice_cartridge/
 # DW JSON file (osetljive informacije)
 dw.json
 
