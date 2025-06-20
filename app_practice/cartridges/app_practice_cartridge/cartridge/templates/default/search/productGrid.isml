@@ -1,0 +1,150 @@
+<isinclude template="search/components/productTiles" />
+
+<div class="col-12 grid-footer"
+     data-sort-options="${JSON.stringify(pdict.productSearch.productSort)}"
+     data-page-size="${pdict.productSearch.pageSize}"
+     data-page-number="${pdict.productSearch.pageNumber}"
+>
+    <isscript>
+        var paginationData = pdict.productSearch.getPaginationData();
+        // Debug logging
+        var System = require('dw/system/System');
+        System.getLogger('pagination', 'pagination').info('Pagination data: {0}', JSON.stringify(paginationData));
+    </isscript>
+
+    <style>
+    .pagination {
+        display: flex;
+        padding-left: 0;
+        list-style: none;
+        border-radius: 0.25rem;
+        justify-content: center;
+        margin: 20px 0;
+    }
+    .pagination .page-link {
+        position: relative;
+        display: block;
+        padding: 0.5rem 0.75rem;
+        margin-left: -1px;
+        line-height: 1.25;
+        color: #007bff;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .pagination .page-link:hover {
+        color: #0056b3;
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+    }
+    .pagination .page-item.active .page-link {
+        z-index: 3;
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        cursor: auto;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }
+    /* Debug styling */
+    .debug-info {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 12px;
+    }
+    </style>
+
+    <!-- DEBUG INFO (ukloni u produkciji) -->
+    <div class="debug-info">
+        <strong>Debug Info:</strong><br>
+        Current Page: ${paginationData.currentPage}<br>
+        Total Pages: ${paginationData.totalPages}<br>
+        Page Size: ${pdict.productSearch.pageSize}<br>
+        Total Count: ${pdict.productSearch.count}<br>
+        <isif condition="${paginationData.debug}">
+            Start Page: ${paginationData.debug.startPage}<br>
+            End Page: ${paginationData.debug.endPage}<br>
+            Current Start: ${paginationData.debug.currentStart}<br>
+        </isif>
+        <isif condition="${paginationData.error}">
+            <span style="color: red;">Error: ${paginationData.error}</span><br>
+        </isif>
+    </div>
+
+    <isif condition="${paginationData.showPagination}">
+        <div class="pagination-wrapper text-center mt-4">
+            <nav aria-label="Pagination">
+                <ul class="pagination justify-content-center">
+                    
+                    <!-- Previous Button -->
+                    <isif condition="${paginationData.currentPage > 1}">
+                        <li class="page-item">
+                            <a class="page-link pagination-link" 
+                               href="${paginationData.prevUrl}" 
+                               data-page="${paginationData.currentPage - 1}"
+                               title="Previous page">
+                                <span>&lsaquo;</span>
+                            </a>
+                        </li>
+                    <iselse>
+                        <li class="page-item disabled">
+                            <span class="page-link">&lsaquo;</span>
+                        </li>
+                    </isif>
+                    
+                    <!-- Page Numbers -->
+                    <isloop items="${paginationData.pageUrls}" var="pageData">
+                        <isif condition="${pageData.isActive}">
+                            <li class="page-item active">
+                                <span class="page-link">${pageData.pageNum}</span>
+                            </li>
+                        <iselse>
+                            <li class="page-item">
+                                <a class="page-link pagination-link" 
+                                   href="${pageData.url}" 
+                                   data-page="${pageData.pageNum}"
+                                   title="Go to page ${pageData.pageNum}">
+                                    ${pageData.pageNum}
+                                </a>
+                            </li>
+                        </isif>
+                    </isloop>
+                    
+                    <!-- Next Button -->
+                    <isif condition="${paginationData.currentPage < paginationData.totalPages}">
+                        <li class="page-item">
+                            <a class="page-link pagination-link" 
+                               href="${paginationData.nextUrl}" 
+                               data-page="${paginationData.currentPage + 1}"
+                               title="Next page">
+                                <span>&rsaquo;</span>
+                            </a>
+                        </li>
+                    <iselse>
+                        <li class="page-item disabled">
+                            <span class="page-link">&rsaquo;</span>
+                        </li>
+                    </isif>
+                    
+                </ul>
+            </nav>
+        </div>
+    <iselse>
+        <div class="debug-info">
+            <span style="color: orange;">Pagination not shown - showPagination: ${paginationData.showPagination}</span>
+        </div>
+    </isif>
+
+    <input type="hidden" class="permalink" value="${pdict.productSearch.permalink}" />
+    <isif condition="${pdict.productSearch.category != null}">
+        <input type="hidden" class="category-id" value="${pdict.productSearch.category.id}" />
+    </isif>
+</div>

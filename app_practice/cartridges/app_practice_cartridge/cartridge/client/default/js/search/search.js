@@ -19,6 +19,13 @@ function parseResults(response) {
     
     const $updates = $results.find('.refinements');
     $('.refinements').empty().html($updates.html());
+    
+    const $paginationWrapper = $results.find('.pagination-wrapper');
+    if ($paginationWrapper.length > 0) {
+        $('.pagination-wrapper').replaceWith($paginationWrapper);
+    } else {
+        $('.pagination-wrapper').remove();
+    }
 }
 
 baseSearch.applyFilter = function() {
@@ -38,7 +45,7 @@ baseSearch.applyFilter = function() {
             },
             method: 'GET',
             success: function(response) {
-                parseResults(response);
+                parseResults(response);  
                 
                 const serverUrl = $(response).find('.permalink').val();
                 if (serverUrl) {
@@ -68,7 +75,7 @@ baseSearch.sort = function() {
             data: { selectedUrl: this.value },
             method: 'GET',
             success: function(response) {
-                $('.product-grid').empty().html(response);
+                parseResults(response); 
                 
                 const serverUrl = $(response).find('.permalink').val();
                 if (serverUrl) {
@@ -83,5 +90,49 @@ baseSearch.sort = function() {
         });
     });
 };
+
+//DISABLE SHOW MORE (zamenjuje ga paginacija, moze da bude tu a i ne mora...)
+baseSearch.showMore = function() {
+    return; 
+};
+
+baseSearch.pagination = function() {
+    $('.container').on('click', '.pagination-link', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const url = $(this).attr('href');
+        const page = $(this).data('page');
+        
+        $.spinner().start();
+        $(this).trigger('search:pagination', { page: page, url: url });
+        
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response) {
+                parseResults(response); 
+                
+                const serverUrl = $(response).find('.permalink').val();
+                if (serverUrl) {
+                    window.history.pushState({}, null, serverUrl);
+                }
+                
+                $('html, body').animate({
+                    scrollTop: $('.product-grid').offset().top - 100
+                }, 300);
+                
+                $.spinner().stop();
+            },
+            error: function() {
+                $.spinner().stop();
+            }
+        });
+    });
+};
+
+$(document).ready(function() {
+    baseSearch.pagination();
+});
 
 module.exports = baseSearch;

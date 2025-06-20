@@ -1,0 +1,46 @@
+@import "base/search";  // Importuje base stilove
+
+// Dodajte svoje custom stilove za paginaciju
+.pagination-wrapper {
+    margin: 20px 0;
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+        
+        .page-item {
+            margin: 0 2px;
+            
+            .page-link {
+                display: block;
+                padding: 8px 12px;
+                color: #333;
+                background-color: #fff;
+                border: 1px solid #ddd;
+                text-decoration: none;
+                transition: all 0.3s ease;
+                
+                &:hover {
+                    background-color: #e9ecef;
+                    border-color: #ddd;
+                }
+            }
+            
+            &.active .page-link {
+                background-color: #007bff;
+                border-color: #007bff;
+                color: white;
+                cursor: default;
+                pointer-events: none;
+            }
+            
+            &.disabled .page-link {
+                color: #6c757d;
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+        }
+    }
+}
