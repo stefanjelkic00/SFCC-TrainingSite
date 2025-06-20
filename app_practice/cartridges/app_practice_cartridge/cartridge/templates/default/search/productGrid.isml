@@ -1,99 +1,21 @@
 <isinclude template="search/components/productTiles" />
-
 <div class="col-12 grid-footer"
      data-sort-options="${JSON.stringify(pdict.productSearch.productSort)}"
      data-page-size="${pdict.productSearch.pageSize}"
-     data-page-number="${pdict.productSearch.pageNumber}"
->
+     data-page-number="${pdict.productSearch.pageNumber}">
     <isscript>
-        var paginationData = pdict.productSearch.getPaginationData();
+        let paginationData = pdict.productSearch.getPaginationData();
     </isscript>
-
-    <style>
-    .pagination-wrapper {
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-    }
     
-    .pagination {
-        display: flex;
-        padding-left: 0;
-        list-style: none;
-        border-radius: 0.25rem;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 4px;
-    }
-    
-    .pagination .page-item {
-        margin: 0;
-    }
-    
-    .pagination .page-link {
-        position: relative;
-        display: block;
-        padding: 0.5rem 0.75rem;
-        min-width: 40px;
-        text-align: center;
-        line-height: 1.25;
-        color: #007bff;
-        background-color: #fff;
-        border: 1px solid #dee2e6;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .pagination .page-link:hover {
-        z-index: 2;
-        color: #0056b3;
-        background-color: #e9ecef;
-        border-color: #dee2e6;
-    }
-    
-    .pagination .page-item.active .page-link {
-        z-index: 3;
-        color: #fff;
-        background-color: #007bff;
-        border-color: #007bff;
-        cursor: default;
-    }
-    
-    .pagination .page-item.disabled .page-link {
-        color: #6c757d;
-        pointer-events: none;
-        cursor: not-allowed;
-        background-color: #fff;
-        border-color: #dee2e6;
-        opacity: 0.5;
-    }
-    
-    .pagination .page-link.arrow {
-        font-weight: bold;
-        padding: 0.5rem 1rem;
-    }
-    
-    .pagination-info {
-        color: #6c757d;
-        font-size: 0.875rem;
-        margin-bottom: 0.5rem;
-    }
-    </style>
-
     <isif condition="${paginationData.showPagination}">
         <div class="pagination-wrapper">
-            <!-- Info o trenutnoj stranici -->
-            <div class="pagination-info text-center">
-                Stranica ${paginationData.currentPage} od ${paginationData.totalPages}
-            </div>
-            
             <nav aria-label="Product pagination">
-                <ul class="pagination">
-                    <!-- Previous Arrow -->
+                <ul class="pagination justify-content-center">
                     <isif condition="${paginationData.currentPage > 1}">
                         <li class="page-item">
-                            <a class="page-link pagination-link arrow" 
-                               href="${paginationData.prevUrl}" 
-                               data-page="${paginationData.prevPage}">
+                            <a class="page-link pagination-link arrow"
+                                href="${paginationData.prevUrl}"
+                                data-page="${paginationData.prevPage}">
                                 <span>&lsaquo;</span>
                             </a>
                         </li>
@@ -105,7 +27,6 @@
                         </li>
                     </isif>
                     
-                    <!-- Page Numbers -->
                     <isloop items="${paginationData.pageUrls}" var="pageData">
                         <isif condition="${pageData.isActive}">
                             <li class="page-item active">
@@ -113,19 +34,18 @@
                             </li>
                         <iselse>
                             <li class="page-item">
-                                <a class="page-link pagination-link" 
-                                   href="${pageData.url}" 
-                                   data-page="${pageData.pageNum}">${pageData.pageNum}</a>
+                                <a class="page-link pagination-link"
+                                    href="${pageData.url}"
+                                    data-page="${pageData.pageNum}">${pageData.pageNum}</a>
                             </li>
                         </isif>
                     </isloop>
                     
-                    <!-- Next Arrow -->
                     <isif condition="${paginationData.currentPage < paginationData.totalPages}">
                         <li class="page-item">
-                            <a class="page-link pagination-link arrow" 
-                               href="${paginationData.nextUrl}" 
-                               data-page="${paginationData.nextPage}">
+                            <a class="page-link pagination-link arrow"
+                                href="${paginationData.nextUrl}"
+                                data-page="${paginationData.nextPage}">
                                 <span>&rsaquo;</span>
                             </a>
                         </li>
@@ -140,7 +60,7 @@
             </nav>
         </div>
     </isif>
-
+    
     <input type="hidden" class="permalink" value="${pdict.productSearch.permalink}" />
     <isif condition="${pdict.productSearch.category != null}">
         <input type="hidden" class="category-id" value="${pdict.productSearch.category.id}" />
