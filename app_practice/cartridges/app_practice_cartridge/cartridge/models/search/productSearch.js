@@ -17,6 +17,9 @@ function ProductSearch(productSearch, httpParams, sortingRule, sortingOptions, r
     
     // Override permalink sa ispravnom logikom
     this.permalink = this.getFixedPermalink(productSearch, httpParams);
+    
+    // Sačuvaj httpParams za kasnije korišćenje
+    this.httpParams = httpParams;
 }
 
 // Nasleđivanje prototype-a
@@ -27,91 +30,134 @@ ProductSearch.prototype.constructor = ProductSearch;
  * Generiše permalink koristeći postojeću SFRA logiku
  */
 ProductSearch.prototype.getFixedPermalink = function(productSearch, httpParams) {
-    var PagingModel = require('dw/web/PagingModel');
-    var startValue = httpParams.start ? parseInt(httpParams.start, 10) : 0;
-    
-    // Koristi PagingModel kao u originalnoj SFRA logici
-    var paging = new PagingModel(
-        productSearch.productSearchHits,
-        productSearch.count
-    );
-    paging.setStart(startValue);
-    paging.setPageSize(this.pageSize);
-    
-    // Koristi productSearch.url() koji automatski čuva sve parametre
-    var baseUrl = productSearch.url('Search-Show');
-    
-    // appendPaging automatski dodaje start i sz parametre
-    return paging.appendPaging(baseUrl).toString();
+    try {
+        var PagingModel = require('dw/web/PagingModel');
+        var startValue = httpParams.start ? parseInt(httpParams.start, 10) : 0;
+        
+        var paging = new PagingModel(
+            productSearch.productSearchHits,
+            productSearch.count
+        );
+        paging.setStart(startValue);
+        paging.setPageSize(this.pageSize);
+        
+        var baseUrl = productSearch.url('Search-Show');
+        return paging.appendPaging(baseUrl).toString();
+    } catch (e) {
+        return productSearch.url('Search-Show').toString();
+    }
 };
 
 /**
- * Generiše podatke za paginaciju koristeći SFRA pristup
+ * Generiše podatke za paginaciju sa sliding window logikom
  */
 ProductSearch.prototype.getPaginationData = function() {
     var PagingModel = require('dw/web/PagingModel');
     
     try {
-        // Kreiraj PagingModel instancu
+        // Kreiraj PagingModel sa trenutnim podacima
         var paging = new PagingModel(
             this.productSearch.productSearchHits,
             this.productSearch.count
         );
         
-        // Koristi pageNumber koji već imamo
-        var currentStart = 0;
-        if (this.pageNumber && this.pageSize) {
-            currentStart = (this.pageNumber - 1) * this.pageSize;
-        }
+        // Dobij start parametar iz httpParams
+        var currentStart = this.httpParams.start ? parseInt(this.httpParams.start, 10) : 0;
         
         paging.setStart(currentStart);
         paging.setPageSize(this.pageSize);
         
-        var currentPage = paging.currentPage;
+        // VAŽNO: PagingModel vraća currentPage koji počinje od 0, ali mi želimo da počne od 1
+        var currentPage = paging.currentPage + 1;
         var maxPage = paging.maxPage;
         
-        // Kalkuliši raspon stranica za prikaz (5 stranica)
-        var startPage = Math.max(1, currentPage - 2);
-        var endPage = Math.min(maxPage, startPage + 4);
+        // Debug logovanje
+        var Logger = require('dw/system/Logger');
+        Logger.info('Pagination Debug - Start: {0}, PageSize: {1}, CurrentPage (0-based): {2}, CurrentPage (1-based): {3}, MaxPage: {4}', 
+            currentStart, this.pageSize, paging.currentPage, currentPage, maxPage);
         
-        if (endPage - startPage < 4) {
-            startPage = Math.max(1, endPage - 4);
+        // Sliding window logika
+        var windowSize = 5;
+        var halfWindow = Math.floor(windowSize / 2);
+        var startPage, endPage;
+        
+        if (maxPage <= windowSize) {
+            // Ako ima manje stranica od window size, prikaži sve
+            startPage = 1;
+            endPage = maxPage;
+        } else {
+            // Centriraj trenutnu stranicu
+            startPage = Math.max(1, currentPage - halfWindow);
+            endPage = Math.min(maxPage, currentPage + halfWindow);
+            
+            // Prilagodi ako smo blizu početka
+            if (startPage === 1) {
+                endPage = Math.min(maxPage, windowSize);
+            }
+            // Prilagodi ako smo blizu kraja
+            else if (endPage === maxPage) {
+                startPage = Math.max(1, maxPage - windowSize + 1);
+            }
         }
         
         // Generiši URL-ove za svaku stranicu
         var pageUrls = [];
         for (var i = startPage; i <= endPage; i++) {
-            // Postavi start za ciljnu stranicu
-            paging.setStart((i - 1) * this.pageSize);
+            var pageStart = (i - 1) * this.pageSize;
             
-            // Koristi istu logiku kao getShowMoreUrl
+            // Kreiraj novi PagingModel za svaku stranicu
+            var pagePaging = new PagingModel(
+                this.productSearch.productSearchHits,
+                this.productSearch.count
+            );
+            pagePaging.setStart(pageStart);
+            pagePaging.setPageSize(this.pageSize);
+            
             var pageUrl = this.productSearch.url('Search-Show');
-            pageUrl = paging.appendPaging(pageUrl);
+            pageUrl = pagePaging.appendPaging(pageUrl);
             
             pageUrls.push({
                 pageNum: i.toString(),
                 url: pageUrl.toString(),
-                isActive: (i === currentPage)
+                isActive: (i === currentPage),
+                start: pageStart
             });
         }
         
-        // Reset na trenutnu stranicu za prev/next linkove
-        paging.setStart(currentStart);
-        
-        // Previous URL
+        // Previous URL - moramo paziti da prevPage bude u 1-based sistemu
         var prevUrl = '';
+        var prevPage = 0;
         if (currentPage > 1) {
-            paging.setStart((currentPage - 2) * this.pageSize);
+            prevPage = currentPage - 1;
+            var prevStart = (prevPage - 1) * this.pageSize;
+            
+            var prevPaging = new PagingModel(
+                this.productSearch.productSearchHits,
+                this.productSearch.count
+            );
+            prevPaging.setStart(prevStart);
+            prevPaging.setPageSize(this.pageSize);
+            
             var prevBaseUrl = this.productSearch.url('Search-Show');
-            prevUrl = paging.appendPaging(prevBaseUrl).toString();
+            prevUrl = prevPaging.appendPaging(prevBaseUrl).toString();
         }
         
-        // Next URL
+        // Next URL - moramo paziti da nextPage bude u 1-based sistemu
         var nextUrl = '';
+        var nextPage = 0;
         if (currentPage < maxPage) {
-            paging.setStart(currentPage * this.pageSize);
+            nextPage = currentPage + 1;
+            var nextStart = (nextPage - 1) * this.pageSize;
+            
+            var nextPaging = new PagingModel(
+                this.productSearch.productSearchHits,
+                this.productSearch.count
+            );
+            nextPaging.setStart(nextStart);
+            nextPaging.setPageSize(this.pageSize);
+            
             var nextBaseUrl = this.productSearch.url('Search-Show');
-            nextUrl = paging.appendPaging(nextBaseUrl).toString();
+            nextUrl = nextPaging.appendPaging(nextBaseUrl).toString();
         }
         
         return {
@@ -120,17 +166,30 @@ ProductSearch.prototype.getPaginationData = function() {
             pageUrls: pageUrls,
             prevUrl: prevUrl,
             nextUrl: nextUrl,
-            showPagination: this.count > this.pageSize
+            prevPage: prevPage,
+            nextPage: nextPage,
+            showPagination: this.count > this.pageSize,
+            startPage: startPage,
+            endPage: endPage
         };
     } catch (e) {
-        // Fallback ako nešto pođe po zlu
+        // Fallback za greške
         return {
             currentPage: 1,
             totalPages: 1,
-            pageUrls: [],
+            pageUrls: [{
+                pageNum: '1',
+                url: this.productSearch.url('Search-Show').toString(),
+                isActive: true,
+                start: 0
+            }],
             prevUrl: '',
             nextUrl: '',
-            showPagination: false
+            prevPage: 0,
+            nextPage: 0,
+            showPagination: false,
+            startPage: 1,
+            endPage: 1
         };
     }
 };

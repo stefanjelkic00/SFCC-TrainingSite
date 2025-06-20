@@ -5,11 +5,13 @@ const baseSearch = require('app_storefront_base/search/search');
 function parseResults(response) {
     const $results = $(response);
     
+    // Standardno ažuriranje DOM elemenata
     ['.grid-header', '.header-bar', '.header.page-title', '.product-grid', '.show-more', '.filter-bar'].forEach(function(selector) {
         const $updates = $results.find(selector);
         $(selector).empty().html($updates.html());
     });
     
+    // Održavanje stanja refinement panela
     $('.refinement.active').each(function() {
         $(this).removeClass('active');
         const activeDiv = $results.find('.' + $(this)[0].className.replace(/ /g, '.'));
@@ -17,14 +19,22 @@ function parseResults(response) {
         activeDiv.find('button.title').attr('aria-expanded', 'true');
     });
     
+    // Ažuriranje refinements
     const $updates = $results.find('.refinements');
     $('.refinements').empty().html($updates.html());
     
+    // VAŽNO: Zamena cele paginacije da bi se održalo stanje
     const $paginationWrapper = $results.find('.pagination-wrapper');
     if ($paginationWrapper.length > 0) {
         $('.pagination-wrapper').replaceWith($paginationWrapper);
     } else {
         $('.pagination-wrapper').remove();
+    }
+    
+    // Ažuriranje grid-footer atributa
+    const $gridFooter = $results.find('.grid-footer');
+    if ($gridFooter.length > 0) {
+        $('.grid-footer').attr('data-page-number', $gridFooter.attr('data-page-number'));
     }
 }
 
@@ -91,7 +101,7 @@ baseSearch.sort = function() {
     });
 };
 
-//DISABLE SHOW MORE (zamenjuje ga paginacija, moze da bude tu a i ne mora...)
+// DISABLE SHOW MORE
 baseSearch.showMore = function() {
     return; 
 };
@@ -101,16 +111,33 @@ baseSearch.pagination = function() {
         e.preventDefault();
         e.stopPropagation();
         
-        const url = $(this).attr('href');
-        const page = $(this).data('page');
+        const $this = $(this);
+        const url = $this.attr('href');
+        const pageNum = $this.data('page') || $this.text();
+        
+        console.log('Pagination clicked:', {
+            url: url,
+            pageNum: pageNum,
+            text: $this.text()
+        });
+        
+        // Provera da li je link disabled
+        if ($this.parent().hasClass('disabled')) {
+            return false;
+        }
         
         $.spinner().start();
-        $(this).trigger('search:pagination', { page: page, url: url });
+        
+        // Trigger event sa informacijama o stranici
+        $(this).trigger('search:pagination', { page: pageNum, url: url });
+        
+        console.log('Pagination clicked - URL:', url, 'Page:', pageNum);
         
         $.ajax({
             url: url,
             method: 'GET',
             success: function(response) {
+                console.log('Response received, updating page...');
                 parseResults(response); 
                 
                 const serverUrl = $(response).find('.permalink').val();
@@ -118,6 +145,7 @@ baseSearch.pagination = function() {
                     window.history.pushState({}, null, serverUrl);
                 }
                 
+                // Skroluj do vrha proizvoda
                 $('html, body').animate({
                     scrollTop: $('.product-grid').offset().top - 100
                 }, 300);

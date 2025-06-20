@@ -7,96 +7,101 @@
 >
     <isscript>
         var paginationData = pdict.productSearch.getPaginationData();
-        // Debug logging
-        var System = require('dw/system/System');
-        System.getLogger('pagination', 'pagination').info('Pagination data: {0}', JSON.stringify(paginationData));
     </isscript>
 
     <style>
+    .pagination-wrapper {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+    
     .pagination {
         display: flex;
         padding-left: 0;
         list-style: none;
         border-radius: 0.25rem;
         justify-content: center;
-        margin: 20px 0;
+        flex-wrap: wrap;
+        gap: 4px;
     }
+    
+    .pagination .page-item {
+        margin: 0;
+    }
+    
     .pagination .page-link {
         position: relative;
         display: block;
         padding: 0.5rem 0.75rem;
-        margin-left: -1px;
+        min-width: 40px;
+        text-align: center;
         line-height: 1.25;
         color: #007bff;
         background-color: #fff;
         border: 1px solid #dee2e6;
         text-decoration: none;
-        cursor: pointer;
+        transition: all 0.2s ease;
     }
+    
     .pagination .page-link:hover {
+        z-index: 2;
         color: #0056b3;
         background-color: #e9ecef;
         border-color: #dee2e6;
     }
+    
     .pagination .page-item.active .page-link {
         z-index: 3;
         color: #fff;
         background-color: #007bff;
         border-color: #007bff;
+        cursor: default;
     }
+    
     .pagination .page-item.disabled .page-link {
         color: #6c757d;
         pointer-events: none;
-        cursor: auto;
+        cursor: not-allowed;
         background-color: #fff;
         border-color: #dee2e6;
+        opacity: 0.5;
     }
-    /* Debug styling */
-    .debug-info {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        padding: 10px;
-        margin: 10px 0;
-        font-family: monospace;
-        font-size: 12px;
+    
+    .pagination .page-link.arrow {
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+    }
+    
+    .pagination-info {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
     }
     </style>
 
-    <!-- DEBUG INFO (ukloni u produkciji) -->
-    <div class="debug-info">
-        <strong>Debug Info:</strong><br>
-        Current Page: ${paginationData.currentPage}<br>
-        Total Pages: ${paginationData.totalPages}<br>
-        Page Size: ${pdict.productSearch.pageSize}<br>
-        Total Count: ${pdict.productSearch.count}<br>
-        <isif condition="${paginationData.debug}">
-            Start Page: ${paginationData.debug.startPage}<br>
-            End Page: ${paginationData.debug.endPage}<br>
-            Current Start: ${paginationData.debug.currentStart}<br>
-        </isif>
-        <isif condition="${paginationData.error}">
-            <span style="color: red;">Error: ${paginationData.error}</span><br>
-        </isif>
-    </div>
-
     <isif condition="${paginationData.showPagination}">
-        <div class="pagination-wrapper text-center mt-4">
-            <nav aria-label="Pagination">
-                <ul class="pagination justify-content-center">
-                    
-                    <!-- Previous Button -->
+        <div class="pagination-wrapper">
+            <!-- Info o trenutnoj stranici -->
+            <div class="pagination-info text-center">
+                Stranica ${paginationData.currentPage} od ${paginationData.totalPages}
+            </div>
+            
+            <nav aria-label="Product pagination">
+                <ul class="pagination">
+                    <!-- Previous Arrow -->
                     <isif condition="${paginationData.currentPage > 1}">
                         <li class="page-item">
-                            <a class="page-link pagination-link" 
+                            <a class="page-link pagination-link arrow" 
                                href="${paginationData.prevUrl}" 
-                               data-page="${paginationData.currentPage - 1}"
-                               title="Previous page">
+                               data-page="${paginationData.prevPage}">
                                 <span>&lsaquo;</span>
                             </a>
                         </li>
                     <iselse>
                         <li class="page-item disabled">
-                            <span class="page-link">&lsaquo;</span>
+                            <span class="page-link arrow">
+                                <span>&lsaquo;</span>
+                            </span>
                         </li>
                     </isif>
                     
@@ -110,36 +115,29 @@
                             <li class="page-item">
                                 <a class="page-link pagination-link" 
                                    href="${pageData.url}" 
-                                   data-page="${pageData.pageNum}"
-                                   title="Go to page ${pageData.pageNum}">
-                                    ${pageData.pageNum}
-                                </a>
+                                   data-page="${pageData.pageNum}">${pageData.pageNum}</a>
                             </li>
                         </isif>
                     </isloop>
                     
-                    <!-- Next Button -->
+                    <!-- Next Arrow -->
                     <isif condition="${paginationData.currentPage < paginationData.totalPages}">
                         <li class="page-item">
-                            <a class="page-link pagination-link" 
+                            <a class="page-link pagination-link arrow" 
                                href="${paginationData.nextUrl}" 
-                               data-page="${paginationData.currentPage + 1}"
-                               title="Next page">
+                               data-page="${paginationData.nextPage}">
                                 <span>&rsaquo;</span>
                             </a>
                         </li>
                     <iselse>
                         <li class="page-item disabled">
-                            <span class="page-link">&rsaquo;</span>
+                            <span class="page-link arrow">
+                                <span>&rsaquo;</span>
+                            </span>
                         </li>
                     </isif>
-                    
                 </ul>
             </nav>
-        </div>
-    <iselse>
-        <div class="debug-info">
-            <span style="color: orange;">Pagination not shown - showPagination: ${paginationData.showPagination}</span>
         </div>
     </isif>
 
