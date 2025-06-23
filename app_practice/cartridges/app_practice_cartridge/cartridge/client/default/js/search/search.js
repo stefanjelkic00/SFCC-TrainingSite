@@ -26,6 +26,11 @@ function parseResults(response) {
     } else {
         $('.pagination-wrapper').remove();
     }
+    
+    const $gridFooter = $results.find('.grid-footer');
+    if ($gridFooter.length > 0) {
+        $('.grid-footer').attr('data-page-number', $gridFooter.attr('data-page-number'));
+    }
 }
 
 baseSearch.applyFilter = function() {
