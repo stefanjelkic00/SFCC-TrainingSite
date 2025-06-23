@@ -75,6 +75,17 @@
         </weighted-attribute>
     </dynamic-attribute>
 
+    <sorting-rule rule-id="In-stock">
+        <description>Sort by quantity stock product available</description>
+        <sorting-attributes>
+            <attribute>
+                <attribute-path>product.available</attribute-path>
+                <direction>descending</direction>
+                <include-text-relevance>false</include-text-relevance>
+            </attribute>
+        </sorting-attributes>
+    </sorting-rule>
+
     <sorting-rule rule-id="best-matches">
         <description>Applies static sortings (category position, search placement/rank), then text relevance, then explicit sortings</description>
         <sorting-attributes>
