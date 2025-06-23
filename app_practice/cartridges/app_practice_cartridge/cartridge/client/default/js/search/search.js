@@ -96,12 +96,8 @@ baseSearch.sort = function() {
     });
 };
 
-baseSearch.showMore = function() {
-    return; 
-};
-
 baseSearch.pagination = function() {
-    $('.container').on('click', '.pagination-link', function(e) {
+    $('.container').on('click', '.js-pagination-link', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
@@ -141,8 +137,6 @@ baseSearch.pagination = function() {
     });
 };
 
-$(document).ready(function() {
-    baseSearch.pagination();
-});
+
 
 module.exports = baseSearch;

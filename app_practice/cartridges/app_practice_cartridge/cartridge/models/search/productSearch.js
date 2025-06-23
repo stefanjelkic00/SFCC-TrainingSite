@@ -3,6 +3,8 @@
 const BaseProductSearch = require('app_storefront_base/cartridge/models/search/productSearch');
 const PagingModel = require('dw/web/PagingModel');
 
+const PAGINATION_WINDOW_SIZE = 5; 
+
 function ProductSearch(productSearch, httpParams, sortingRule, sortingOptions, rootCategory) {
     BaseProductSearch.call(this, productSearch, httpParams, sortingRule, sortingOptions, rootCategory);
     this.permalink = this.getFixedPermalink(productSearch, httpParams);
@@ -35,7 +37,7 @@ ProductSearch.prototype.getPaginationData = function() {
     const totalPages = Math.ceil(totalCount / pageSize);
     const currentPage = Math.floor(currentStart / pageSize) + 1;
     
-    const windowSize = 5;
+    const windowSize = PAGINATION_WINDOW_SIZE;
     const halfWindow = Math.floor(windowSize / 2);
     let startPage = totalPages <= windowSize ? 1 : Math.max(1, currentPage - halfWindow);
     let endPage = totalPages <= windowSize ? totalPages : Math.min(totalPages, currentPage + halfWindow);

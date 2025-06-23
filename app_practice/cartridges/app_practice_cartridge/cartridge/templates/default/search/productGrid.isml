@@ -13,7 +13,7 @@
                 <ul class="pagination justify-content-center">
                     <isif condition="${paginationData.currentPage > 1}">
                         <li class="page-item">
-                            <a class="page-link pagination-link arrow"
+                            <a class="page-link pagination-link js-pagination-link arrow"
                                 href="${paginationData.prevUrl}"
                                 data-page="${paginationData.prevPage}">
                                 <span>&lsaquo;</span>
@@ -34,7 +34,7 @@
                             </li>
                         <iselse>
                             <li class="page-item">
-                                <a class="page-link pagination-link"
+                                <a class="page-link pagination-link js-pagination-link"
                                     href="${pageData.url}"
                                     data-page="${pageData.pageNum}">${pageData.pageNum}</a>
                             </li>
@@ -43,7 +43,7 @@
                     
                     <isif condition="${paginationData.currentPage < paginationData.totalPages}">
                         <li class="page-item">
-                            <a class="page-link pagination-link arrow"
+                            <a class="page-link pagination-link js-pagination-link arrow"
                                 href="${paginationData.nextUrl}"
                                 data-page="${paginationData.nextPage}">
                                 <span>&rsaquo;</span>
