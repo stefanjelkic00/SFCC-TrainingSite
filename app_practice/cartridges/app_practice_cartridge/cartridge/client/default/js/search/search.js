@@ -2,6 +2,8 @@
 
 const baseSearch = require('app_storefront_base/search/search');
 
+console.log("Verzija 3 PROBA")
+
 function parseResults(response) {
     const $results = $(response);
     
@@ -75,12 +77,14 @@ baseSearch.sort = function() {
         $.spinner().start();
         $(this).trigger('search:sort', this.value);
         
+        const url = this.value.replace('Search-UpdateGrid', 'Search-ShowAjax');
+        
         $.ajax({
-            url: this.value,
+            url: url,
             data: { selectedUrl: this.value },
             method: 'GET',
             success: function(response) {
-                parseResults(response); 
+                parseResults(response);  
                 
                 const serverUrl = $(response).find('.permalink').val();
                 if (serverUrl) {
