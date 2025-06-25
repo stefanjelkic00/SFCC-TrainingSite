@@ -2,8 +2,6 @@
 
 const baseSearch = require('app_storefront_base/search/search');
 
-console.log("Verzija 3 PROBA")
-
 function parseResults(response) {
     const $results = $(response);
     
