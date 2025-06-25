@@ -1,3 +1,4 @@
 .vscode/
 dw.json
 storefront-reference-architecture/package-lock.json
+app_practice/cartridges/app_practice_cartridge/cartridge/static/default/js/search/search.js

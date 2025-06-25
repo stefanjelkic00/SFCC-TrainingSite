@@ -75,14 +75,12 @@ baseSearch.sort = function() {
         $.spinner().start();
         $(this).trigger('search:sort', this.value);
         
-        const url = this.value.replace('Search-UpdateGrid', 'Search-ShowAjax');
-        
         $.ajax({
-            url: url,
+            url: this.value,
             data: { selectedUrl: this.value },
             method: 'GET',
             success: function(response) {
-                parseResults(response);  
+                $('.product-grid').empty().html(response);
                 
                 const serverUrl = $(response).find('.permalink').val();
                 if (serverUrl) {
