@@ -19,6 +19,18 @@ function parseResults(response) {
     
     const $updates = $results.find('.refinements');
     $('.refinements').empty().html($updates.html());
+    
+    const $paginationWrapper = $results.find('.pagination-wrapper');
+    if ($paginationWrapper.length > 0) {
+        $('.pagination-wrapper').replaceWith($paginationWrapper);
+    } else {
+        $('.pagination-wrapper').remove();
+    }
+    
+    const $gridFooter = $results.find('.grid-footer');
+    if ($gridFooter.length > 0) {
+        $('.grid-footer').attr('data-page-number', $gridFooter.attr('data-page-number'));
+    }
 }
 
 baseSearch.applyFilter = function() {
@@ -38,7 +50,7 @@ baseSearch.applyFilter = function() {
             },
             method: 'GET',
             success: function(response) {
-                parseResults(response);
+                parseResults(response);  
                 
                 const serverUrl = $(response).find('.permalink').val();
                 if (serverUrl) {
@@ -83,5 +95,48 @@ baseSearch.sort = function() {
         });
     });
 };
+
+baseSearch.pagination = function() {
+    $('.container').on('click', '.js-pagination-link', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const $this = $(this);
+        const url = $this.attr('href');
+        
+        if ($this.parent().hasClass('disabled')) {
+            return false;
+        }
+        
+        $.spinner().start();
+        
+        const pageNum = $this.data('page') || $this.text();
+        $(this).trigger('search:pagination', { page: pageNum, url: url });
+        
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response) {
+                parseResults(response); 
+                
+                const serverUrl = $(response).find('.permalink').val();
+                if (serverUrl) {
+                    window.history.pushState({}, null, serverUrl);
+                }
+                
+                $('html, body').animate({
+                    scrollTop: $('.product-grid').offset().top - 100
+                }, 300);
+                
+                $.spinner().stop();
+            },
+            error: function() {
+                $.spinner().stop();
+            }
+        });
+    });
+};
+
+
 
 module.exports = baseSearch;

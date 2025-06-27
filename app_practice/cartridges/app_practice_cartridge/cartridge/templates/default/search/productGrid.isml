@@ -1,0 +1,68 @@
+<isinclude template="search/components/productTiles" />
+<div class="col-12 grid-footer"
+     data-sort-options="${JSON.stringify(pdict.productSearch.productSort)}"
+     data-page-size="${pdict.productSearch.pageSize}"
+     data-page-number="${pdict.productSearch.pageNumber}">
+    <isscript>
+        let paginationData = pdict.productSearch.getPaginationData();
+    </isscript>
+    
+    <isif condition="${paginationData.showPagination}">
+        <div class="pagination-wrapper">
+            <nav aria-label="Product pagination">
+                <ul class="pagination justify-content-center">
+                    <isif condition="${paginationData.currentPage > 1}">
+                        <li class="page-item">
+                            <a class="page-link pagination-link js-pagination-link arrow"
+                                href="${paginationData.prevUrl}"
+                                data-page="${paginationData.prevPage}">
+                                <span>&lsaquo;</span>
+                            </a>
+                        </li>
+                    <iselse>
+                        <li class="page-item disabled">
+                            <span class="page-link arrow">
+                                <span>&lsaquo;</span>
+                            </span>
+                        </li>
+                    </isif>
+                    
+                    <isloop items="${paginationData.pageUrls}" var="pageData">
+                        <isif condition="${pageData.isActive}">
+                            <li class="page-item active">
+                                <span class="page-link">${pageData.pageNum}</span>
+                            </li>
+                        <iselse>
+                            <li class="page-item">
+                                <a class="page-link pagination-link js-pagination-link"
+                                    href="${pageData.url}"
+                                    data-page="${pageData.pageNum}">${pageData.pageNum}</a>
+                            </li>
+                        </isif>
+                    </isloop>
+                    
+                    <isif condition="${paginationData.currentPage < paginationData.totalPages}">
+                        <li class="page-item">
+                            <a class="page-link pagination-link js-pagination-link arrow"
+                                href="${paginationData.nextUrl}"
+                                data-page="${paginationData.nextPage}">
+                                <span>&rsaquo;</span>
+                            </a>
+                        </li>
+                    <iselse>
+                        <li class="page-item disabled">
+                            <span class="page-link arrow">
+                                <span>&rsaquo;</span>
+                            </span>
+                        </li>
+                    </isif>
+                </ul>
+            </nav>
+        </div>
+    </isif>
+    
+    <input type="hidden" class="permalink" value="${pdict.productSearch.permalink}" />
+    <isif condition="${pdict.productSearch.category != null}">
+        <input type="hidden" class="category-id" value="${pdict.productSearch.category.id}" />
+    </isif>
+</div>
