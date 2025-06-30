@@ -1,12 +1,50 @@
-<isif condition="${slotcontent}">
-    <div class="product-slot">
-        <div class="row">
-            <isloop items="${slotcontent.content}" var="recommendedProduct">
-                <div class="col-6 col-sm-4 col-md-3 mb-3">
-                    <isinclude url="${URLUtils.url('Tile-Show', 'pid', recommendedProduct.ID, 'pview', 'tile', 'ratings', true, 'swatches', true)}"/>
+<isif condition="${slotcontent && slotcontent.content && slotcontent.content.length > 0}">
+    <!-- Random selekcija proizvoda iz slota -->
+    <isset name="randomIndex" value="${Math.floor(Math.random() * slotcontent.content.length)}" scope="page" />
+    <isset name="slotProduct" value="${slotcontent.content[randomIndex]}" scope="page" />
+    
+    <!-- Dobavi proizvod objekat -->
+    <isset name="productObj" value="${dw.catalog.ProductMgr.getProduct(slotProduct.ID)}" scope="page" />
+    
+    <isif condition="${productObj}">
+        <!-- Proveri stock -->
+        <isset name="availabilityModel" value="${productObj.getAvailabilityModel()}" scope="page" />
+        <isset name="hasStock" value="${availabilityModel && availabilityModel.inStock}" scope="page" />
+        
+        <isif condition="${hasStock}">
+            <!-- Dobavi preporuke za ovaj proizvod -->
+            <isset name="recommendations" value="${productObj.getRecommendations()}" scope="page" />
+            
+            <isif condition="${recommendations && recommendations.length > 0}">
+                <div class="product-recommendations">
+                    <div class="row">
+                        <isloop items="${recommendations}" var="recommendation">
+                            <!-- Dobavi preporučeni proizvod -->
+                            <isset name="recommendedProduct" value="${recommendation.getRecommendedItem()}" scope="page" />
+                            
+                            <isif condition="${recommendedProduct}">
+                                <!-- DODAJEMO SAMO OVU PROVERU -->
+                                <isset name="recAvailability" value="${recommendedProduct.getAvailabilityModel()}" scope="page" />
+                                <isset name="isOnline" value="${recommendedProduct.isOnline()}" scope="page" />
+                                <isset name="recHasStock" value="${recAvailability && recAvailability.inStock}" scope="page" />
+                                
+                                <isif condition="${isOnline && recHasStock}">
+                                    <div class="col-6 col-sm-4 col-md-3 mb-3">
+                                        <isinclude url="${URLUtils.url('Tile-Show', 'pid', recommendedProduct.ID, 'pview', 'tile', 'ratings', true, 'swatches', true)}"/>
+                                    </div>
+                                </isif>
+                            </isif>
+                        </isloop>
+                    </div>
                 </div>
-            </isloop>
-        </div>
-    </div>
+            <iselse/>
+                <p>Nema preporuka za ovaj proizvod.</p>
+            </isif>
+        <iselse/>
+            <!-- Proizvod nema stock -->
+            <p>Izabrani proizvod (${productObj.ID}) nema zalihe.</p>
+        </isif>
+    </isif>
 <iselse/>
+    <p>Slot je prazan.</p>
 </isif>
