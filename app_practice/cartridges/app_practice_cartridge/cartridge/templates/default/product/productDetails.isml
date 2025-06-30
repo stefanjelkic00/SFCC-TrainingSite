@@ -1,9 +1,10 @@
 <isdecorate template="common/layout/page">
 
     <isscript>
-        var assets = require('*/cartridge/scripts/assets');
+        let assets = require('*/cartridge/scripts/assets');
         assets.addJs('/js/productDetail.js');
         assets.addCss('/css/product/detail.css');
+        let pdpHelpers = require('*/cartridge/scripts/helpers/pdpHelpers');
     </isscript>
 
     <isset name="product" value="${pdict.product}" scope="page" />
@@ -140,21 +141,12 @@
 
             <!-- Task 13: Custom Content Asset -->
             <div class="task13-content-section" style="margin: 30px 0;">
-                <isscript>
-                    var ContentMgr = require('dw/content/ContentMgr');
-                    var contentAsset = ContentMgr.getContent('pdp-custom-content-asset');
-                </isscript>
-                <isif condition="${contentAsset && contentAsset.online && contentAsset.custom && contentAsset.custom.body}">
-                    <isprint value="${contentAsset.custom.body}" encoding="off"/>
-                <iselse/>
-                    <!-- Fallback ako je običan body markup -->
-                    <iscontentasset aid="pdp-custom-content-asset" />
-                </isif>
+                <isprint value="${pdpHelpers.renderContentAsset('pdp-custom-content-asset')}" encoding="off"/>
             </div>
 
             <!-- Task 13: Product Recommendations from Campaign -->
             <div class="task13-recommendations-slot" style="margin: 30px 0;">
-                <h3 style="margin-bottom: 20px;">Preporučeni proizvodi</h3>
+                <h3 style="margin-bottom: 20px;">Recommended Products:</h3>
                 <isslot id="pdp-product-recommendations-campaign" 
                         description="PDP preporuke proizvoda vođene kampanjom" 
                         context="global" />
