@@ -100,7 +100,7 @@
 
                         <!-- Product Availability -->
                         <isinclude template="product/components/productAvailability" />
-
+                        
                         <!-- Applicable Promotions -->
                         <div class="row">
                             <div class="col-12 promotions">
@@ -140,7 +140,16 @@
 
             <!-- Task 13: Custom Content Asset -->
             <div class="task13-content-section" style="margin: 30px 0;">
-                <iscontentasset aid="pdp-custom-content-asset" context="library" library="RefArchSharedLibrary" />
+                <isscript>
+                    var ContentMgr = require('dw/content/ContentMgr');
+                    var contentAsset = ContentMgr.getContent('pdp-custom-content-asset');
+                </isscript>
+                <isif condition="${contentAsset && contentAsset.online && contentAsset.custom && contentAsset.custom.body}">
+                    <isprint value="${contentAsset.custom.body}" encoding="off"/>
+                <iselse/>
+                    <!-- Fallback ako je običan body markup -->
+                    <iscontentasset aid="pdp-custom-content-asset" />
+                </isif>
             </div>
 
             <!-- Task 13: Product Recommendations from Campaign -->
