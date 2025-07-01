@@ -7,14 +7,15 @@ function getRandomProductWithStock(slotContent) {
     if (!slotContent || !slotContent.length) {
         return null;
     }
+    
     let productsWithStock = [];
     
     for (let i = 0; i < slotContent.length; i++) {
         let product = slotContent[i];
         
-        if (product) {
-            let availabilityModel = product.getAvailabilityModel();
-            if (availabilityModel && availabilityModel.inStock) {
+        if (product && product.online && product.availabilityModel.isOrderable()) {
+            let recs = product.getOrderableRecommendations();
+            if (recs && !recs.empty) {
                 productsWithStock.push(product);
             }
         }
@@ -29,34 +30,19 @@ function getRandomProductWithStock(slotContent) {
 }
 
 function getAvailableRecommendations(product) {
-    if (!product) {
-        return [];
-    }
-    
     let recommendations = [];
-    let productRecommendations = product.getRecommendations();
+    let orderableRecs = product.getOrderableRecommendations();
     
-    if (!productRecommendations) {
-        return recommendations;
-    }
-    
-    let iter = productRecommendations.iterator();
-    
-    while (iter.hasNext()) {
-        let recommendation = iter.next();
-        let recProduct = recommendation.getRecommendedItem();
-        
-        if (recProduct) {
-            let recAvailability = recProduct.getAvailabilityModel();
-            let isOnline = recProduct.isOnline();
-            let recHasStock = recAvailability && recAvailability.inStock;
-            
-            if (isOnline && recHasStock) {
+    if (orderableRecs && !orderableRecs.empty) {
+        let iter = orderableRecs.iterator();
+        while (iter.hasNext()) {
+            let rec = iter.next();
+            let recProduct = rec.getRecommendedItem();
+            if (recProduct) {
                 recommendations.push(recProduct);
             }
         }
     }
-    
     return recommendations;
 }
 
@@ -69,7 +55,7 @@ function getSlotRecommendations(slotcontent) {
     if (!slotcontent || !slotcontent.content || !slotcontent.content.length) {
         return result; 
     }
-    
+
     let uncheckedIndices = [];
     for (let i = 0; i < slotcontent.content.length; i++) {
         uncheckedIndices.push(i);
@@ -80,20 +66,19 @@ function getSlotRecommendations(slotcontent) {
         let productIndex = uncheckedIndices[randomPosition];
         let product = slotcontent.content[productIndex];
         
-        if (product) {
-            let availabilityModel = product.getAvailabilityModel();
+        if (product && product.online && product.availabilityModel.isOrderable()) {
+            let orderableRecs = product.getOrderableRecommendations();
             
-            if (availabilityModel && availabilityModel.inStock) {
-                let recommendations = getAvailableRecommendations(product);
+            if (orderableRecs && !orderableRecs.empty) {
+                result.recommendations = orderableRecs.toArray().map(function(rec) {
+                    return rec.getRecommendedItem();
+                }).filter(Boolean);
                 
-                if (recommendations.length > 0) {
-                    result.recommendations = recommendations;
-                    result.hasRecommendations = true;
-                    return result;
-                }
+                result.hasRecommendations = true;
+                return result;
             }
         }
-
+        
         uncheckedIndices[randomPosition] = uncheckedIndices[uncheckedIndices.length - 1];
         uncheckedIndices.length = uncheckedIndices.length - 1;
     }
