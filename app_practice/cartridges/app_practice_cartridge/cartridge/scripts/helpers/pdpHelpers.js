@@ -70,23 +70,32 @@ function getSlotRecommendations(slotcontent) {
         return result; 
     }
     
-    let productsToCheck = slotcontent.content.length;
-    let checkedProducts = 0;
+    let uncheckedIndices = [];
+    for (let i = 0; i < slotcontent.content.length; i++) {
+        uncheckedIndices.push(i);
+    }
     
-    while (checkedProducts < productsToCheck) {
-        let productWithStock = getRandomProductWithStock(slotcontent.content);
+    while (uncheckedIndices.length > 0) {
+        let randomPosition = Math.floor(Math.random() * uncheckedIndices.length);
+        let productIndex = uncheckedIndices[randomPosition];
+        let product = slotcontent.content[productIndex];
         
-        if (productWithStock) {
-            let recommendations = getAvailableRecommendations(productWithStock);
+        if (product) {
+            let availabilityModel = product.getAvailabilityModel();
             
-            if (recommendations.length > 0) {
-                result.recommendations = recommendations;
-                result.hasRecommendations = true;
-                return result;
+            if (availabilityModel && availabilityModel.inStock) {
+                let recommendations = getAvailableRecommendations(product);
+                
+                if (recommendations.length > 0) {
+                    result.recommendations = recommendations;
+                    result.hasRecommendations = true;
+                    return result;
+                }
             }
         }
-        
-        checkedProducts++;
+
+        uncheckedIndices[randomPosition] = uncheckedIndices[uncheckedIndices.length - 1];
+        uncheckedIndices.length = uncheckedIndices.length - 1;
     }
     
     return result;
