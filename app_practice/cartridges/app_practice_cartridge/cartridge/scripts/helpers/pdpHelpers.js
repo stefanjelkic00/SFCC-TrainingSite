@@ -3,30 +3,30 @@
 const ProductMgr = require('dw/catalog/ProductMgr');
 const ContentMgr = require('dw/content/ContentMgr');
 
-function getRandomProductWithStock(slotContent, maxAttempts) {
-    maxAttempts = maxAttempts || 5;
-    
+function getRandomProductWithStock(slotContent) {
     if (!slotContent || !slotContent.length) {
         return null;
     }
+    let productsWithStock = [];
     
-    for (let i = 0; i < maxAttempts; i++) {
-        let randomIndex = Math.floor(Math.random() * slotContent.length);
-        let slotProduct = slotContent[randomIndex];
-        let productId = slotProduct.ID || slotProduct;
-        let product = ProductMgr.getProduct(productId);
+    for (let i = 0; i < slotContent.length; i++) {
+        let product = slotContent[i];
         
         if (product) {
             let availabilityModel = product.getAvailabilityModel();
             if (availabilityModel && availabilityModel.inStock) {
-                return product;
+                productsWithStock.push(product);
             }
         }
     }
     
-    return null;
+    if (productsWithStock.length === 0) {
+        return null;
+    }
+    
+    let randomIndex = Math.floor(Math.random() * productsWithStock.length);
+    return productsWithStock[randomIndex];
 }
-
 
 function getAvailableRecommendations(product) {
     if (!product) {
@@ -60,39 +60,37 @@ function getAvailableRecommendations(product) {
     return recommendations;
 }
 
-
 function getSlotRecommendations(slotcontent) {
     let result = {
         recommendations: [],
-        statusMessage: '',
         hasRecommendations: false
     };
     
     if (!slotcontent || !slotcontent.content || !slotcontent.content.length) {
-        result.statusMessage = 'Slot is empty.';
-        return result;
+        return result; 
     }
     
-    let productWithStock = getRandomProductWithStock(slotcontent.content);
+    let productsToCheck = slotcontent.content.length;
+    let checkedProducts = 0;
     
-    if (!productWithStock) {
-        result.statusMessage = 'No products from the slot have available stock.';
-        return result;
+    while (checkedProducts < productsToCheck) {
+        let productWithStock = getRandomProductWithStock(slotcontent.content);
+        
+        if (productWithStock) {
+            let recommendations = getAvailableRecommendations(productWithStock);
+            
+            if (recommendations.length > 0) {
+                result.recommendations = recommendations;
+                result.hasRecommendations = true;
+                return result;
+            }
+        }
+        
+        checkedProducts++;
     }
-    
-    let recommendations = getAvailableRecommendations(productWithStock);
-    
-    if (recommendations.length === 0) {
-        result.statusMessage = 'There are no recommendations for this product.';
-        return result;
-    }
-    
-    result.recommendations = recommendations;
-    result.hasRecommendations = true;
     
     return result;
 }
-
 
 function renderContentAsset(assetId) {
     const content = assetId && ContentMgr.getContent(assetId);
