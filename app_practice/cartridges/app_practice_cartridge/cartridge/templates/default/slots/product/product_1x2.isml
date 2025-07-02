@@ -1,13 +1,14 @@
 <isscript>
     let pdpHelpers = require('*/cartridge/scripts/helpers/pdpHelpers');
     let URLUtils = require('dw/web/URLUtils');
-    let recommendationData = pdpHelpers.getSlotRecommendations(slotcontent);
+    let products = slotcontent.content;
+    let recommendationData = pdpHelpers.getSlotRecommendations(products);
 </isscript>
 
-<isif condition="${recommendationData.recommendations}">
+<isif condition="${recommendationData && recommendationData.length > 0}">
     <div class="product-recommendations">
         <div class="row">
-            <isloop items="${recommendationData.recommendations}" var="recommendedProduct">
+            <isloop items="${recommendationData}" var="recommendedProduct">
                 <div class="col-6 col-sm-4 col-md-3 mb-3">
                     <isinclude url="${URLUtils.url('Tile-Show', 'pid', recommendedProduct.ID, 'pview', 'tile', 'ratings', true, 'swatches', true)}"/>
                 </div>

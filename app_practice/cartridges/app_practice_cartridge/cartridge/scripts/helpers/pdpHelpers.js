@@ -3,31 +3,31 @@
 const ContentMgr = require('dw/content/ContentMgr');
 const collections = require('*/cartridge/scripts/util/collections');
 
-function getSlotRecommendations(slotcontent) {
-    const startIndex = Math.floor(Math.random() * slotcontent.content.length);
-    
-    for (let i = 0; i < slotcontent.content.length; i++) {
-        let index = (startIndex + i) % slotcontent.content.length;
-        
-        if (slotcontent.content[index].online && 
-            slotcontent.content[index].availabilityModel.isOrderable() &&
-            slotcontent.content[index].getOrderableRecommendations() &&
-            !slotcontent.content[index].getOrderableRecommendations().empty) {
-            
-            let recommendations = collections.map(
-                slotcontent.content[index].getOrderableRecommendations(),
-                function(rec) { return rec.getRecommendedItem(); }
-            ).filter(function(item) { 
-                return item != null; 
-            });
-            
-            if (recommendations.length > 0) {
-                return { recommendations: recommendations };
-            }
+function getSlotRecommendations(products) {
+    const validProducts = [];
+    for (let i = 0; i < products.length; i++) {
+        let product = products[i];
+        if (product.online && 
+            product.availabilityModel.isOrderable() &&
+            product.getOrderableRecommendations() &&
+            !product.getOrderableRecommendations().empty) {
+            validProducts.push(product);
         }
     }
     
-    return { recommendations: [] };
+    const randomIndex = Math.floor(Math.random() * validProducts.length);
+    const selectedProduct = validProducts[randomIndex];
+
+    const recommendations = collections.map(
+        selectedProduct.getOrderableRecommendations(),
+        function(rec) { 
+            return rec.getRecommendedItem(); 
+        }
+    ).filter(function(item) { 
+        return item != null; 
+    });
+    
+    return recommendations;
 }
 
 function renderContentAsset(assetId) {
