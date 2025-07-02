@@ -624,6 +624,42 @@ Here you will find answers to your questions about shopping at our online store,
         </content>
     </slot-configuration>
 
+    <slot-configuration slot-id="pdp-product-recommendations-campaign" context="global" configuration-id="pdp-recommendations-registered" assigned-to-site="true">
+        <description>PDP preporuke proizvoda za registrovane korisnikeee</description>
+        <template>slots/product/product_1x2.isml</template>
+        <enabled-flag>true</enabled-flag>
+        <content>
+            <products>
+                <product product-id="lucasarts-lego-indiana-jones-original-adventure-wiiM"/>
+                <product product-id="sega-bass-fishing-wiiM"/>
+            </products>
+        </content>
+        <customer-groups>
+            <customer-group group-id="Registered"/>
+        </customer-groups>
+    </slot-configuration>
+
+    <slot-configuration slot-id="pdp-product-recommendations-campaign" context="global" configuration-id="pdp-recommendations-unregistered" assigned-to-site="true">
+        <description>PDP preporuke proizvoda za NE-registrovane korisnike</description>
+        <template>slots/product/product_1x2.isml</template>
+        <enabled-flag>true</enabled-flag>
+        <callout-msg xml:lang="x-default">{
+  "title": "Recommended for You",
+  "subtitle": "Based on your browsing history",
+  "maxProducts": 4
+}</callout-msg>
+        <content>
+            <products>
+                <product product-id="sony-kdl-19m4000M"/>
+                <product product-id="samsung-ypk3M"/>
+                <product product-id="toshiba-meu202-bkM"/>
+            </products>
+        </content>
+        <customer-groups>
+            <customer-group group-id="Unregistered"/>
+        </customer-groups>
+    </slot-configuration>
+
     <slot-configuration slot-id="search-result-banner-m" context="global" configuration-id="search-results-banner" default="true" assigned-to-site="true">
         <description>Slot Banner that displays above search results</description>
         <template>slots/content/contentAssetBody.isml</template>
@@ -837,5 +873,21 @@ Here you will find answers to your questions about shopping at our online store,
             </categories>
         </content>
     </slot-configuration>
+
+    <slot-configuration-campaign-assignment slot-id="pdp-product-recommendations-campaign" context="global" configuration-id="pdp-recommendations-registered" campaign-id="pdp-recommendations-campaign">
+        <qualifiers>
+            <customer-groups>
+                <customer-group group-id="Registered"/>
+            </customer-groups>
+        </qualifiers>
+    </slot-configuration-campaign-assignment>
+
+    <slot-configuration-campaign-assignment slot-id="pdp-product-recommendations-campaign" context="global" configuration-id="pdp-recommendations-unregistered" campaign-id="pdp-recommendations-campaign">
+        <qualifiers>
+            <customer-groups>
+                <customer-group group-id="Unregistered"/>
+            </customer-groups>
+        </qualifiers>
+    </slot-configuration-campaign-assignment>
 
 </slot-configurations>

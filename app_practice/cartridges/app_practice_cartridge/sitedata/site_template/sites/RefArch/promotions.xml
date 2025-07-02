@@ -88,6 +88,16 @@
         </customer-groups>
     </campaign>
 
+    <campaign campaign-id="pdp-recommendations-campaign">
+        <description>PDP Product Recommendations Campaign for targeting registered and non-registered users with different content</description>
+        <enabled-flag>true</enabled-flag>
+        <campaign-scope>
+            <applicable-online/>
+        </campaign-scope>
+        <start-date>2025-06-23T00:00:00.000Z</start-date>
+        <end-date>2025-07-23T00:00:00.000Z</end-date>
+    </campaign>
+
     <campaign campaign-id="Ref Arch No Coupon Test">
         <enabled-flag>true</enabled-flag>
         <campaign-scope>
@@ -2165,6 +2175,42 @@
         </order-promotion-rule>
     </promotion>
 
+    <promotion promotion-id="buy-2-get-discount-promotion">
+        <enabled-flag>true</enabled-flag>
+        <archived-flag>false</archived-flag>
+        <searchable-flag>true</searchable-flag>
+        <refinable-flag>false</refinable-flag>
+        <prevent-requalifying-flag>false</prevent-requalifying-flag>
+        <prorate-across-eligible-items-flag>false</prorate-across-eligible-items-flag>
+        <exclusivity>global</exclusivity>
+        <name xml:lang="x-default">Buy 2 Products Get Discount</name>
+        <callout-msg xml:lang="x-default">Buy 2 or more qualifying products and get 19% off!</callout-msg>
+        <details xml:lang="x-default">Customer must purchase minimum 2 qualifying products to receive discount. Example: Buy at least 2 products to get 19% off.</details>
+        <product-promotion-rule>
+            <qualifying-products>
+                <included-products>
+                    <condition-group>
+                        <category-condition catalog-id="storefront-catalog-m-en" operator="is child of">
+                            <category-id>electronic-games</category-id>
+                            <category-id>electronics-gaming</category-id>
+                            <category-id>electronics-game-consoles</category-id>
+                            <category-id>mens</category-id>
+                            <category-id>womens</category-id>
+                            <category-id>electronics</category-id>
+                        </category-condition>
+                    </condition-group>
+                </included-products>
+            </qualifying-products>
+            <discounts condition-type="product-quantity">
+                <discount>
+                    <threshold>2</threshold>
+                    <percentage>19.0</percentage>
+                </discount>
+            </discounts>
+            <max-applications>10</max-applications>
+        </product-promotion-rule>
+    </promotion>
+
     <promotion promotion-id="buy3dsgames-75">
         <enabled-flag>false</enabled-flag>
         <archived-flag>false</archived-flag>
@@ -3022,6 +3068,17 @@
             <source-codes/>
             <coupons/>
         </qualifiers>
+    </promotion-campaign-assignment>
+
+    <promotion-campaign-assignment promotion-id="buy-2-get-discount-promotion" campaign-id="pdp-recommendations-campaign">
+        <qualifiers match-mode="any">
+            <customer-groups/>
+            <source-codes/>
+            <coupons/>
+        </qualifiers>
+        <customer-groups match-mode="any">
+            <customer-group group-id="Everyone"/>
+        </customer-groups>
     </promotion-campaign-assignment>
 
     <promotion-campaign-assignment promotion-id="freeshipping-tvs" campaign-id="electronics-promotions">
