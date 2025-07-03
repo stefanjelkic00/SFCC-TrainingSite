@@ -12,10 +12,19 @@
     <isset name="isProductSet" value="${pdict.product.productType === 'set'}" scope="page" />
     <isobject object="${product.raw}" view="detail" />
         
-        <!-- Task 14: 50% OFF Banner - POMEREN NA VRH -->
+        <!-- Task 14: 50% OFF Banner - Prikazuje se SVIMA -->
         <isslot id="pdp-banner-50off" 
                 description="Product banner for 50% discount promotion" 
                 context="global" />
+                
+        <!-- Notifikacija ako je promocija upravo aktivirana -->
+        <isif condition="${pdict.CurrentSession.privacy.promotionActivated}">
+            <div class="container">
+                <div class="alert alert-success" style="margin: 20px 0; padding: 15px; background-color: #d4edda; border-color: #c3e6cb; color: #155724; border-radius: 4px;">
+                    <strong>Success!</strong> Your 50% discount has been activated and will be applied at checkout.
+                </div>
+            </div>
+        </isif>
                 
         <div class="container product-detail product-wrapper" data-pid="${product.id}">
             
@@ -46,20 +55,7 @@
                             <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
                         </div>
                     </div>
-                    <div style="background: green; color: white; padding: 10px;">
-    TEST: Korisnik je u grupi 50off!
-    <isloop items="${session.customer.customerGroups}" var="group">
-        <br>Grupa: ${group.ID}
-    </isloop>
-</div><isif condition="${pdict.CurrentSession.custom.is50offEligible}">
-    <div style="background: green; color: white; padding: 20px; text-align: center;">
-        <h2>50% POPUST AKTIVAN!</h2>
-        <p>Imate ekskluzivni pristup 50% popustu!</p>
-    </div>
-</isif>
-<isif condition="${pdict.CurrentSession.custom.is50offEligible}">
-    <isinclude template="slots/product/product_banner_50off" />
-</isif>
+                    
                     <!-- Product Name -->
                     <div class="row">
                         <div class="col">
@@ -168,8 +164,7 @@
             <div class="task13-recommendations-slot" style="margin: 30px 0;">
                 <h3 style="margin-bottom: 20px;">Recommended Products</h3>
                 <isslot id="pdp-product-recommendations-campaign" 
-                        description="PDP prepo
-                        ruke proizvoda vođene kampanjom" 
+                        description="PDP preporuke proizvoda vođene kampanjom" 
                         context="global" />
             </div>
 

@@ -1,13 +1,3 @@
-
-<div style="background: yellow; color: black; padding: 20px; border: 3px solid red;">
-    <h2>DEBUG SLOT BANNER</h2>
-    <p>Template učitan: DA</p>
-    <p>Session is50offEligible: <isprint value="${session.custom.is50offEligible}" /></p>
-    <p>Session has50offPromo: <isprint value="${session.privacy.has50offPromo}" /></p>
-    <p>Customer groups count: <isprint value="${session.customer.customerGroups.length}" /></p>
-    <p>Slot content exists: <isprint value="${slotcontent ? 'YES' : 'NO'}" /></p>
-    <p>Products count: <isprint value="${slotcontent && slotcontent.content ? slotcontent.content.length : 0}" /></p>
-</div>
 <isscript>
     var URLUtils = require('dw/web/URLUtils');
     
@@ -28,30 +18,55 @@
         var randomIndex = Math.floor(Math.random() * products.length);
         availableProduct = products[randomIndex];
     }
+    
+    // URL uvek vodi na src=50off da bi korisnik dobio popust
+    var targetURL = '';
+    if (availableProduct) {
+        targetURL = URLUtils.url('Product-Show', 'pid', availableProduct.ID, 'src', '50off');
+    }
 </isscript>
 
 <isif condition="${availableProduct}">
-    <div class="promo-banner-50off" style="border: 2px solidrgb(0, 0, 0); padding: 20px; margin: 20px 0; text-align: center; background: #f8f9fa;">
-        <h2 style="color:rgb(0, 0, 0);">50% OFF Special Offer!</h2>
+    <div class="promo-banner-50off" style="border: 2px solid #e74c3c; padding: 20px; margin: 20px 0; text-align: center; background: #f8f9fa; border-radius: 8px;">
+        <h2 style="color: #e74c3c; margin-bottom: 15px;">
+            🎉 Special Offer - 50% OFF! 🎉
+        </h2>
+        
         <div class="product-tile">
             <isif condition="${availableProduct.getImage('medium')}">
-                <img src="${availableProduct.getImage('medium').getURL()}" 
-                     alt="${availableProduct.name}" 
-                     style="max-width: 200px;" />
+                <img src="${availableProduct.getImage('medium').getURL()}"
+                     alt="${availableProduct.name}"
+                     style="max-width: 200px; margin-bottom: 10px;" />
             </isif>
-            <h3>${availableProduct.name}</h3>
-            <div class="price-section" style="margin: 10px 0;">
-                <span class="original-price" style="text-decoration: line-through; color: #999;">
-                    ${availableProduct.priceModel.price}
+            
+            <h3 style="margin: 10px 0;">${availableProduct.name}</h3>
+            
+            <div class="price-section" style="margin: 15px 0;">
+                <isset name="originalPrice" value="${availableProduct.priceModel.price}" scope="page" />
+                <isset name="promoPrice" value="${new dw.value.Money(originalPrice.value * 0.5, originalPrice.currencyCode)}" scope="page" />
+                
+                <!-- Uvek prikaži originalnu i akcijsku cenu -->
+                <span class="original-price" style="text-decoration: line-through; color: #999; font-size: 18px;">
+                    <isprint value="${originalPrice}" />
                 </span>
-                <span class="promo-price" style="color:rgb(0, 0, 0); font-size: 24px; font-weight: bold; margin-left: 10px;">
-                    $${availableProduct.priceModel.price.value / 2}
+                <span class="promo-price" style="color: #e74c3c; font-size: 24px; font-weight: bold; margin-left: 10px;">
+                    <isprint value="${promoPrice}" />
                 </span>
+                <div style="color: #28a745; font-weight: bold; margin-top: 5px;">
+                    Save 50%!
+                </div>
             </div>
-            <a href="${URLUtils.url('Product-Show', 'pid', availableProduct.ID)}" 
-               class="btn btn-primary">
-                Shop Now with 50% OFF
+            
+            <a href="${targetURL}" class="btn btn-primary"
+                style="background-color: #e74c3c; border: none; padding: 12px 30px; color: white; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                🛒 Get 50% OFF - Shop Now
             </a>
+            
+            <isif condition="${session.custom.is50offEligible}">
+                <p style="margin-top: 15px; color: #28a745; font-weight: bold;">
+                    ✓ Your discount is active!
+                </p>
+            </isif>
         </div>
     </div>
 </isif>
