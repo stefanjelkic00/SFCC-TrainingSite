@@ -1,0 +1,57 @@
+
+<div style="background: yellow; color: black; padding: 20px; border: 3px solid red;">
+    <h2>DEBUG SLOT BANNER</h2>
+    <p>Template učitan: DA</p>
+    <p>Session is50offEligible: <isprint value="${session.custom.is50offEligible}" /></p>
+    <p>Session has50offPromo: <isprint value="${session.privacy.has50offPromo}" /></p>
+    <p>Customer groups count: <isprint value="${session.customer.customerGroups.length}" /></p>
+    <p>Slot content exists: <isprint value="${slotcontent ? 'YES' : 'NO'}" /></p>
+    <p>Products count: <isprint value="${slotcontent && slotcontent.content ? slotcontent.content.length : 0}" /></p>
+</div>
+<isscript>
+    var URLUtils = require('dw/web/URLUtils');
+    
+    var products = slotcontent.content || [];
+    var availableProduct = null;
+    
+    // Nađi prvi dostupan proizvod
+    for (var i = 0; i < products.length; i++) {
+        var product = products[i];
+        if (product && product.availabilityModel && product.availabilityModel.inStock) {
+            availableProduct = product;
+            break;
+        }
+    }
+    
+    // Ako nema dostupnih, uzmi random
+    if (!availableProduct && products.length > 0) {
+        var randomIndex = Math.floor(Math.random() * products.length);
+        availableProduct = products[randomIndex];
+    }
+</isscript>
+
+<isif condition="${availableProduct}">
+    <div class="promo-banner-50off" style="border: 2px solidrgb(0, 0, 0); padding: 20px; margin: 20px 0; text-align: center; background: #f8f9fa;">
+        <h2 style="color:rgb(0, 0, 0);">50% OFF Special Offer!</h2>
+        <div class="product-tile">
+            <isif condition="${availableProduct.getImage('medium')}">
+                <img src="${availableProduct.getImage('medium').getURL()}" 
+                     alt="${availableProduct.name}" 
+                     style="max-width: 200px;" />
+            </isif>
+            <h3>${availableProduct.name}</h3>
+            <div class="price-section" style="margin: 10px 0;">
+                <span class="original-price" style="text-decoration: line-through; color: #999;">
+                    ${availableProduct.priceModel.price}
+                </span>
+                <span class="promo-price" style="color:rgb(0, 0, 0); font-size: 24px; font-weight: bold; margin-left: 10px;">
+                    $${availableProduct.priceModel.price.value / 2}
+                </span>
+            </div>
+            <a href="${URLUtils.url('Product-Show', 'pid', availableProduct.ID)}" 
+               class="btn btn-primary">
+                Shop Now with 50% OFF
+            </a>
+        </div>
+    </div>
+</isif>

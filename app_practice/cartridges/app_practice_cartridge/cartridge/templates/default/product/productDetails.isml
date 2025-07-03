@@ -11,7 +11,14 @@
     <isset name="isQuickView" value="${false}" scope="page" />
     <isset name="isProductSet" value="${pdict.product.productType === 'set'}" scope="page" />
     <isobject object="${product.raw}" view="detail" />
+        
+        <!-- Task 14: 50% OFF Banner - POMEREN NA VRH -->
+        <isslot id="pdp-banner-50off" 
+                description="Product banner for 50% discount promotion" 
+                context="global" />
+                
         <div class="container product-detail product-wrapper" data-pid="${product.id}">
+            
             <div class="row">
                 <div class="col-12">
                     <!--Breadcrumbs-->
@@ -39,7 +46,20 @@
                             <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
                         </div>
                     </div>
-
+                    <div style="background: green; color: white; padding: 10px;">
+    TEST: Korisnik je u grupi 50off!
+    <isloop items="${session.customer.customerGroups}" var="group">
+        <br>Grupa: ${group.ID}
+    </isloop>
+</div><isif condition="${pdict.CurrentSession.custom.is50offEligible}">
+    <div style="background: green; color: white; padding: 20px; text-align: center;">
+        <h2>50% POPUST AKTIVAN!</h2>
+        <p>Imate ekskluzivni pristup 50% popustu!</p>
+    </div>
+</isif>
+<isif condition="${pdict.CurrentSession.custom.is50offEligible}">
+    <isinclude template="slots/product/product_banner_50off" />
+</isif>
                     <!-- Product Name -->
                     <div class="row">
                         <div class="col">
@@ -148,7 +168,8 @@
             <div class="task13-recommendations-slot" style="margin: 30px 0;">
                 <h3 style="margin-bottom: 20px;">Recommended Products</h3>
                 <isslot id="pdp-product-recommendations-campaign" 
-                        description="PDP preporuke proizvoda vođene kampanjom" 
+                        description="PDP prepo
+                        ruke proizvoda vođene kampanjom" 
                         context="global" />
             </div>
 
