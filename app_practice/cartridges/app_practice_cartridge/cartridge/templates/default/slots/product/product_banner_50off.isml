@@ -1,38 +1,28 @@
 <isscript>
-    let pdpHelpers = require('*/cartridge/scripts/helpers/pdpHelpers');
+    const pdpHelpers = require('*/cartridge/scripts/helpers/pdpHelpers');
     let URLUtils = require('dw/web/URLUtils');
-    let products = slotcontent.content || [];
+    const products = slotcontent.content || [];
     
-    let promoData = pdpHelpers.getRandomProductForPromo(products);
-    let targetURL = '';
+    const selectedProduct = pdpHelpers.getRandomProductForPromo(products);
+    const targetURL = '';
     
-    if (promoData && promoData.product) {
-        targetURL = URLUtils.url('Product-Show', 'pid', promoData.product.ID, 'src', '50off');
+    if (selectedProduct) {
+        targetURL = URLUtils.url('Product-Show', 'pid', selectedProduct.ID);
     }
 </isscript>
 
-<isif condition="${promoData && promoData.product}">
-    <div class="promo-banner-50off" style=" margin: 10px 0; text-align: center; border-radius: 5px;">
+<isif condition="${selectedProduct}">
+    <div class="promo-banner" style="margin: 10px 0; text-align: center; border-radius: 5px;">
         <div class="product-tile">
-            <isif condition="${promoData.product.getImage('medium')}">
-                <img src="${promoData.product.getImage('medium').getURL()}" 
-                     alt="${promoData.product.name}"
+            <isif condition="${selectedProduct.getImage('medium')}">
+                <img src="${selectedProduct.getImage('medium').getURL()}" 
+                     alt="${selectedProduct.name}"
                      style="max-width: 200px; margin-bottom: 10px;" />
             </isif>
             
-            <h3 style="margin: 10px 0;">${promoData.product.name}</h3>
-            
-            <div class="price-section" style="margin: 15px 0;">
-                <span class="original-price" style="text-decoration: line-through; color: #999; font-size: 18px;">
-                    <isprint value="${promoData.originalPrice}" />
-                </span>
-                <span class="promo-price">
-                    <isprint value="${promoData.promoPrice}" />
-                </span>
-            </div>
-            
+            <h3 style="margin: 10px 0;">${selectedProduct.name}</h3>
             <a href="${targetURL}" class="btn btn-primary">
-                Get 50% OFF
+                Buy now
             </a>
         </div>
     </div>

@@ -2,7 +2,6 @@
 
 const ContentMgr = require('dw/content/ContentMgr');
 const collections = require('*/cartridge/scripts/util/collections');
-const Money = require('dw/value/Money');
 
 function getSlotRecommendations(products) {
     const validProducts = [];
@@ -32,8 +31,7 @@ function getSlotRecommendations(products) {
 }
 
 function getRandomProductForPromo(products) {
-
-    let availableProducts = collections.map(products, function(product) {
+    const availableProducts = collections.map(products, function(product) {
         return product;
     }).filter(function(product) {
         return product.online && product.availabilityModel.isOrderable();
@@ -41,15 +39,7 @@ function getRandomProductForPromo(products) {
     
     if (availableProducts.length > 0) {
         const randomIndex = Math.floor(Math.random() * availableProducts.length);
-        const selectedProduct = availableProducts[randomIndex];
-        const originalPrice = selectedProduct.priceModel.price;
-        const promoPrice = new Money(originalPrice.value * 0.5, originalPrice.currencyCode);
-        
-        return {
-            product: selectedProduct,
-            originalPrice: originalPrice,
-            promoPrice: promoPrice
-        };
+        return availableProducts[randomIndex];
     }
     
     return null;
