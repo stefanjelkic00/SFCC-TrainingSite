@@ -2941,9 +2941,9 @@
             <source-codes/>
             <coupons/>
         </qualifiers>
-        <customer-groups match-mode="any">
-            <customer-group group-id="50off"/>
-        </customer-groups>
+        <source-codes>
+            <source-code group-id="50off"/>
+        </source-codes>
     </promotion-campaign-assignment>
 
     <promotion-campaign-assignment promotion-id="BonusProductOnOrderOfAmountABove250" campaign-id="Automation">
