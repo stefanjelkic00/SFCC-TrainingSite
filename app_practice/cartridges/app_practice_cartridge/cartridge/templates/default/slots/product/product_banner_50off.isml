@@ -1,66 +1,38 @@
 <isscript>
-    var URLUtils = require('dw/web/URLUtils');
+    let pdpHelpers = require('*/cartridge/scripts/helpers/pdpHelpers');
+    let URLUtils = require('dw/web/URLUtils');
+    let products = slotcontent.content || [];
     
-    var products = slotcontent.content || [];
-    var availableProducts = [];
+    let promoData = pdpHelpers.getRandomProductForPromo(products);
+    let targetURL = '';
     
-    // Sakupi SVE dostupne proizvode (ne samo prvi)
-    for (var i = 0; i < products.length; i++) {
-        var product = products[i];
-        if (product && product.availabilityModel && product.availabilityModel.inStock) {
-            availableProducts.push(product);
-        }
-    }
-    
-    var selectedProduct = null;
-    
-    // Ako ima dostupnih, izaberi random
-    if (availableProducts.length > 0) {
-        var randomIndex = Math.floor(Math.random() * availableProducts.length);
-        selectedProduct = availableProducts[randomIndex];
-    } 
-    // Ako nema dostupnih, izaberi random iz svih
-    else if (products.length > 0) {
-        var randomIndex = Math.floor(Math.random() * products.length);
-        selectedProduct = products[randomIndex];
-    }
-    
-    // URL uvek vodi na src=50off da bi korisnik dobio popust
-    var targetURL = '';
-    if (selectedProduct) {
-        targetURL = URLUtils.url('Product-Show', 'pid', selectedProduct.ID, 'src', '50off');
+    if (promoData && promoData.product) {
+        targetURL = URLUtils.url('Product-Show', 'pid', promoData.product.ID, 'src', '50off');
     }
 </isscript>
 
-<isif condition="${selectedProduct}">
-    <div class="promo-banner-50off" style="border: 2px solidrgb(0, 0, 0); padding: 20px; margin: 20px 0; text-align: center; background: #f8f9fa; border-radius: 8px;">
+<isif condition="${promoData && promoData.product}">
+    <div class="promo-banner-50off" style=" margin: 10px 0; text-align: center; border-radius: 5px;">
         <div class="product-tile">
-            <isif condition="${selectedProduct.getImage('medium')}">
-                <img src="${selectedProduct.getImage('medium').getURL()}" 
-                     alt="${selectedProduct.name}"
+            <isif condition="${promoData.product.getImage('medium')}">
+                <img src="${promoData.product.getImage('medium').getURL()}" 
+                     alt="${promoData.product.name}"
                      style="max-width: 200px; margin-bottom: 10px;" />
             </isif>
             
-            <h3 style="margin: 10px 0;">${selectedProduct.name}</h3>
+            <h3 style="margin: 10px 0;">${promoData.product.name}</h3>
             
             <div class="price-section" style="margin: 15px 0;">
-                <isset name="originalPrice" value="${selectedProduct.priceModel.price}" scope="page" />
-                <isset name="promoPrice" value="${new dw.value.Money(originalPrice.value * 0.5, originalPrice.currencyCode)}" scope="page" />
-                
-                <!-- Uvek prikaži originalnu i akcijsku cenu -->
                 <span class="original-price" style="text-decoration: line-through; color: #999; font-size: 18px;">
-                    <isprint value="${originalPrice}" />
+                    <isprint value="${promoData.originalPrice}" />
                 </span>
-                <span class="promo-price" >
-                    <isprint value="${promoPrice}" />
+                <span class="promo-price">
+                    <isprint value="${promoData.promoPrice}" />
                 </span>
-                <div>
-                    Save 50%!
-                </div>
             </div>
             
             <a href="${targetURL}" class="btn btn-primary">
-                Get 50% OFF - Shop Now
+                Get 50% OFF
             </a>
         </div>
     </div>

@@ -624,6 +624,19 @@ Here you will find answers to your questions about shopping at our online store,
         </content>
     </slot-configuration>
 
+    <slot-configuration slot-id="product-recommendations-m" context="global" configuration-id="pdp-banner-50off" assigned-to-site="false">
+        <description>Product banner for 50% discount promotion</description>
+        <template>slots/product/product_banner_50off.isml</template>
+        <enabled-flag>true</enabled-flag>
+        <content>
+            <products>
+                <product product-id="sega-bass-fishing-wiiM"/>
+                <product product-id="lucasarts-lego-indiana-jones-original-adventure-wiiM"/>
+                <product product-id="sony-kdl-19m4000M"/>
+            </products>
+        </content>
+    </slot-configuration>
+
     <slot-configuration slot-id="pdp-product-recommendations-campaign" context="global" configuration-id="pdp-recommendations-registered" assigned-to-site="true">
         <description>PDP preporuke proizvoda za registrovane korisnikeee</description>
         <template>slots/product/product_1x2.isml</template>
@@ -873,6 +886,14 @@ Here you will find answers to your questions about shopping at our online store,
             </categories>
         </content>
     </slot-configuration>
+
+    <slot-configuration-campaign-assignment slot-id="product-recommendations-m" context="global" configuration-id="pdp-banner-50off" campaign-id="pdp-recommendations-campaign">
+        <qualifiers>
+            <customer-groups>
+                <customer-group group-id="Registered"/>
+            </customer-groups>
+        </qualifiers>
+    </slot-configuration-campaign-assignment>
 
     <slot-configuration-campaign-assignment slot-id="pdp-product-recommendations-campaign" context="global" configuration-id="pdp-recommendations-registered" campaign-id="pdp-recommendations-campaign">
         <qualifiers>
