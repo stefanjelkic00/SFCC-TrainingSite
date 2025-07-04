@@ -8,18 +8,19 @@ server.prepend('Show', function (req, res, next) {
     const CustomerMgr = require('dw/customer/CustomerMgr');
     const Transaction = require('dw/system/Transaction');
     const session = req.session.raw;
+    const groupName = req.querystring.src;
     
-    if (req.querystring.src === '50off' && session.customer.authenticated) {
+    if (groupName && session.customer.authenticated) {
         let customer = CustomerMgr.getCustomerByCustomerNumber(session.customer.profile.customerNo);
-        let customerGroup50off = CustomerMgr.getCustomerGroup('50off');
+        let customerGroup = CustomerMgr.getCustomerGroup(groupName);
         
-        if (customer && customerGroup50off && !customer.isMemberOfCustomerGroup('50off')) {
+        if (customer && customerGroup && !customer.isMemberOfCustomerGroup(groupName)) {
             Transaction.wrap(function () {
-                customerGroup50off.assignCustomer(customer);
+                customerGroup.assignCustomer(customer);
                 customer = CustomerMgr.getCustomerByCustomerNumber(session.customer.profile.customerNo);
             });
             
-            req.session.privacyCache.set('promotionActivated', true);
+            req.session.privacyCache.set('promotionActivated_' + groupName, true);
         }
     }
     
