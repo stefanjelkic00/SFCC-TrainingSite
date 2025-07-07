@@ -1,0 +1,29 @@
+<isscript>
+    const pdpHelpers = require('*/cartridge/scripts/helpers/pdpHelpers');
+    let URLUtils = require('dw/web/URLUtils');
+    const products = slotcontent.content || [];
+    
+    const selectedProduct = pdpHelpers.getRandomProductForPromo(products);
+    let targetURL = '';
+    
+    if (selectedProduct) {
+        targetURL = URLUtils.url('Product-Show', 'pid', selectedProduct.ID, 'src', '50off');
+    }
+</isscript>
+
+<isif condition="${selectedProduct}">
+    <div class="promo-banner" style="margin: 10px 0; text-align: center; border-radius: 5px;">
+        <div class="product-tile">
+            <isif condition="${selectedProduct.getImage('medium')}">
+                <img src="${selectedProduct.getImage('medium').getURL()}" 
+                     alt="${selectedProduct.name}"
+                     style="max-width: 200px; margin-bottom: 10px;" />
+            </isif>
+            
+            <h3 style="margin: 10px 0;">${selectedProduct.name}</h3>
+            <a href="${targetURL}" class="btn btn-primary">
+                Buy now
+            </a>
+        </div>
+    </div>
+</isif>

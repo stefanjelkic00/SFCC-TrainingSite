@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sourcecodes xmlns="http://www.demandware.com/xml/impex/sourcecode/2007-03-31">
+    <sourcecode-group group-id="50off">
+        <description>50% off promotion from banner</description>
+        <enabled-flag>true</enabled-flag>
+        <cookie-max-age>30</cookie-max-age>
+        <active-redirect>
+            <default-redirect/>
+        </active-redirect>
+        <inactive-redirect>
+            <default-redirect/>
+        </inactive-redirect>
+        <code-specs>
+            <code-spec>50off</code-spec>
+        </code-specs>
+        <pricebooks/>
+    </sourcecode-group>
+
     <sourcecode-group group-id="affiliate-email">
         <description>Affiliate Source Code Email promoting PS3 Bundle</description>
         <enabled-flag>true</enabled-flag>

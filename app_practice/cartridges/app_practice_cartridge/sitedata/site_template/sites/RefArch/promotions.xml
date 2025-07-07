@@ -67,6 +67,17 @@
         </customer-groups>
     </campaign>
 
+    <campaign campaign-id="pdp-recommendations-campaign">
+        <description>PDP Product Recommendations Campaign for targeting registered and non-registered users with different content</description>
+        <enabled-flag>true</enabled-flag>
+        <campaign-scope>
+            <applicable-online/>
+        </campaign-scope>
+        <customer-groups match-mode="any">
+            <customer-group group-id="50off"/>
+        </customer-groups>
+    </campaign>
+
     <campaign campaign-id="Payment-promo">
         <description>$50 off on selecting Visa</description>
         <enabled-flag>false</enabled-flag>
@@ -86,16 +97,6 @@
         <customer-groups match-mode="any">
             <customer-group group-id="Everyone"/>
         </customer-groups>
-    </campaign>
-
-    <campaign campaign-id="pdp-recommendations-campaign">
-        <description>PDP Product Recommendations Campaign for targeting registered and non-registered users with different content</description>
-        <enabled-flag>true</enabled-flag>
-        <campaign-scope>
-            <applicable-online/>
-        </campaign-scope>
-        <start-date>2025-06-23T00:00:00.000Z</start-date>
-        <end-date>2025-07-23T00:00:00.000Z</end-date>
     </campaign>
 
     <campaign campaign-id="Ref Arch No Coupon Test">
@@ -1100,6 +1101,39 @@
                 </discount>
             </discounts>
         </shipping-promotion-rule>
+    </promotion>
+
+    <promotion promotion-id="50off-promotion">
+        <enabled-flag>true</enabled-flag>
+        <archived-flag>false</archived-flag>
+        <searchable-flag>true</searchable-flag>
+        <refinable-flag>false</refinable-flag>
+        <prevent-requalifying-flag>false</prevent-requalifying-flag>
+        <prorate-across-eligible-items-flag>false</prorate-across-eligible-items-flag>
+        <exclusivity>no</exclusivity>
+        <name xml:lang="x-default">50% Discount Promotion</name>
+        <callout-msg xml:lang="x-default">Save 50% on selected products!</callout-msg>
+        <product-promotion-rule>
+            <qualifying-products>
+                <included-products>
+                    <condition-group>
+                        <product-id-condition operator="is equal">
+                            <product-id>sony-kdl-19m4000M</product-id>
+                            <product-id>008884304009M</product-id>
+                            <product-id>sega-bass-fishing-wiiM</product-id>
+                            <product-id>lucasarts-lego-indiana-jones-original-adventure-wiiM</product-id>
+                        </product-id-condition>
+                    </condition-group>
+                </included-products>
+            </qualifying-products>
+            <disable-global-excluded-products>true</disable-global-excluded-products>
+            <discounts condition-type="product-quantity">
+                <discount>
+                    <threshold>1</threshold>
+                    <percentage>50.0</percentage>
+                </discount>
+            </discounts>
+        </product-promotion-rule>
     </promotion>
 
     <promotion promotion-id="BonusProductOnOrderOfAmountABove250">
@@ -2900,6 +2934,17 @@
             <source-codes/>
             <coupons/>
         </qualifiers>
+    </promotion-campaign-assignment>
+
+    <promotion-campaign-assignment promotion-id="50off-promotion" campaign-id="pdp-recommendations-campaign">
+        <qualifiers match-mode="all">
+            <customer-groups/>
+            <source-codes/>
+            <coupons/>
+        </qualifiers>
+        <customer-groups match-mode="any">
+            <customer-group group-id="50off"/>
+        </customer-groups>
     </promotion-campaign-assignment>
 
     <promotion-campaign-assignment promotion-id="BonusProductOnOrderOfAmountABove250" campaign-id="Automation">

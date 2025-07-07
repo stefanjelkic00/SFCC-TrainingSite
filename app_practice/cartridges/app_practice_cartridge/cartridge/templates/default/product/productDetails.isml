@@ -11,7 +11,14 @@
     <isset name="isQuickView" value="${false}" scope="page" />
     <isset name="isProductSet" value="${pdict.product.productType === 'set'}" scope="page" />
     <isobject object="${product.raw}" view="detail" />
+        
+        <!-- Task 14: 50% OFF Banner - Prikazuje se SVIMA -->
+        <isslot id="pdp-banner-50off" 
+                description="Product banner for 50% discount promotion" 
+                context="global" />
+                
         <div class="container product-detail product-wrapper" data-pid="${product.id}">
+            
             <div class="row">
                 <div class="col-12">
                     <!--Breadcrumbs-->
@@ -39,7 +46,7 @@
                             <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
                         </div>
                     </div>
-
+                    
                     <!-- Product Name -->
                     <div class="row">
                         <div class="col">

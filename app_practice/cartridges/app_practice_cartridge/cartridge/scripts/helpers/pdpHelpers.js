@@ -30,6 +30,21 @@ function getSlotRecommendations(products) {
     return recommendations;
 }
 
+function getRandomProductForPromo(products) {
+    const availableProducts = collections.map(products, function(product) {
+        return product;
+    }).filter(function(product) {
+        return product.online && product.availabilityModel.isOrderable();
+    });
+    
+    if (availableProducts.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableProducts.length);
+        return availableProducts[randomIndex];
+    }
+    
+    return null;
+}
+
 function renderContentAsset(assetId) {
     const content = assetId && ContentMgr.getContent(assetId);
     return (content && content.custom && content.custom.body);
@@ -37,5 +52,6 @@ function renderContentAsset(assetId) {
 
 module.exports = {
     getSlotRecommendations: getSlotRecommendations,
+    getRandomProductForPromo: getRandomProductForPromo,
     renderContentAsset: renderContentAsset
 };
