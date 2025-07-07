@@ -73,8 +73,9 @@
         <campaign-scope>
             <applicable-online/>
         </campaign-scope>
-        <start-date>2025-06-23T00:00:00.000Z</start-date>
-        <end-date>2025-07-23T00:00:00.000Z</end-date>
+        <customer-groups match-mode="any">
+            <customer-group group-id="50off"/>
+        </customer-groups>
     </campaign>
 
     <campaign campaign-id="Payment-promo">
@@ -2936,14 +2937,14 @@
     </promotion-campaign-assignment>
 
     <promotion-campaign-assignment promotion-id="50off-promotion" campaign-id="pdp-recommendations-campaign">
-        <qualifiers match-mode="any">
+        <qualifiers match-mode="all">
             <customer-groups/>
             <source-codes/>
             <coupons/>
         </qualifiers>
-        <source-codes>
-            <source-code group-id="50off"/>
-        </source-codes>
+        <customer-groups match-mode="any">
+            <customer-group group-id="50off"/>
+        </customer-groups>
     </promotion-campaign-assignment>
 
     <promotion-campaign-assignment promotion-id="BonusProductOnOrderOfAmountABove250" campaign-id="Automation">

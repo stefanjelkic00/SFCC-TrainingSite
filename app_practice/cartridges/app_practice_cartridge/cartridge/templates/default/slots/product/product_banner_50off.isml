@@ -4,10 +4,10 @@
     const products = slotcontent.content || [];
     
     const selectedProduct = pdpHelpers.getRandomProductForPromo(products);
-    const targetURL = '';
+    let targetURL = '';
     
     if (selectedProduct) {
-        targetURL = URLUtils.url('Product-Show', 'pid', selectedProduct.ID);
+        targetURL = URLUtils.url('Product-Show', 'pid', selectedProduct.ID, 'src', '50off');
     }
 </isscript>
 
