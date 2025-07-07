@@ -69,13 +69,30 @@
 
     <campaign campaign-id="pdp-recommendations-campaign">
         <description>PDP Product Recommendations Campaign for targeting registered and non-registered users with different content</description>
+        <enabled-flag>false</enabled-flag>
+        <campaign-scope>
+            <applicable-online/>
+        </campaign-scope>
+    </campaign>
+
+    <campaign campaign-id="Buy 2 Save Campaign">
         <enabled-flag>true</enabled-flag>
         <campaign-scope>
             <applicable-online/>
         </campaign-scope>
-        <customer-groups match-mode="any">
-            <customer-group group-id="50off"/>
-        </customer-groups>
+        <coupons>
+            <coupon coupon-id="COMBO2ITEMS"/>
+        </coupons>
+    </campaign>
+
+    <campaign campaign-id="Universal Discount Campaign">
+        <enabled-flag>true</enabled-flag>
+        <campaign-scope>
+            <applicable-online/>
+        </campaign-scope>
+        <coupons>
+            <coupon coupon-id="UNIVERSAL10"/>
+        </coupons>
     </campaign>
 
     <campaign campaign-id="Payment-promo">
@@ -1996,6 +2013,81 @@
         </shipping-promotion-rule>
     </promotion>
 
+    <promotion promotion-id="PROMO-BUNDLE20">
+        <enabled-flag>true</enabled-flag>
+        <archived-flag>false</archived-flag>
+        <searchable-flag>true</searchable-flag>
+        <refinable-flag>false</refinable-flag>
+        <prevent-requalifying-flag>false</prevent-requalifying-flag>
+        <prorate-across-eligible-items-flag>false</prorate-across-eligible-items-flag>
+        <exclusivity>no</exclusivity>
+        <name xml:lang="x-default">Bundle 20% - Buy 2 specific items</name>
+        <callout-msg xml:lang="x-default">Product P0048M and P0150M goes together with 16% off with promo code COMBO2ITEMS.</callout-msg>
+        <product-promotion-rule>
+            <discounted-products-combination>
+                <product-constraints>
+                    <product-constraint>
+                        <quantity>1</quantity>
+                        <product-specification>
+                            <included-products>
+                                <condition-group>
+                                    <product-id-condition operator="is equal">
+                                        <product-id>P0048M</product-id>
+                                    </product-id-condition>
+                                </condition-group>
+                            </included-products>
+                        </product-specification>
+                    </product-constraint>
+                    <product-constraint>
+                        <quantity>1</quantity>
+                        <product-specification>
+                            <included-products>
+                                <condition-group>
+                                    <product-id-condition operator="is equal">
+                                        <product-id>P0150M</product-id>
+                                    </product-id-condition>
+                                </condition-group>
+                            </included-products>
+                        </product-specification>
+                    </product-constraint>
+                </product-constraints>
+            </discounted-products-combination>
+            <simple-discount>
+                <percentage>16.0</percentage>
+            </simple-discount>
+        </product-promotion-rule>
+    </promotion>
+
+    <promotion promotion-id="PROMO-UNIVERSAL10">
+        <enabled-flag>true</enabled-flag>
+        <archived-flag>false</archived-flag>
+        <searchable-flag>true</searchable-flag>
+        <refinable-flag>false</refinable-flag>
+        <prevent-requalifying-flag>false</prevent-requalifying-flag>
+        <prorate-across-eligible-items-flag>false</prorate-across-eligible-items-flag>
+        <exclusivity>no</exclusivity>
+        <name xml:lang="x-default">10% off all products</name>
+        <callout-msg xml:lang="x-default">10% off with code UNIVERSAL10</callout-msg>
+        <product-promotion-rule>
+            <qualifying-products>
+                <included-products>
+                    <condition-group>
+                        <product-id-condition operator="is equal">
+                            <product-id>P0048M</product-id>
+                            <product-id>P0150M</product-id>
+                        </product-id-condition>
+                    </condition-group>
+                </included-products>
+            </qualifying-products>
+            <discounts condition-type="product-amount">
+                <discount>
+                    <threshold>1.0</threshold>
+                    <percentage>10.0</percentage>
+                </discount>
+            </discounts>
+        </product-promotion-rule>
+    </promotion>
+
     <promotion promotion-id="Payment-Promo">
         <enabled-flag>false</enabled-flag>
         <archived-flag>false</archived-flag>
@@ -3073,6 +3165,28 @@
             <source-codes/>
             <coupons/>
         </qualifiers>
+    </promotion-campaign-assignment>
+
+    <promotion-campaign-assignment promotion-id="PROMO-BUNDLE20" campaign-id="Buy 2 Save Campaign">
+        <qualifiers match-mode="all">
+            <customer-groups/>
+            <source-codes/>
+            <coupons/>
+        </qualifiers>
+        <customer-groups match-mode="any">
+            <customer-group group-id="Everyone"/>
+        </customer-groups>
+    </promotion-campaign-assignment>
+
+    <promotion-campaign-assignment promotion-id="PROMO-UNIVERSAL10" campaign-id="Universal Discount Campaign">
+        <qualifiers match-mode="all">
+            <customer-groups/>
+            <source-codes/>
+            <coupons/>
+        </qualifiers>
+        <customer-groups match-mode="any">
+            <customer-group group-id="Everyone"/>
+        </customer-groups>
     </promotion-campaign-assignment>
 
     <promotion-campaign-assignment promotion-id="Payment-Promo" campaign-id="Payment-promo">

@@ -10,6 +10,15 @@
         <single-code>5ties</single-code>
     </coupon>
 
+    <coupon coupon-id="COMBO2ITEMS">
+        <enabled-flag>true</enabled-flag>
+        <case-insensitive>true</case-insensitive>
+        <redemption-limits>
+            <allow-multiple-codes-per-order>false</allow-multiple-codes-per-order>
+        </redemption-limits>
+        <single-code>COMBO2ITEMS</single-code>
+    </coupon>
+
     <coupon coupon-id="OrderLevel">
         <enabled-flag>true</enabled-flag>
         <case-insensitive>false</case-insensitive>
@@ -21,6 +30,15 @@
             <allow-multiple-codes-per-order>false</allow-multiple-codes-per-order>
         </redemption-limits>
         <single-code>orderLevel</single-code>
+    </coupon>
+
+    <coupon coupon-id="UNIVERSAL10">
+        <enabled-flag>true</enabled-flag>
+        <case-insensitive>true</case-insensitive>
+        <redemption-limits>
+            <allow-multiple-codes-per-order>false</allow-multiple-codes-per-order>
+        </redemption-limits>
+        <single-code>UNIVERSAL10</single-code>
     </coupon>
 
     <coupon coupon-id="product">
