@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<geolocations xmlns="http://www.demandware.com/xml/impex/geolocation/2007-05-01" country-code="RS">
+    <geolocation postal-code="26000">
+        <city xml:lang="x-default">PANČEVO</city>
+        <state xml:lang="x-default">VOJVODINA</state>
+        <longitude>20.6401</longitude>
+        <latitude>44.8736</latitude>
+    </geolocation>
+
+    <geolocation postal-code="21000">
+        <city xml:lang="x-default">NOVI SAD</city>
+        <state xml:lang="x-default">VOJVODINA</state>
+        <longitude>19.8451</longitude>
+        <latitude>45.2551</latitude>
+    </geolocation>
+
+    <geolocation postal-code="11000">
+        <city xml:lang="x-default">BEOGRAD</city>
+        <state xml:lang="x-default">SRBIJA</state>
+        <longitude>20.4633</longitude>
+        <latitude>44.8176</latitude>
+    </geolocation>
+
+</geolocations>
