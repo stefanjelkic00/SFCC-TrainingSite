@@ -1,5 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <stores xmlns="http://www.demandware.com/xml/impex/store/2007-04-30">
+    <store store-id="belgrade-center">
+        <name>Prodavnica Beograd Centar</name>
+        <address1>Knez Mihailova 25</address1>
+        <address2>Lokal 5</address2>
+        <city>Boston</city>
+        <postal-code>21000</postal-code>
+        <state-code>MA</state-code>
+        <country-code>US</country-code>
+        <latitude>45.24396</latitude>
+        <longitude>19.83601</longitude>
+        <inventory-list-id>inventory_m_store_store1</inventory-list-id>
+        <store-locator-enabled-flag>true</store-locator-enabled-flag>
+        <demandware-pos-enabled-flag>false</demandware-pos-enabled-flag>
+        <pos-enabled-flag>false</pos-enabled-flag>
+        <custom-attributes>
+            <custom-attribute attribute-id="countryCodeValue">US</custom-attribute>
+        </custom-attributes>
+    </store>
+
+    <store store-id="pancevo-store">
+        <name>pancevo-store</name>
+        <address1>pancevo-store</address1>
+        <address2>pancevo-store</address2>
+        <city>Pancevo</city>
+        <postal-code>26000</postal-code>
+        <state-code>Florida</state-code>
+        <country-code>US</country-code>
+        <latitude>44.8708</latitude>
+        <longitude>20.6403</longitude>
+        <store-locator-enabled-flag>true</store-locator-enabled-flag>
+        <demandware-pos-enabled-flag>false</demandware-pos-enabled-flag>
+        <pos-enabled-flag>false</pos-enabled-flag>
+        <custom-attributes>
+            <custom-attribute attribute-id="countryCodeValue">RS</custom-attribute>
+        </custom-attributes>
+    </store>
+
     <store store-id="german_store">
         <name>Kaufen Kaufen</name>
         <address1>Leutragraben 2-4</address1>

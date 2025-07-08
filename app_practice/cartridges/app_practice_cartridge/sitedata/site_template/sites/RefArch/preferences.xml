@@ -59,11 +59,13 @@
     <custom-preferences>
         <all-instances/>
         <development>
+            <preference preference-id="countryCode">US</preference>
             <preference preference-id="emailForbiddenWords">
                 <value>email</value>
                 <value>yahoo</value>
                 <value>hotmail</value>
             </preference>
+            <preference preference-id="mapAPI">AIzaSyBtwr003s23AbcYu5zKId6kIh1x0_a-TBc</preference>
         </development>
         <staging/>
         <production/>
