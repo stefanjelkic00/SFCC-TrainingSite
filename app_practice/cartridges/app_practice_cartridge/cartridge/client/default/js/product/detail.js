@@ -72,8 +72,8 @@ const storeFinder = {
                 self.infoWindow.setContent(store.infoWindowHtml || '');
                 self.infoWindow.open(self.map, marker);
                 
-                $('.store-item').removeClass('active');
-                $('.store-item[data-index="' + index + '"]').addClass('active');
+                $('.js-store-item').removeClass('active');
+                $('.js-store-item[data-index="' + index + '"]').addClass('active');
             });
 
             self.markers.push(marker);
@@ -114,7 +114,7 @@ const storeFinder = {
             this.updateMapMarkers(data.stores);
         }
 
-        $('.stores-list-section').toggle(hasResults);
+        $('.js-stores-list-section').toggle(hasResults);
     },
 
     searchStores: function () {
@@ -172,7 +172,7 @@ baseDetail.storeFinderInit = function() {
         $('#storeFinderMap').data('has-google-api', false);
     }
     
-    $('body').on('click', '.store-finder-btn', function (e) {
+    $('body').on('click', '.js-store-finder-btn', function (e) {
         e.preventDefault();
         
         const $button = $(e.currentTarget);
@@ -191,7 +191,7 @@ baseDetail.storeFinderInit = function() {
         $('#storeFinderModal').hide();
         $('#zipCodeInput').val('');
         $('#storesResultsList').empty();
-        $('.stores-list-section, .search-error, .search-success').hide();
+        $('.js-stores-list-section, .search-error, .search-success').hide();
         
         self.markers.forEach(function(marker) {
             marker.setMap(null);
@@ -203,7 +203,7 @@ baseDetail.storeFinderInit = function() {
         e.stopPropagation();
     });
 
-    $('body').on('click', '.search-stores-btn', function () {
+    $('body').on('click', '.js-search-stores-btn', function () {
         self.searchStores();
     });
 
@@ -214,11 +214,11 @@ baseDetail.storeFinderInit = function() {
         }
     });
 
-    $('body').on('click', '.store-item', function (e) {
+    $('body').on('click', '.js-store-item', function (e) {
         const $storeItem = $(e.currentTarget);
         const index = $storeItem.data('index');
 
-        $('.store-item').removeClass('active');
+        $('.js-store-item').removeClass('active');
         $storeItem.addClass('active');
 
         if (self.markers[index]) {

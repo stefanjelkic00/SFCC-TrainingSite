@@ -21,7 +21,7 @@
                                    placeholder="e.g. 10001"
                                    maxlength="10"
                                    style="flex: 1; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px 0 0 4px;">
-                            <button class="btn btn-primary search-stores-btn" type="button" style="padding: 8px 20px; border-radius: 0 4px 4px 0;">
+                            <button class="btn btn-primary search-stores-btn js-search-stores-btn" type="button" style="padding: 8px 20px; border-radius: 0 4px 4px 0;">
                                 <i class="fa fa-search"></i> Search
                             </button>
                         </div>
@@ -57,7 +57,7 @@
             </div>
             
             <!-- Store Results List -->
-            <div class="stores-list-section" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+            <div class="stores-list-section js-stores-list-section" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
                 <div class="stores-list" id="storesResultsList" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
             

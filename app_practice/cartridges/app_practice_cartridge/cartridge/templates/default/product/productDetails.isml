@@ -146,7 +146,7 @@
                                         </div>
                                         <div class="store-finder-wrapper">
                                             <button type="button" 
-                                                    class="btn btn-secondary store-finder-btn" 
+                                                    class="btn btn-secondary store-finder-btn js-store-finder-btn" 
                                                     data-product-id="${product.id}"
                                                     data-product-name="${product.productName}">
                                                 <i class="fa fa-map-marker" aria-hidden="true"></i>
