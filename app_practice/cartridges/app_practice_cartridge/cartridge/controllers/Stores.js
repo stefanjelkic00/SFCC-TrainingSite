@@ -27,7 +27,7 @@ server.get('InventorySearch', function (req, res, next) {
         return next();
     }
     
-    const storeSearchResult = storeHelpers.getStoresWithInventory(
+    const storeData = storeHelpers.getStoresWithInventoryClean(
         radius, 
         postalCode, 
         null, 
@@ -37,20 +37,15 @@ server.get('InventorySearch', function (req, res, next) {
         productId
     );
     
-    if (storeSearchResult.stores && storeSearchResult.stores.length > 0) {
-        storeHelpers.addInfoWindowHtml(storeSearchResult.stores);
-    }
-    
     res.json({
-        stores: storeSearchResult.stores || [],
-        locations: storeSearchResult.locations,
-        storesResultsHtml: storeSearchResult.storesResultsHtml,
+        stores: storeData.stores,
         product: { 
             id: product.ID, 
             name: product.name 
         },
-        searchKey: { postalCode: postalCode },
-        radius: radius
+        searchKey: storeData.searchKey,
+        radius: storeData.radius,
+        googleMapsApi: storeData.googleMapsApi
     });
     
     next();

@@ -27,7 +27,32 @@ const storeFinder = {
         this.infoWindow = new google.maps.InfoWindow();
     },
 
+    /**
+     * Generiše HTML za info window iz store podataka
+     */
+    createInfoWindowHtml: function(store) {
+        return `
+            <div class="store-info-window" style="padding: 10px;">
+                <h5 class="store-name" style="margin: 0 0 10px 0;">${store.name}</h5>
+                <div class="store-address" style="margin: 5px 0;">
+                    ${store.address1}<br/>
+                    ${store.city ? store.city + ', ' : ''}
+                    ${store.postalCode || ''}
+                </div>
+                ${store.phone ? 
+                    '<div class="store-phone" style="margin: 5px 0;">Phone: <a href="tel:' + store.phone + '">' + store.phone + '</a></div>' 
+                    : ''
+                }
+                ${store.availableQuantity ? 
+                    '<div class="store-availability" style="margin: 10px 0; font-weight: bold; color: #28a745;">Available: ' + store.availableQuantity + ' items</div>'
+                    : ''
+                }
+            </div>
+        `;
+    },
+
     updateMapMarkers: function (stores) {
+        // Očisti postojeće markere
         this.markers.forEach(function(marker) {
             marker.setMap(null);
         });
@@ -68,8 +93,14 @@ const storeFinder = {
                 }
             });
 
+            // Klik na marker
             marker.addListener('click', function () {
-                self.infoWindow.setContent(store.infoWindowHtml || '');
+                // Alert sa brojem proizvoda (kao što je traženo u zadatku)
+                alert('Available in this store: ' + store.availableQuantity + ' items');
+                
+                // Prikaži i info window
+                const infoWindowContent = self.createInfoWindowHtml(store);
+                self.infoWindow.setContent(infoWindowContent);
                 self.infoWindow.open(self.map, marker);
                 
                 $('.js-store-item').removeClass('active');
@@ -85,9 +116,48 @@ const storeFinder = {
         }
     },
 
-    updateStoresResults: function (data) {
+    /**
+     * Generiše HTML za listu prodavnica iz JSON podataka
+     */
+    renderStoresList: function(stores) {
         const $resultsDiv = $('#storesResultsList');
-        const $mapDiv = $('#storeFinderMap');
+        let html = '';
+        
+        stores.forEach(function(store, index) {
+            html += `
+                <div class="store-item js-store-item" data-index="${index}" id="${store.ID}" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; cursor: pointer; position: relative;">
+                    <div class="d-flex">
+                        <div class="store-number" style="background: #0070d2; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold;">
+                            ${index + 1}
+                        </div>
+                        <div class="store-details flex-grow-1">
+                            <strong class="store-name">${store.name}</strong>
+                            <div class="store-address">
+                                ${store.address1}
+                                ${store.address2 ? '<br/>' + store.address2 : ''}
+                                ${store.city || store.postalCode ? '<br/>' : ''}
+                                ${store.city ? store.city + ', ' : ''}
+                                ${store.stateCode ? store.stateCode + ' ' : ''}
+                                ${store.postalCode || ''}
+                            </div>
+                            ${store.phone ? '<div class="store-phone"><i class="fa fa-phone"></i> ' + store.phone + '</div>' : ''}
+                        </div>
+                        ${store.availableQuantity ? 
+                            '<div class="store-inventory" style="position: absolute; top: 15px; right: 15px;">' +
+                                '<span class="badge badge-success" style="background: #28a745; color: white; padding: 5px 10px; border-radius: 4px;">' +
+                                    'In Stock: ' + store.availableQuantity +
+                                '</span>' +
+                            '</div>' : ''
+                        }
+                    </div>
+                </div>
+            `;
+        });
+        
+        $resultsDiv.html(html);
+    },
+
+    updateStoresResults: function (data) {
         const hasResults = data.stores && data.stores.length > 0;
 
         $('.search-error').toggle(!hasResults);
@@ -99,18 +169,9 @@ const storeFinder = {
             $('.search-success .success-message').text('Found ' + data.stores.length + ' store(s) with this product in stock');
         }
 
-        $resultsDiv.empty()
-            .data('has-results', hasResults)
-            .data('search-key', data.searchKey)
-            .data('radius', data.radius);
-
-        $mapDiv.attr('data-locations', data.locations);
-
-        if (data.storesResultsHtml) {
-            $resultsDiv.html(data.storesResultsHtml);
-        }
-
-        if (hasResults && this.map) {
+        // Sada renderujemo HTML na client strani iz JSON podataka
+        if (hasResults) {
+            this.renderStoresList(data.stores);
             this.updateMapMarkers(data.stores);
         }
 
@@ -163,6 +224,7 @@ const storeFinder = {
     }
 };
 
+// Ostatak koda...
 baseDetail.storeFinderInit = function() {
     const self = storeFinder;
     
@@ -224,11 +286,6 @@ baseDetail.storeFinderInit = function() {
         if (self.markers[index]) {
             google.maps.event.trigger(self.markers[index], 'click');
         }
-
-        $('body').trigger('storeFinder:storeSelected', {
-            store: self.storesData[index],
-            index: index
-        });
     });
 };
 

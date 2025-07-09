@@ -3,34 +3,77 @@
 const base = module.superModule;
 const StoreModel = require('*/cartridge/models/store');
 
-function getStoresWithInventory(radius, postalCode, lat, long, geolocation, showMap, productId) {
+function getStoresWithInventory(stores, productId) {
+    const ProductInventoryMgr = require('dw/catalog/ProductInventoryMgr');
+    const StoreMgr = require('dw/catalog/StoreMgr');
+    
+    return stores.filter(function(store) {
+        const storeObj = StoreMgr.getStore(store.ID);
+        if (!storeObj) {
+            return false;
+        }
+        
+        const inventory = ProductInventoryMgr.getInventoryList(storeObj.inventoryListID);
+        if (!inventory) {
+            return false;
+        }
+        
+        const record = inventory.getRecord(productId);
+        if (record && record.ATS && record.ATS.value > 0) {
+            store.availableQuantity = record.ATS.value;
+            return true;
+        }
+        return false;
+    });
+}
+
+function getStoresWithInventoryClean(radius, postalCode, lat, long, geolocation, showMap, productId) {
     const ProductInventoryMgr = require('dw/catalog/ProductInventoryMgr');
     const StoreMgr = require('dw/catalog/StoreMgr');
     const storeSearchResult = base.getStores(radius, postalCode, lat, long, geolocation, showMap);
     
-    if (productId && storeSearchResult.stores) {
-        storeSearchResult.stores = storeSearchResult.stores.filter(function(store) {
+    if (!productId || !storeSearchResult.stores) {
+        return {
+            stores: [],
+            radius: radius,
+            searchKey: { postalCode: postalCode },
+            googleMapsApi: storeSearchResult.googleMapsApi
+        };
+    }
+    
+    const storesWithInventory = storeSearchResult.stores
+        .map(function(store) {
             const storeObj = StoreMgr.getStore(store.ID);
             if (!storeObj) {
-                return false;
+                return null;
             }
             
             const inventory = ProductInventoryMgr.getInventoryList(storeObj.inventoryListID);
             if (!inventory) {
-                return false;
+                return null;
             }
             
             const record = inventory.getRecord(productId);
             if (record && record.ATS && record.ATS.value > 0) {
-                store.availableQuantity = record.ATS.value;
-                store.isInStock = true;
-                return true;
+                const inventoryData = {
+                    availableQuantity: record.ATS.value,
+                    inventoryListID: storeObj.inventoryListID
+                };
+                
+                return new StoreModel(storeObj, inventoryData);
             }
-            return false;
+            return null;
+        })
+        .filter(function(store) {
+            return store !== null;
         });
-    }
     
-    return storeSearchResult;
+    return {
+        stores: storesWithInventory,
+        radius: storeSearchResult.radius,
+        searchKey: storeSearchResult.searchKey,
+        googleMapsApi: storeSearchResult.googleMapsApi
+    };
 }
 
 function addInfoWindowHtml(stores) {
@@ -47,5 +90,6 @@ function addInfoWindowHtml(stores) {
 
 module.exports = Object.assign({}, base, {
     getStoresWithInventory: getStoresWithInventory,
+    getStoresWithInventoryClean: getStoresWithInventoryClean,
     addInfoWindowHtml: addInfoWindowHtml
 });
