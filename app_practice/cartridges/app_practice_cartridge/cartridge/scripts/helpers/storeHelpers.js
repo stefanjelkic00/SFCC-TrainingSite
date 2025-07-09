@@ -8,10 +8,14 @@ function getStoresWithInventory(stores, productId) {
     
     return stores.filter(function(store) {
         const storeObj = StoreMgr.getStore(store.ID);
-        if (!storeObj) return false;
+        if (!storeObj) {
+            return false;
+        }
         
         const inventory = ProductInventoryMgr.getInventoryList(storeObj.inventoryListID);
-        if (!inventory) return false;
+        if (!inventory) {
+            return false;
+        }
         
         const record = inventory.getRecord(productId);
         if (record && record.ATS && record.ATS.value > 0) {

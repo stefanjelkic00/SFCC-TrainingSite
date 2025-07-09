@@ -13,13 +13,11 @@ server.get('InventorySearch', function (req, res, next) {
     const postalCode = req.querystring.postalCode;
     
     if (!productId || !postalCode) {
-        res.json({ success: false, error: 'Missing required parameters' });
         return next();
     }
     
     const product = ProductMgr.getProduct(productId);
     if (!product) {
-        res.json({ success: false, error: 'Product not found' });
         return next();
     }
     
