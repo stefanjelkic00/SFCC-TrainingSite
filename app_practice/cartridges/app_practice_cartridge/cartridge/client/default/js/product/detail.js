@@ -27,9 +27,6 @@ const storeFinder = {
         this.infoWindow = new google.maps.InfoWindow();
     },
 
-    /**
-     * Generiše HTML za info window iz store podataka
-     */
     createInfoWindowHtml: function(store) {
         return `
             <div class="store-info-window" style="padding: 10px;">
@@ -52,7 +49,6 @@ const storeFinder = {
     },
 
     updateMapMarkers: function (stores) {
-        // Očisti postojeće markere
         this.markers.forEach(function(marker) {
             marker.setMap(null);
         });
@@ -93,12 +89,9 @@ const storeFinder = {
                 }
             });
 
-            // Klik na marker
             marker.addListener('click', function () {
-                // Alert sa brojem proizvoda (kao što je traženo u zadatku)
                 alert('Available in this store: ' + store.availableQuantity + ' items');
                 
-                // Prikaži i info window
                 const infoWindowContent = self.createInfoWindowHtml(store);
                 self.infoWindow.setContent(infoWindowContent);
                 self.infoWindow.open(self.map, marker);
@@ -116,9 +109,6 @@ const storeFinder = {
         }
     },
 
-    /**
-     * Generiše HTML za listu prodavnica iz JSON podataka
-     */
     renderStoresList: function(stores) {
         const $resultsDiv = $('#storesResultsList');
         let html = '';
@@ -169,7 +159,6 @@ const storeFinder = {
             $('.search-success .success-message').text('Found ' + data.stores.length + ' store(s) with this product in stock');
         }
 
-        // Sada renderujemo HTML na client strani iz JSON podataka
         if (hasResults) {
             this.renderStoresList(data.stores);
             this.updateMapMarkers(data.stores);
@@ -224,7 +213,6 @@ const storeFinder = {
     }
 };
 
-// Ostatak koda...
 baseDetail.storeFinderInit = function() {
     const self = storeFinder;
     
