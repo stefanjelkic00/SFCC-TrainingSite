@@ -13,23 +13,42 @@ server.get('InventorySearch', function (req, res, next) {
     const postalCode = req.querystring.postalCode;
     
     if (!productId || !postalCode) {
+        res.json({
+            error: 'Product ID and postal code are required'
+        });
         return next();
     }
     
     const product = ProductMgr.getProduct(productId);
     if (!product) {
+        res.json({
+            error: 'Product not found'
+        });
         return next();
     }
     
-    const storeSearchResult = storeHelpers.getStores(radius, postalCode, null, null, req.geolocation, true);
-    const storesWithInventory = storeHelpers.getStoresWithInventory(storeSearchResult.stores, productId);
+    const storeSearchResult = storeHelpers.getStoresWithInventory(
+        radius, 
+        postalCode, 
+        null, 
+        null, 
+        req.geolocation, 
+        true,
+        productId
+    );
     
-    storeHelpers.addInfoWindowHtml(storesWithInventory);
+    if (storeSearchResult.stores && storeSearchResult.stores.length > 0) {
+        storeHelpers.addInfoWindowHtml(storeSearchResult.stores);
+    }
     
     res.json({
-        stores: storesWithInventory,
-        storesResultsHtml: storeHelpers.createStoresResultsHtml(storesWithInventory),
-        product: { id: product.ID, name: product.name },
+        stores: storeSearchResult.stores || [],
+        locations: storeSearchResult.locations,
+        storesResultsHtml: storeSearchResult.storesResultsHtml,
+        product: { 
+            id: product.ID, 
+            name: product.name 
+        },
         searchKey: { postalCode: postalCode },
         radius: radius
     });

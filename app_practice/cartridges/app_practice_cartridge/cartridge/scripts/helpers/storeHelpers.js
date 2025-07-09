@@ -1,29 +1,36 @@
 'use strict';
 
 const base = module.superModule;
+const StoreModel = require('*/cartridge/models/store');
 
-function getStoresWithInventory(stores, productId) {
+function getStoresWithInventory(radius, postalCode, lat, long, geolocation, showMap, productId) {
     const ProductInventoryMgr = require('dw/catalog/ProductInventoryMgr');
     const StoreMgr = require('dw/catalog/StoreMgr');
+    const storeSearchResult = base.getStores(radius, postalCode, lat, long, geolocation, showMap);
     
-    return stores.filter(function(store) {
-        const storeObj = StoreMgr.getStore(store.ID);
-        if (!storeObj) {
+    if (productId && storeSearchResult.stores) {
+        storeSearchResult.stores = storeSearchResult.stores.filter(function(store) {
+            const storeObj = StoreMgr.getStore(store.ID);
+            if (!storeObj) {
+                return false;
+            }
+            
+            const inventory = ProductInventoryMgr.getInventoryList(storeObj.inventoryListID);
+            if (!inventory) {
+                return false;
+            }
+            
+            const record = inventory.getRecord(productId);
+            if (record && record.ATS && record.ATS.value > 0) {
+                store.availableQuantity = record.ATS.value;
+                store.isInStock = true;
+                return true;
+            }
             return false;
-        }
-        
-        const inventory = ProductInventoryMgr.getInventoryList(storeObj.inventoryListID);
-        if (!inventory) {
-            return false;
-        }
-        
-        const record = inventory.getRecord(productId);
-        if (record && record.ATS && record.ATS.value > 0) {
-            store.availableQuantity = record.ATS.value;
-            return true;
-        }
-        return false;
-    });
+        });
+    }
+    
+    return storeSearchResult;
 }
 
 function addInfoWindowHtml(stores) {
