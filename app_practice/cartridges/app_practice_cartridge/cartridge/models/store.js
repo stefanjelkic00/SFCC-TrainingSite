@@ -12,7 +12,4 @@ function Store(storeObject, inventoryData) {
     }
 }
 
-Store.prototype = Object.create(BaseStoreModel.prototype);
-Store.prototype.constructor = Store;
-
 module.exports = Store;
