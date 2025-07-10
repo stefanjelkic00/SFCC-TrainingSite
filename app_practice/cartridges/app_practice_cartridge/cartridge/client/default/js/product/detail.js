@@ -107,42 +107,9 @@ const storeFinder = {
         }
     },
 
-    renderStoresList: function(stores) {
+    renderStoresList: function(storesHtml) {
         const $resultsDiv = $('#storesResultsList');
-        let html = '';
-        
-        stores.forEach(function(store, index) {
-            html += `
-                <div class="store-item js-store-item" data-index="${index}" id="${store.ID}" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; cursor: pointer; position: relative;">
-                    <div class="d-flex">
-                        <div class="store-number" style="background: #0070d2; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold;">
-                            ${index + 1}
-                        </div>
-                        <div class="store-details flex-grow-1">
-                            <strong class="store-name">${store.name}</strong>
-                            <div class="store-address">
-                                ${store.address1}
-                                ${store.address2 ? '<br/>' + store.address2 : ''}
-                                ${store.city || store.postalCode ? '<br/>' : ''}
-                                ${store.city ? store.city + ', ' : ''}
-                                ${store.stateCode ? store.stateCode + ' ' : ''}
-                                ${store.postalCode || ''}
-                            </div>
-                            ${store.phone ? '<div class="store-phone"><i class="fa fa-phone"></i> ' + store.phone + '</div>' : ''}
-                        </div>
-                        ${store.availableQuantity ? 
-                            '<div class="store-inventory" style="position: absolute; top: 15px; right: 15px;">' +
-                                '<span class="badge badge-success" style="background: #28a745; color: white; padding: 5px 10px; border-radius: 4px;">' +
-                                    'In Stock: ' + store.availableQuantity +
-                                '</span>' +
-                            '</div>' : ''
-                        }
-                    </div>
-                </div>
-            `;
-        });
-        
-        $resultsDiv.html(html);
+        $resultsDiv.html(storesHtml);
     },
 
     updateStoresResults: function (data) {
@@ -158,7 +125,7 @@ const storeFinder = {
         }
 
         if (hasResults) {
-            this.renderStoresList(data.stores);
+            this.renderStoresList(data.storesResultsHtml);
             this.updateMapMarkers(data.stores);
         }
 

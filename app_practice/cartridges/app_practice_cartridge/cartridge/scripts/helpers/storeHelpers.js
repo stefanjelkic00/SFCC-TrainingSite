@@ -27,6 +27,17 @@ function getStoresWithInventory(stores, productId) {
     });
 }
 
+function createStoreFinderResultsHtml(storesInfo) {
+    var HashMap = require('dw/util/HashMap');
+    var Template = require('dw/util/Template');
+
+    var context = new HashMap();
+    context.put('stores', storesInfo);
+
+    var template = new Template('product/storeFinderResults');
+    return template.render(context).text;
+}
+
 function getStoresWithInventoryClean(radius, postalCode, lat, long, geolocation, showMap, productId) {
     const StoreMgr = require('dw/catalog/StoreMgr');
     const storeSearchResult = base.getStores(radius, postalCode, lat, long, geolocation, showMap);
@@ -54,6 +65,7 @@ function getStoresWithInventoryClean(radius, postalCode, lat, long, geolocation,
     
     return {
         stores: storeModels,
+        storesResultsHtml: storeModels.length ? createStoreFinderResultsHtml(storeModels) : null,
         radius: storeSearchResult.radius,
         searchKey: storeSearchResult.searchKey,
         googleMapsApi: storeSearchResult.googleMapsApi
@@ -63,4 +75,5 @@ function getStoresWithInventoryClean(radius, postalCode, lat, long, geolocation,
 module.exports = Object.assign({}, base, {
     getStoresWithInventory: getStoresWithInventory,
     getStoresWithInventoryClean: getStoresWithInventoryClean,
+    createStoreFinderResultsHtml: createStoreFinderResultsHtml
 });

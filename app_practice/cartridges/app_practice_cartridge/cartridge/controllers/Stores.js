@@ -13,17 +13,11 @@ server.get('InventorySearch', function (req, res, next) {
     const postalCode = req.querystring.postalCode;
     
     if (!productId || !postalCode) {
-        res.json({
-            error: 'Product ID and postal code are required'
-        });
         return next();
     }
     
     const product = ProductMgr.getProduct(productId);
     if (!product) {
-        res.json({
-            error: 'Product not found'
-        });
         return next();
     }
     
@@ -39,6 +33,7 @@ server.get('InventorySearch', function (req, res, next) {
     
     res.json({
         stores: storeData.stores,
+        storesResultsHtml: storeData.storesResultsHtml,
         product: { 
             id: product.ID, 
             name: product.name 
