@@ -89,9 +89,7 @@ const storeFinder = {
                 }
             });
 
-            marker.addListener('click', function () {
-                alert('Available in this store: ' + store.availableQuantity + ' items');
-                
+            marker.addListener('click', function () {                
                 const infoWindowContent = self.createInfoWindowHtml(store);
                 self.infoWindow.setContent(infoWindowContent);
                 self.infoWindow.open(self.map, marker);
