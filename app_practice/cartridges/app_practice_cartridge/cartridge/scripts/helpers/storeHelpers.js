@@ -2,8 +2,7 @@
 
 const base = module.superModule;
 const StoreModel = require('*/cartridge/models/store');
-const renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
-
+const StoresModel = require('*/cartridge/models/stores'); 
 function getStoresWithInventory(stores, productId) {
     const ProductInventoryMgr = require('dw/catalog/ProductInventoryMgr');
     const StoreMgr = require('dw/catalog/StoreMgr');
@@ -28,44 +27,41 @@ function getStoresWithInventory(stores, productId) {
     });
 }
 
-function createStoreFinderResultsHtml(storesInfo) {
-    var HashMap = require('dw/util/HashMap');
-    var Template = require('dw/util/Template');
+function createStoresResultsHtml(storesInfo) {
+    const HashMap = require('dw/util/HashMap');
+    const Template = require('dw/util/Template');
 
-    var context = new HashMap();
-    context.put('stores', storesInfo);
+    const context = new HashMap();
+    const object = { stores: { stores: storesInfo } };
 
-    var template = new Template('product/storeFinderResults');
+    Object.keys(object).forEach(function (key) {
+        context.put(key, object[key]);
+    });
+
+    const template = new Template('storeLocator/storeLocatorResults');
     return template.render(context).text;
 }
 
-function createGeoLocationObjectWithInventory(storesObject) {
-    var context;
-    var template = 'product/productStoreInfoWindow';
-    return Object.keys(storesObject).map(function (key) {
-        var store = storesObject[key];
-        context = { store: store };
-        return {
-            name: store.name,
-            latitude: store.latitude,
-            longitude: store.longitude,
-            availableQuantity: store.availableQuantity,
-            infoWindowHtml: renderTemplateHelper.getRenderedHtml(context, template)
-        };
-    });
+function createStoreFinderResultsHtml(storesInfo) {
+    const HashMap = require('dw/util/HashMap');
+    const Template = require('dw/util/Template');
+
+    const context = new HashMap();
+    context.put('stores', storesInfo);
+
+    const template = new Template('product/storeFinderResults');
+    return template.render(context).text;
 }
 
 function getStoresWithInventoryClean(radius, postalCode, lat, long, geolocation, showMap, productId) {
+    const Site = require('dw/system/Site');
+    const URLUtils = require('dw/web/URLUtils');
     const StoreMgr = require('dw/catalog/StoreMgr');
+    
     const storeSearchResult = base.getStores(radius, postalCode, lat, long, geolocation, showMap);
     
     if (!productId || !storeSearchResult.stores) {
-        return {
-            stores: [],
-            radius: radius,
-            searchKey: { postalCode: postalCode },
-            googleMapsApi: storeSearchResult.googleMapsApi
-        };
+        return storeSearchResult;
     }
     
     const storesWithInventory = getStoresWithInventory(storeSearchResult.stores, productId);
@@ -80,20 +76,23 @@ function getStoresWithInventoryClean(radius, postalCode, lat, long, geolocation,
         return new StoreModel(storeObj, inventoryData);
     });
     
-    const locations = createGeoLocationObjectWithInventory(storeModels);
+    const actionUrl = URLUtils.url('Stores-InventorySearch').toString();
+    const apiKey = Site.getCurrent().getCustomPreferenceValue('mapAPI');
     
-    return {
-        stores: storeModels,
-        locations: JSON.stringify(locations),
-        storesResultsHtml: storeModels.length ? createStoreFinderResultsHtml(storeModels) : null,
-        radius: storeSearchResult.radius,
-        searchKey: storeSearchResult.searchKey,
-        googleMapsApi: storeSearchResult.googleMapsApi
-    };
+    const storesModel = new StoresModel(
+        storeModels, 
+        storeSearchResult.searchKey,
+        storeSearchResult.radius,
+        actionUrl,
+        apiKey
+    );
+    
+    return storesModel; 
 }
 
 module.exports = Object.assign({}, base, {
     getStoresWithInventory: getStoresWithInventory,
     getStoresWithInventoryClean: getStoresWithInventoryClean,
-    createStoreFinderResultsHtml: createStoreFinderResultsHtml
+    createStoreFinderResultsHtml: createStoreFinderResultsHtml,
+    createStoresResultsHtml: createStoresResultsHtml
 });
