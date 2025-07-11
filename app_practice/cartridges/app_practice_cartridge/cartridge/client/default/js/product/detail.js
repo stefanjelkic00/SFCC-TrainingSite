@@ -27,47 +27,27 @@ const storeFinder = {
         this.infoWindow = new google.maps.InfoWindow();
     },
 
-    createInfoWindowHtml: function(store) {
-        return `
-            <div class="store-info-window" style="padding: 10px;">
-                <h5 class="store-name" style="margin: 0 0 10px 0;">${store.name}</h5>
-                <div class="store-address" style="margin: 5px 0;">
-                    ${store.address1}<br/>
-                    ${store.city ? store.city + ', ' : ''}
-                    ${store.postalCode || ''}
-                </div>
-                ${store.phone ? 
-                    '<div class="store-phone" style="margin: 5px 0;">Phone: <a href="tel:' + store.phone + '">' + store.phone + '</a></div>' 
-                    : ''
-                }
-                ${store.availableQuantity ? 
-                    '<div class="store-availability" style="margin: 10px 0; font-weight: bold; color: #28a745;">Available: ' + store.availableQuantity + ' items</div>'
-                    : ''
-                }
-            </div>
-        `;
-    },
-
-    updateMapMarkers: function (stores) {
+    updateMapMarkers: function (locations) {
         this.markers.forEach(function(marker) {
             marker.setMap(null);
         });
         this.markers = [];
-        this.storesData = stores;
 
         const bounds = new google.maps.LatLngBounds();
         const self = this;
 
-        stores.forEach(function (store, index) {
+        const locationsData = typeof locations === 'string' ? JSON.parse(locations) : locations;
+
+        locationsData.forEach(function (location, index) {
             const position = {
-                lat: parseFloat(store.latitude),
-                lng: parseFloat(store.longitude)
+                lat: parseFloat(location.latitude),
+                lng: parseFloat(location.longitude)
             };
 
             const marker = new google.maps.Marker({
                 position: position,
                 map: self.map,
-                title: store.name,
+                title: location.name,
                 icon: {
                     path: 'M13.5,30.1460153 L16.8554555,25.5 L20.0024287,25.5 C23.039087,25.5 25.5,' +
                         '23.0388955 25.5,20.0024287 L25.5,5.99757128 C25.5,2.96091298 23.0388955,0.5 ' +
@@ -89,9 +69,8 @@ const storeFinder = {
                 }
             });
 
-            marker.addListener('click', function () {                
-                const infoWindowContent = self.createInfoWindowHtml(store);
-                self.infoWindow.setContent(infoWindowContent);
+            marker.addListener('click', function () {
+                self.infoWindow.setContent(location.infoWindowHtml);
                 self.infoWindow.open(self.map, marker);
                 
                 $('.js-store-item').removeClass('active');
@@ -102,7 +81,7 @@ const storeFinder = {
             bounds.extend(position);
         });
 
-        if (stores.length > 0) {
+        if (locationsData.length > 0) {
             this.map.fitBounds(bounds);
         }
     },
@@ -126,7 +105,9 @@ const storeFinder = {
 
         if (hasResults) {
             this.renderStoresList(data.storesResultsHtml);
-            this.updateMapMarkers(data.stores);
+            this.updateMapMarkers(data.locations);
+            
+            $('#storeFinderMap').attr('data-locations', data.locations);
         }
 
         $('.js-stores-list-section').toggle(hasResults);

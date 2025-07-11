@@ -1,0 +1,29 @@
+<isset name="store" value="${pdict.store}" scope="page"/>
+<div class="store-info-window">
+    <h5 class="store-name">${store.name}</h5>
+    <div class="store-address">
+        ${store.address1}
+        <isif condition="${store.address2}">
+            <br/>${store.address2}
+        </isif>
+        <br/>
+        <isif condition="${store.city}">
+            ${store.city}, 
+        </isif>
+        <isif condition="${store.stateCode}">
+            ${store.stateCode} 
+        </isif>
+        ${store.postalCode || ''}
+    </div>
+    <isif condition="${store.phone}">
+        <div class="store-phone">
+            <i class="fa fa-phone"></i> 
+            <a href="tel:${store.phone}">${store.phone}</a>
+        </div>
+    </isif>
+    <isif condition="${store.availableQuantity && store.availableQuantity > 0}">
+        <div class="store-availability" style="margin-top: 10px; font-weight: bold; color: #28a745;">
+            <i class="fa fa-check-circle"></i> Available: ${store.availableQuantity} items
+        </div>
+    </isif>
+</div>

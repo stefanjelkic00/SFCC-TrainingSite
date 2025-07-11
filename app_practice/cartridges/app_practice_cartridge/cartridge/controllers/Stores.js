@@ -33,6 +33,7 @@ server.get('InventorySearch', function (req, res, next) {
     
     res.json({
         stores: storeData.stores,
+        locations: storeData.locations,
         storesResultsHtml: storeData.storesResultsHtml,
         product: { 
             id: product.ID, 
