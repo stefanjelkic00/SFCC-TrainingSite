@@ -94,15 +94,6 @@ const storeFinder = {
     updateStoresResults: function (data) {
         const hasResults = data.stores && data.stores.length > 0;
 
-        $('.search-error').toggle(!hasResults);
-        $('.search-success').toggle(hasResults);
-        
-        if (!hasResults) {
-            $('.search-error .error-message').text('No stores have this product in stock in the selected area. Try a different ZIP code.');
-        } else {
-            $('.search-success .success-message').text('Found ' + data.stores.length + ' store(s) with this product in stock');
-        }
-
         if (hasResults) {
             this.renderStoresList(data.storesResultsHtml);
             this.updateMapMarkers(data.locations);

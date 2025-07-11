@@ -3,7 +3,9 @@
 const base = module.superModule;
 const StoreModel = require('*/cartridge/models/store');
 const StoresModel = require('*/cartridge/models/stores'); 
+
 function getStoresWithInventory(stores, productId) {
+
     const ProductInventoryMgr = require('dw/catalog/ProductInventoryMgr');
     const StoreMgr = require('dw/catalog/StoreMgr');
     
@@ -27,26 +29,14 @@ function getStoresWithInventory(stores, productId) {
     });
 }
 
-function createStoresResultsHtml(storesInfo) {
-    const HashMap = require('dw/util/HashMap');
-    const Template = require('dw/util/Template');
-
-    const context = new HashMap();
-    const object = { stores: { stores: storesInfo } };
-
-    Object.keys(object).forEach(function (key) {
-        context.put(key, object[key]);
-    });
-
-    const template = new Template('storeLocator/storeLocatorResults');
-    return template.render(context).text;
-}
-
 function createStoreFinderResultsHtml(storesInfo) {
+
     const HashMap = require('dw/util/HashMap');
+
     const Template = require('dw/util/Template');
 
     const context = new HashMap();
+    
     context.put('stores', storesInfo);
 
     const template = new Template('product/storeFinderResults');
@@ -93,6 +83,5 @@ function getStoresWithInventoryClean(radius, postalCode, lat, long, geolocation,
 module.exports = Object.assign({}, base, {
     getStoresWithInventory: getStoresWithInventory,
     getStoresWithInventoryClean: getStoresWithInventoryClean,
-    createStoreFinderResultsHtml: createStoreFinderResultsHtml,
-    createStoresResultsHtml: createStoresResultsHtml
+    createStoreFinderResultsHtml: createStoreFinderResultsHtml
 });

@@ -17,6 +17,7 @@ function createGeoLocationObjectWithInventory(storesArray) {
 }
 
 function Stores(storesResultsObject, searchKey, searchRadius, actionUrl, apiKey) {
+    
     const isInventorySearch = Array.isArray(storesResultsObject);
     
     if (isInventorySearch) {
@@ -29,8 +30,7 @@ function Stores(storesResultsObject, searchKey, searchRadius, actionUrl, apiKey)
         this.locations = JSON.stringify(createGeoLocationObjectWithInventory(storesResultsObject));
         
         const storeHelpers = require('*/cartridge/scripts/helpers/storeHelpers');
-        this.storesResultsHtml = storeHelpers.createStoreFinderResultsHtml ? 
-            storeHelpers.createStoreFinderResultsHtml(this.stores) : null;
+        this.storesResultsHtml = storeHelpers.createStoreFinderResultsHtml;
     } else {
         const BaseStoresModel = require('app_storefront_base/cartridge/models/stores');
         BaseStoresModel.call(this, storesResultsObject, searchKey, searchRadius, actionUrl, apiKey);
