@@ -2,10 +2,9 @@
 
 const base = module.superModule;
 const StoreModel = require('*/cartridge/models/store');
-const StoresModel = require('*/cartridge/models/stores'); 
+const StoresModel = require('*/cartridge/models/stores');
 
 function getStoresWithInventory(stores, productId) {
-
     const ProductInventoryMgr = require('dw/catalog/ProductInventoryMgr');
     const StoreMgr = require('dw/catalog/StoreMgr');
     
@@ -30,15 +29,11 @@ function getStoresWithInventory(stores, productId) {
 }
 
 function createStoreFinderResultsHtml(storesInfo) {
-
     const HashMap = require('dw/util/HashMap');
-
     const Template = require('dw/util/Template');
-
     const context = new HashMap();
     
     context.put('stores', storesInfo);
-
     const template = new Template('product/storeFinderResults');
     return template.render(context).text;
 }
@@ -59,7 +54,7 @@ function getStoresWithInventoryClean(radius, postalCode, lat, long, geolocation,
     const storeModels = storesWithInventory.map(function(store) {
         const storeObj = StoreMgr.getStore(store.ID);
         const inventoryData = {
-            availableQuantity: store.availableQuantity, 
+            availableQuantity: store.availableQuantity,
             inventoryListID: storeObj.inventoryListID
         };
         
@@ -70,14 +65,15 @@ function getStoresWithInventoryClean(radius, postalCode, lat, long, geolocation,
     const apiKey = Site.getCurrent().getCustomPreferenceValue('mapAPI');
     
     const storesModel = new StoresModel(
-        storeModels, 
+        storeModels,
         storeSearchResult.searchKey,
         storeSearchResult.radius,
         actionUrl,
-        apiKey
+        apiKey,
+        true 
     );
     
-    return storesModel; 
+    return storesModel;
 }
 
 module.exports = Object.assign({}, base, {

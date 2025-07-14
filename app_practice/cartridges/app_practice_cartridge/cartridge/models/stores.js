@@ -16,9 +16,7 @@ function createGeoLocationObjectWithInventory(storesArray) {
     });
 }
 
-function Stores(storesResultsObject, searchKey, searchRadius, actionUrl, apiKey) {
-    
-    const isInventorySearch = Array.isArray(storesResultsObject);
+function Stores(storesResultsObject, searchKey, searchRadius, actionUrl, apiKey, isInventorySearch) {
     
     if (isInventorySearch) {
         this.searchKey = searchKey;
@@ -30,7 +28,7 @@ function Stores(storesResultsObject, searchKey, searchRadius, actionUrl, apiKey)
         this.locations = JSON.stringify(createGeoLocationObjectWithInventory(storesResultsObject));
         
         const storeHelpers = require('*/cartridge/scripts/helpers/storeHelpers');
-        this.storesResultsHtml = storeHelpers.createStoreFinderResultsHtml;
+        this.storesResultsHtml = storeHelpers.createStoreFinderResultsHtml(storesResultsObject);
     } else {
         const BaseStoresModel = require('app_storefront_base/cartridge/models/stores');
         BaseStoresModel.call(this, storesResultsObject, searchKey, searchRadius, actionUrl, apiKey);
