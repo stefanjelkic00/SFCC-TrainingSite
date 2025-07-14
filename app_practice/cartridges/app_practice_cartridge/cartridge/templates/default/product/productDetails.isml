@@ -1,9 +1,19 @@
 <isdecorate template="common/layout/page">
 
     <isscript>
+        var Site = require('dw/system/Site');
         let assets = require('*/cartridge/scripts/assets');
         assets.addJs('/js/productDetail.js');
+        assets.addJs('/js/storeFinderPDP.js');
         assets.addCss('/css/product/detail.css');
+        assets.addCss('/css/storeFinder.css');
+        
+        // Učitaj Google Maps API sa ključem iz Business Manager-a
+        var googleMapsApiKey = Site.getCurrent().getCustomPreferenceValue('mapAPI');
+        if (googleMapsApiKey) {
+            assets.addJs('https://maps.googleapis.com/maps/api/js?key=' + googleMapsApiKey);
+        }
+        
         let pdpHelpers = require('*/cartridge/scripts/helpers/pdpHelpers');
     </isscript>
 
@@ -127,8 +137,26 @@
                                 </div>
                             </div>
 
-                            <!-- Cart and [Optionally] Apple Pay -->
-                            <isinclude template="product/components/addToCartProduct" />
+                            <!-- Cart and [Optionally] Apple Pay + Store Finder -->
+                            <div class="row add-to-cart-row">
+                                <div class="col-12">
+                                    <div class="d-flex">
+                                        <div class="flex-grow-1 mr-2">
+                                            <isinclude template="product/components/addToCartProduct" />
+                                        </div>
+                                        <div class="store-finder-wrapper">
+                                            <button type="button" 
+                                                    class="btn btn-secondary store-finder-btn js-store-finder-btn" 
+                                                    data-product-id="${product.id}"
+                                                    data-product-name="${product.productName}">
+                                                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                                                <span class="d-none d-sm-inline">Find in Store</span>
+                                                <span class="d-sm-none">Find</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Social Sharing Icons -->
@@ -163,5 +191,8 @@
                 <isslot id="product-recommendations-m" description="Recommended products" context="global" context-object="${pdict.product.raw}" />
             </div>
         </div>
+        
+        <!-- Task 18: Store Finder Modal -->
+        <isinclude template="product/components/storeFinderModal" />
     </isobject>
 </isdecorate>
