@@ -1,0 +1,30 @@
+<form action="" class="login-oauth" method="post" name="login-oauth-form">
+    <div class="form-group">
+        <a href="${URLUtils.https('Login-OAuthLogin', 'oauthProvider', 'Google', 'oauthLoginTargetEndPoint', pdict.oAuthReentryEndpoint)}" class="btn btn-block btn-outline-primary oauth-google"
+           role="button" aria-pressed="true">
+            <i class="fa fa-google" aria-hidden="true"></i>
+            ${Resource.msg('button.text.oauth.google', 'login', null)}
+        </a>
+    </div>
+    
+    <!-- Original Facebook button -->
+    <div class="form-group">
+        <a href="${URLUtils.https('Login-OAuthLogin', 'oauthProvider', 'Facebook', 'oauthLoginTargetEndPoint', pdict.oAuthReentryEndpoint)}" class="btn btn-block btn-outline-primary oauth-facebook"
+           role="button" aria-pressed="true">
+                <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                ${Resource.msg('button.text.oauth.facebook', 'login', null)}
+        </a>
+    </div>
+    
+    <!-- NEW Facebook OAuth2 button as per task19 requirement -->
+    <div class="form-group">
+        <a href="${URLUtils.https('Login-OAuthLogin', 'oauthProvider', 'Facebook', 'oauthLoginTargetEndPoint', pdict.oAuthReentryEndpoint)}" 
+           class="btn btn-block btn-primary oauth-facebook-new"
+           role="button" 
+           aria-pressed="true"
+           style="background-color: #1877f2; border-color: #1877f2;">
+                <i class="fa fa-facebook" aria-hidden="true"></i>
+                ${Resource.msg('Task19 Facebook Button', 'login', null)}
+        </a>
+    </div>
+</form>

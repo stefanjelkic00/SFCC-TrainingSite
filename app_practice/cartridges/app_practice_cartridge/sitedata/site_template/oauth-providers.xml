@@ -1,2 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<oauth-providers xmlns="http://www.demandware.com/xml/impex/oauthprovider/2013-07-16"/>
+<oauth-providers xmlns="http://www.demandware.com/xml/impex/oauthprovider/2013-07-16">
+    <oauth-provider provider-id="Facebook">
+        <description>Facebook OAuth Provider</description>
+        <client-id>1277786293914796</client-id>
+        <client-secret>f48b0a03cb921f17251b0cc6cbcc7fa9</client-secret>
+        <scopes>email,public_profile</scopes>
+        <authorization-url>https://www.facebook.com/dialog/oauth</authorization-url>
+        <token-url>https://graph.facebook.com/oauth/access_token</token-url>
+        <user-info-url>https://graph.facebook.com/me?fields=email,first_name,last_name</user-info-url>
+        <access-token-name>access_token</access-token-name>
+        <redirect-pipeline-node>Login-OAuthReentry</redirect-pipeline-node>
+    </oauth-provider>
+
+</oauth-providers>
