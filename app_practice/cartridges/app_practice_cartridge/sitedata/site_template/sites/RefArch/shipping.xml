@@ -800,4 +800,30 @@
         <currency>EUR</currency>
     </shipping-method>
 
+    <shipping-method method-id="custom_delivery" default="false">
+        <display-name xml:lang="x-default">Custom Delivery</display-name>
+        <description xml:lang="x-default">Conditional pricing - $10 under $50, free over $50</description>
+        <online-flag>true</online-flag>
+        <price-table>
+            <amount order-value="0.0">10.0</amount>
+            <amount order-value="50.0">0.0</amount>
+        </price-table>
+        <excluded-addresses>
+            <included-addresses>
+                <condition-group match-mode="all">
+                    <condition>
+                        <attribute-path>shipment.shippingAddress.postalCode</attribute-path>
+                        <operator>is-equal</operator>
+                        <string>11111</string>
+                    </condition>
+                </condition-group>
+            </included-addresses>
+        </excluded-addresses>
+        <custom-attributes>
+            <custom-attribute attribute-id="estimatedArrivalTime" xml:lang="x-default">3-5 business days</custom-attribute>
+            <custom-attribute attribute-id="storePickupEnabled">false</custom-attribute>
+        </custom-attributes>
+        <currency>USD</currency>
+    </shipping-method>
+
 </shipping>
