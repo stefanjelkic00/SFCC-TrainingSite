@@ -4988,6 +4988,13 @@
                     </value-definition>
                 </value-definitions>
             </attribute-definition>
+            <attribute-definition attribute-id="useExternalAuthentication">
+                <display-name xml:lang="x-default">Use External Authentication Service</display-name>
+                <description xml:lang="x-default">Toggle between standard SFCC and external authentication service</description>
+                <type>boolean</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="Storefront Configs">
@@ -4998,6 +5005,7 @@
                 <attribute attribute-id="customerServiceEmail"/>
                 <attribute attribute-id="mapAPI"/>
                 <attribute attribute-id="emailForbiddenWords"/>
+                <attribute attribute-id="useExternalAuthentication"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -5191,6 +5199,7 @@
                 <attribute attribute-id="image" system="true"/>
                 <attribute attribute-id="longitude" system="true"/>
                 <attribute attribute-id="latitude" system="true"/>
+                <attribute attribute-id="storeLocatorEnabled" system="true"/>
             </attribute-group>
             <attribute-group group-id="Inventory">
                 <display-name xml:lang="x-default">Inventory</display-name>
