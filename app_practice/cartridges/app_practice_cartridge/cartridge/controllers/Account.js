@@ -48,7 +48,6 @@ server.prepend('Login', function (req, res, next) {
             this.emit('route:Complete', req, res);
             return;
         } else {
-            // Koristi poruku od servisa ako postoji
             const errorMessage = result.object && result.object.error 
                 ? result.object.error 
                 : 'Authentication failed. Please check your credentials.';
