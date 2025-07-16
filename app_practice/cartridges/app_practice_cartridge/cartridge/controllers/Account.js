@@ -25,9 +25,9 @@ server.prepend('Login', function (req, res, next) {
         const URLUtils = require('dw/web/URLUtils');
         const CustomerMgr = require('dw/customer/CustomerMgr');
         const Transaction = require('dw/system/Transaction');
-        const ExternalAuthService = require('*/cartridge/scripts/services/ExternalAuthService');
+        const authService = require('*/cartridge/scripts/services/auth');
         
-        const result = ExternalAuthService.call({
+        const result = authService.call({
             username: req.form.loginEmail,
             password: req.form.loginPassword
         });
