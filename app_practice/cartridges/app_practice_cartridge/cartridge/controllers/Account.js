@@ -21,7 +21,15 @@ server.prepend('Login', function (req, res, next) {
     const Site = require('dw/system/Site');
     const useExternalAuth = Site.getCurrent().getCustomPreferenceValue('useExternalAuthentication');
     
-    if (useExternalAuth && req.form.loginEmail && req.form.loginPassword) {
+    if (useExternalAuth) {
+        if (!req.form.loginEmail || !req.form.loginPassword) {
+            res.json({
+                error: ['Email and password are required']
+            });
+            this.emit('route:Complete', req, res);
+            return;
+        }
+        
         const URLUtils = require('dw/web/URLUtils');
         const CustomerMgr = require('dw/customer/CustomerMgr');
         const Transaction = require('dw/system/Transaction');
@@ -53,7 +61,7 @@ server.prepend('Login', function (req, res, next) {
                 : 'Authentication failed. Please check your credentials.';
             
             res.json({
-                error: [errorMessage]
+                errors: [errorMessage]
             });
             this.emit('route:Complete', req, res);
             return;
