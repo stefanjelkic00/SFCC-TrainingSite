@@ -51,17 +51,18 @@ server.prepend('Login', function (req, res, next) {
             
             res.json({
                 success: true,
-                redirectUrl: URLUtils.url('Account-Show').toString()
+                redirectUrl: URLUtils.url('Account-Show').toString(),
+                user: result.object.user || null 
             });
             this.emit('route:Complete', req, res);
             return;
         } else {
-            const errorMessage = result.object && result.object.error 
+            const errorMessages = result.object && result.object.error 
                 ? result.object.error 
                 : 'Authentication failed. Please check your credentials.';
             
             res.json({
-                errors: [errorMessage]
+                error: [errorMessages]  
             });
             this.emit('route:Complete', req, res);
             return;
