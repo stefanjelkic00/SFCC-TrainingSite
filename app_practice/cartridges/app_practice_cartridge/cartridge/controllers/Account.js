@@ -26,8 +26,7 @@ server.prepend('Login', function (req, res, next) {
             res.json({
                 error: ['Email and password are required']
             });
-            this.emit('route:Complete', req, res);
-            return;
+            return this.done(req, res);
         }
         
         const URLUtils = require('dw/web/URLUtils');
@@ -54,8 +53,7 @@ server.prepend('Login', function (req, res, next) {
                 redirectUrl: URLUtils.url('Account-Show').toString(),
                 user: result.object.user || null 
             });
-            this.emit('route:Complete', req, res);
-            return;
+            return this.done(req, res);
         } else {
             const errorMessages = result.object && result.object.error 
                 ? result.object.error 
@@ -64,8 +62,7 @@ server.prepend('Login', function (req, res, next) {
             res.json({
                 error: [errorMessages]  
             });
-            this.emit('route:Complete', req, res);
-            return;
+            return this.done(req, res);
         }
     }
     
