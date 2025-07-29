@@ -2,6 +2,7 @@
 
 const server = require('server');
 server.extend(module.superModule);
+const csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 
 server.append('Show', function (req, res, next) {
     const profile = req.currentCustomer.raw && req.currentCustomer.raw.profile;
@@ -17,71 +18,63 @@ server.append('Show', function (req, res, next) {
     return next();
 });
 
-server.prepend('Login', function (req, res, next) {
-    const Site = require('dw/system/Site');
-    const useExternalAuth = Site.getCurrent().getCustomPreferenceValue('useExternalAuthentication');
-    
-    if (useExternalAuth) {
-        let responseData = null;
+server.post(
+    'ExternalLogin',
+    server.middleware.https,
+    csrfProtection.validateAjaxRequest,
+    function (req, res, next) {
+        const URLUtils = require('dw/web/URLUtils');
+        const CustomerMgr = require('dw/customer/CustomerMgr');
+        const Transaction = require('dw/system/Transaction');
+        const Resource = require('dw/web/Resource');
+        const authService = require('*/cartridge/scripts/services/auth');
         
-        if (!req.form.loginEmail || !req.form.loginPassword) {
-            responseData = {
-                error: ['Email and password are required']
-            };
-        } else {
-            const URLUtils = require('dw/web/URLUtils');
-            const CustomerMgr = require('dw/customer/CustomerMgr');
-            const Transaction = require('dw/system/Transaction');
-            const authService = require('*/cartridge/scripts/services/auth');
-            
-            const result = authService.call({
-                username: req.form.loginEmail,
-                password: req.form.loginPassword
+        const result = authService.call({
+            username: req.form.loginEmail,
+            password: req.form.loginPassword
+        });
+        
+        if (result.ok && result.object && result.object.success) {
+            Transaction.wrap(function () {
+                const customer = CustomerMgr.createExternallyAuthenticatedCustomer(
+                    'CustomAuth',
+                    result.object.user.id
+                );
+                
+                if (customer && result.object.user) {
+                    const profile = customer.getProfile();
+                    const userData = result.object.user;
+                    
+                    if (userData.firstName) {
+                        profile.setFirstName(userData.firstName);
+                    }
+                    if (userData.lastName) {
+                        profile.setLastName(userData.lastName);
+                    }
+                    if (userData.email) {
+                        profile.setEmail(userData.email);
+                    }
+                }
+                
+                CustomerMgr.loginExternallyAuthenticatedCustomer('CustomAuth', result.object.user.id, false);
             });
             
-            if (result.ok && result.object && result.object.success) {
-                Transaction.wrap(function () {
-                    const customer = CustomerMgr.createExternallyAuthenticatedCustomer(
-                        'CustomAuth',
-                        result.object.user.id
-                    );
-                    
-                    if (customer && result.object.user) {
-                        const profile = customer.getProfile();
-                        const userData = result.object.user;
-                        
-                        if (userData.firstName) {
-                            profile.setFirstName(userData.firstName);
-                        }
-                        if (userData.lastName) {
-                            profile.setLastName(userData.lastName);
-                        }
-                    }
-                    
-                    CustomerMgr.loginExternallyAuthenticatedCustomer('CustomAuth', result.object.user.id, false);
-                });
-                
-                responseData = {
-                    success: true,
-                    redirectUrl: URLUtils.url('Account-Show').toString(),
-                    user: result.object.user || null
-                };
-            } else {
-                const errorMessages = result.object && result.object.error
-                    ? result.object.error
-                    : 'Authentication failed. Please check your credentials.';
-                
-                responseData = {
-                    error: [errorMessages]
-                };
-            }
+            res.json({
+                success: true,
+                redirectUrl: URLUtils.url('Account-Show').toString()
+            });
+        } else {
+            const errorMessages = result.object && result.object.error
+                ? result.object.error
+                : Resource.msg('Authentication failed. Please check your credentials.');
+            
+            res.json({
+                error: [errorMessages]
+            });
         }
         
-        res.json(responseData);
-        return this.done(req, res);
+        return next();
     }
-    
-    next();
-});
+);
 
 module.exports = server.exports();
