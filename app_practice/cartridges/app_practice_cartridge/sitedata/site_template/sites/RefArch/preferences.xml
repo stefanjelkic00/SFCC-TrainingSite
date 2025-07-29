@@ -66,6 +66,7 @@
                 <value>hotmail</value>
             </preference>
             <preference preference-id="mapAPI">AIzaSyBtwr003s23AbcYu5zKId6kIh1x0_a-TBc</preference>
+            <preference preference-id="useExternalAuthentication">true</preference>
         </development>
         <staging/>
         <production/>
