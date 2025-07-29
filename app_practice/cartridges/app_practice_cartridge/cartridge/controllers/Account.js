@@ -22,48 +22,63 @@ server.prepend('Login', function (req, res, next) {
     const useExternalAuth = Site.getCurrent().getCustomPreferenceValue('useExternalAuthentication');
     
     if (useExternalAuth) {
+        let responseData = null;
+        
         if (!req.form.loginEmail || !req.form.loginPassword) {
-            res.json({
+            responseData = {
                 error: ['Email and password are required']
-            });
-            return this.done(req, res);
-        }
-        
-        const URLUtils = require('dw/web/URLUtils');
-        const CustomerMgr = require('dw/customer/CustomerMgr');
-        const Transaction = require('dw/system/Transaction');
-        const authService = require('*/cartridge/scripts/services/auth');
-        
-        const result = authService.call({
-            username: req.form.loginEmail,
-            password: req.form.loginPassword
-        });
-        
-        if (result.ok && result.object && result.object.success) {
-            Transaction.wrap(function () {
-                const customer = CustomerMgr.createExternallyAuthenticatedCustomer(
-                    'CustomAuth',
-                    result.object.user.id
-                );
-                CustomerMgr.loginExternallyAuthenticatedCustomer('CustomAuth', result.object.user.id, false);
-            });
-            
-            res.json({
-                success: true,
-                redirectUrl: URLUtils.url('Account-Show').toString(),
-                user: result.object.user || null 
-            });
-            return this.done(req, res);
+            };
         } else {
-            const errorMessages = result.object && result.object.error 
-                ? result.object.error 
-                : 'Authentication failed. Please check your credentials.';
+            const URLUtils = require('dw/web/URLUtils');
+            const CustomerMgr = require('dw/customer/CustomerMgr');
+            const Transaction = require('dw/system/Transaction');
+            const authService = require('*/cartridge/scripts/services/auth');
             
-            res.json({
-                error: [errorMessages]  
+            const result = authService.call({
+                username: req.form.loginEmail,
+                password: req.form.loginPassword
             });
-            return this.done(req, res);
+            
+            if (result.ok && result.object && result.object.success) {
+                Transaction.wrap(function () {
+                    const customer = CustomerMgr.createExternallyAuthenticatedCustomer(
+                        'CustomAuth',
+                        result.object.user.id
+                    );
+                    
+                    if (customer && result.object.user) {
+                        const profile = customer.getProfile();
+                        const userData = result.object.user;
+                        
+                        if (userData.firstName) {
+                            profile.setFirstName(userData.firstName);
+                        }
+                        if (userData.lastName) {
+                            profile.setLastName(userData.lastName);
+                        }
+                    }
+                    
+                    CustomerMgr.loginExternallyAuthenticatedCustomer('CustomAuth', result.object.user.id, false);
+                });
+                
+                responseData = {
+                    success: true,
+                    redirectUrl: URLUtils.url('Account-Show').toString(),
+                    user: result.object.user || null
+                };
+            } else {
+                const errorMessages = result.object && result.object.error
+                    ? result.object.error
+                    : 'Authentication failed. Please check your credentials.';
+                
+                responseData = {
+                    error: [errorMessages]
+                };
+            }
         }
+        
+        res.json(responseData);
+        return this.done(req, res);
     }
     
     next();
