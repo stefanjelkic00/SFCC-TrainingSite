@@ -1,0 +1,10 @@
+<div class="cash-on-delivery-summary">
+    <div class="payment-method-name">
+        <span>${Resource.msg('msg.payment.type.cash.on.delivery', 'checkout', 'Payment in cash.')}</span>
+    </div>
+    <isif condition="${payment.amount}">
+        <div class="payment-amount">
+            <span>${Resource.msg('label.order.amount', 'checkout', 'Amount')}: ${payment.amount}</span>
+        </div>
+    </isif>
+</div>

@@ -1,0 +1,25 @@
+<!--- Cash on Delivery Content --->
+<div class="tab-pane cash-on-delivery-content" id="cash-on-delivery-content" role="tabpanel">
+    <fieldset class="payment-form-fields">
+
+        <!--- payment method is cash on delivery --->
+        <input type="hidden" class="form-control"
+               name="${pdict.forms.billingForm.paymentMethod.htmlName}"
+               value="CASH_ON_DELIVERY"
+        >
+
+        <div class="row">
+            <div class="col">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i>
+                    ${Resource.msg('msg.cash.on.delivery.info', 'checkout', 'Payment will be made at pickup.')}
+                </div>
+                
+                <p class="payment-instructions">
+                    ${Resource.msg('msg.cash.on.delivery.instructions', 'checkout', 'Cash payment only – please have the exact amount ready.')}
+                </p>
+            </div>
+        </div>
+
+    </fieldset>
+</div>

@@ -59,6 +59,13 @@
         <processor-id>CYBERSOURCE_BML</processor-id>
     </payment-method>
 
+    <payment-method method-id="CASH_ON_DELIVERY">
+        <name xml:lang="x-default">Cash on Delivery</name>
+        <description xml:lang="x-default">Paying with cash when picking up. </description>
+        <enabled-flag>true</enabled-flag>
+        <processor-id>CASH_ON_DELIVERY</processor-id>
+    </payment-method>
+
     <payment-card card-type="Master">
         <name xml:lang="x-default">Master Card</name>
         <name xml:lang="fr-FR">Master Card</name>
