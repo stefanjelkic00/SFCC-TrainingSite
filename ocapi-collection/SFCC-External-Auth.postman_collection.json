@@ -1,0 +1,359 @@
+{
+  "collection": {
+    "info": {
+      "_postman_id": "ac17e646-2a78-4f16-8377-a27b4153bdee",
+      "name": "SFCC External Auth",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "updatedAt": "2025-08-01T08:52:12.000Z",
+      "createdAt": "2025-07-15T11:40:00.000Z",
+      "lastUpdatedBy": "14838618",
+      "uid": "14838618-ac17e646-2a78-4f16-8377-a27b4153bdee"
+    },
+    "item": [
+      {
+        "name": "Login",
+        "id": "89bdde09-b0a4-4eac-87e4-468564b13004",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\r\n    \"username\": \"test2@example.com\",\r\n    \"password\": \"aaa\"\r\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "https://2191edd1-77bd-4b7f-b5d8-9618207db0f9.mock.pstmn.io/login",
+            "protocol": "https",
+            "host": [
+              "2191edd1-77bd-4b7f-b5d8-9618207db0f9",
+              "mock",
+              "pstmn",
+              "io"
+            ],
+            "path": [
+              "login"
+            ]
+          }
+        },
+        "response": [
+          {
+            "id": "0caba24b-a466-42dd-b151-2ce935c5a197",
+            "name": "Login Success",
+            "originalRequest": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\r\n    \"username\": \"testx@example.com\",\r\n    \"password\": \"aaa\"\r\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "https://2191edd1-77bd-4b7f-b5d8-9618207db0f9.mock.pstmn.io/login",
+                "protocol": "https",
+                "host": [
+                  "2191edd1-77bd-4b7f-b5d8-9618207db0f9",
+                  "mock",
+                  "pstmn",
+                  "io"
+                ],
+                "path": [
+                  "login"
+                ]
+              }
+            },
+            "_postman_previewlanguage": "json",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "",
+                "type": "text"
+              }
+            ],
+            "cookie": [],
+            "responseTime": null,
+            "body": "{\n    \"success\": true,\n    \"user\": {\n        \"id\": \"12345\",\n        \"email\": \"testx@example.com\",\n        \"firstName\": \"Testx\",\n        \"lastName\": \"Userx\"\n    }\n}",
+            "uid": "14838618-0caba24b-a466-42dd-b151-2ce935c5a197"
+          },
+          {
+            "id": "a5443835-53af-4000-9a5d-6250ce81ca7c",
+            "name": "Login Failed",
+            "originalRequest": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\r\n    \"username\": \"aaa@email.com\",\r\n    \"password\": \"aaa\"\r\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "https://2191edd1-77bd-4b7f-b5d8-9618207db0f9.mock.pstmn.io/login",
+                "protocol": "https",
+                "host": [
+                  "2191edd1-77bd-4b7f-b5d8-9618207db0f9",
+                  "mock",
+                  "pstmn",
+                  "io"
+                ],
+                "path": [
+                  "login"
+                ]
+              }
+            },
+            "status": "OK",
+            "code": 200,
+            "_postman_previewlanguage": "json",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "",
+                "type": "text"
+              }
+            ],
+            "cookie": [],
+            "responseTime": null,
+            "body": "{\n    \"success\": false,\n    \"error\": \"Invalid credentials\"\n}",
+            "uid": "14838618-a5443835-53af-4000-9a5d-6250ce81ca7c"
+          },
+          {
+            "id": "60dcff41-0ee3-4eaf-9d42-8805e70dedad",
+            "name": "Login Success 2",
+            "originalRequest": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "type": "text"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\r\n    \"username\": \"test2@example.com\",\r\n    \"password\": \"aaa\"\r\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "https://2191edd1-77bd-4b7f-b5d8-9618207db0f9.mock.pstmn.io/login",
+                "protocol": "https",
+                "host": [
+                  "2191edd1-77bd-4b7f-b5d8-9618207db0f9",
+                  "mock",
+                  "pstmn",
+                  "io"
+                ],
+                "path": [
+                  "login"
+                ]
+              }
+            },
+            "status": "OK",
+            "code": 200,
+            "_postman_previewlanguage": null,
+            "header": null,
+            "cookie": [],
+            "responseTime": null,
+            "body": "{\r\n  \"success\": true,\r\n  \"user\": {\r\n    \"id\": \"67890\",\r\n    \"email\": \"test2@example.com\",\r\n    \"firstName\": \"Test2\",\r\n    \"lastName\": \"User2\"\r\n  }\r\n}",
+            "uid": "14838618-60dcff41-0ee3-4eaf-9d42-8805e70dedad"
+          }
+        ],
+        "uid": "14838618-89bdde09-b0a4-4eac-87e4-468564b13004"
+      },
+      {
+        "name": "Get OCAPI Access Token",
+        "id": "0d46bc96-cf43-42cc-a3ef-b0ad87519f22",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "POST",
+          "header": [],
+          "body": {
+            "mode": "urlencoded",
+            "urlencoded": [
+              {
+                "key": "grant_type",
+                "value": "client_credentials",
+                "type": "text",
+                "uuid": "b1eae374-e9df-48b4-9155-94a47852deeb"
+              },
+              {
+                "key": "client_id",
+                "value": "92249283-3a09-4fcd-80d3-620c7b70f14c",
+                "type": "text",
+                "uuid": "1d6c912d-f845-4920-a8c6-680767f57aae"
+              },
+              {
+                "key": "client_secret",
+                "value": "asdWWW321!",
+                "type": "text",
+                "uuid": "536f8671-5968-41e3-b810-5222abee8561"
+              },
+              {
+                "key": "scope",
+                "value": "tenantFilter",
+                "type": "text",
+                "uuid": "c67586ca-c6fd-4bcc-9ef3-97c5bb6b9acd",
+                "disabled": true
+              }
+            ]
+          },
+          "url": {
+            "raw": "https://account.demandware.com/dw/oauth2/access_token",
+            "protocol": "https",
+            "host": [
+              "account",
+              "demandware",
+              "com"
+            ],
+            "path": [
+              "dw",
+              "oauth2",
+              "access_token"
+            ]
+          }
+        },
+        "response": [],
+        "uid": "14838618-0d46bc96-cf43-42cc-a3ef-b0ad87519f22"
+      },
+      {
+        "name": "Get Customer List",
+        "id": "44d6f427-bf45-447f-b452-0d02488028ac",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "eyJ0eXAiOiJKV1QiLCJraWQiOiJEMWhPUDdEODN4TjBqZWlqaTI3WWFvZFRjL0E9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI5MjI0OTI4My0zYTA5LTRmY2QtODBkMy02MjBjN2I3MGYxNGMiLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXVkaXRUcmFja2luZ0lkIjoiZTNkZjJkNmEtNjI2OS00ZmQ5LWFjZjItNGI3MTBiMGU5MzNiLTE1OTExODM0ODIiLCJzdWJuYW1lIjoiOTIyNDkyODMtM2EwOS00ZmNkLTgwZDMtNjIwYzdiNzBmMTRjIiwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50LmRlbWFuZHdhcmUuY29tOjQ0My9kd3Nzby9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiIxamxYVFgwUm1EdWI1MWJ3TE54cHF2b3RxQjgiLCJhdWQiOiI5MjI0OTI4My0zYTA5LTRmY2QtODBkMy02MjBjN2I3MGYxNGMiLCJuYmYiOjE3NTQwMzU3NTEsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJzY29wZSI6WyJtYWlsIl0sImF1dGhfdGltZSI6MTc1NDAzNTc1MSwicmVhbG0iOiIvIiwiZXhwIjoxNzU0MDM3NTUxLCJpYXQiOjE3NTQwMzU3NTEsImV4cGlyZXNfaW4iOjE4MDAsImp0aSI6ImtRX2g2QjJqTFBQZGRxQ2ZZN3VQVGZhZkpPTSIsImNsaWVudF9pZCI6IjkyMjQ5MjgzLTNhMDktNGZjZC04MGQzLTYyMGM3YjcwZjE0YyJ9.KUqlPTFlT6Ocoy4ii5DKgTRAhm7eFrpyRW7Bqp8-G4sf6Bhqzg3Qfevv44rtF39uAhb8TKDGjQhc72ZrGk4KkF7SWWfCHlTgGzxqLOVkH0Fm1VI1cJtuoEFjjiV1Xi5yt5OAcpGvjUFRqenOPVuH6ZPfvCxhp_UXzDXXX7J2eAttPR6Q5Nv8R9-eSMRuRPuXLUD5akUWdGk-N1l7estR7wXjQFIR0rkkoKaL827kRosjjEP_8dS0vUI2lBZaOtBZziNUhgTtnD7l8B_KL0OTxRBEV3xwg6aAuUe8ePGVwW0A8KqQzf-hKGJm59ndSSmkOpCZ8S12hoGigQ5MR9JGwQ",
+                "type": "string"
+              }
+            ]
+          },
+          "method": "GET",
+          "header": [],
+          "body": {
+            "mode": "urlencoded",
+            "urlencoded": []
+          },
+          "url": {
+            "raw": "https://zzqg-008.dx.commercecloud.salesforce.com/s/-/dw/data/v23_2/customer_lists/RefArch",
+            "protocol": "https",
+            "host": [
+              "zzqg-008",
+              "dx",
+              "commercecloud",
+              "salesforce",
+              "com"
+            ],
+            "path": [
+              "s",
+              "-",
+              "dw",
+              "data",
+              "v23_2",
+              "customer_lists",
+              "RefArch"
+            ]
+          }
+        },
+        "response": [],
+        "uid": "14838618-44d6f427-bf45-447f-b452-0d02488028ac"
+      },
+      {
+        "name": "Change Customer Credentials",
+        "id": "d4166e9e-d86b-40d5-af0e-b750a3434962",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "eyJ0eXAiOiJKV1QiLCJraWQiOiJEMWhPUDdEODN4TjBqZWlqaTI3WWFvZFRjL0E9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI5MjI0OTI4My0zYTA5LTRmY2QtODBkMy02MjBjN2I3MGYxNGMiLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXVkaXRUcmFja2luZ0lkIjoiZTNkZjJkNmEtNjI2OS00ZmQ5LWFjZjItNGI3MTBiMGU5MzNiLTE1OTExODM0ODIiLCJzdWJuYW1lIjoiOTIyNDkyODMtM2EwOS00ZmNkLTgwZDMtNjIwYzdiNzBmMTRjIiwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50LmRlbWFuZHdhcmUuY29tOjQ0My9kd3Nzby9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiIxamxYVFgwUm1EdWI1MWJ3TE54cHF2b3RxQjgiLCJhdWQiOiI5MjI0OTI4My0zYTA5LTRmY2QtODBkMy02MjBjN2I3MGYxNGMiLCJuYmYiOjE3NTQwMzU3NTEsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJzY29wZSI6WyJtYWlsIl0sImF1dGhfdGltZSI6MTc1NDAzNTc1MSwicmVhbG0iOiIvIiwiZXhwIjoxNzU0MDM3NTUxLCJpYXQiOjE3NTQwMzU3NTEsImV4cGlyZXNfaW4iOjE4MDAsImp0aSI6ImtRX2g2QjJqTFBQZGRxQ2ZZN3VQVGZhZkpPTSIsImNsaWVudF9pZCI6IjkyMjQ5MjgzLTNhMDktNGZjZC04MGQzLTYyMGM3YjcwZjE0YyJ9.KUqlPTFlT6Ocoy4ii5DKgTRAhm7eFrpyRW7Bqp8-G4sf6Bhqzg3Qfevv44rtF39uAhb8TKDGjQhc72ZrGk4KkF7SWWfCHlTgGzxqLOVkH0Fm1VI1cJtuoEFjjiV1Xi5yt5OAcpGvjUFRqenOPVuH6ZPfvCxhp_UXzDXXX7J2eAttPR6Q5Nv8R9-eSMRuRPuXLUD5akUWdGk-N1l7estR7wXjQFIR0rkkoKaL827kRosjjEP_8dS0vUI2lBZaOtBZziNUhgTtnD7l8B_KL0OTxRBEV3xwg6aAuUe8ePGVwW0A8KqQzf-hKGJm59ndSSmkOpCZ8S12hoGigQ5MR9JGwQ",
+                "type": "string"
+              }
+            ]
+          },
+          "method": "PATCH",
+          "header": [],
+          "body": {
+            "mode": "raw",
+            "raw": "{\r\n  \"first_name\": \"Stefan\",\r\n  \"last_name\": \"Jelkic - Updated via OCAPI\"\r\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "https://zzqg-008.dx.commercecloud.salesforce.com/s/-/dw/data/v23_2/customer_lists/RefArch/customers/00002001",
+            "protocol": "https",
+            "host": [
+              "zzqg-008",
+              "dx",
+              "commercecloud",
+              "salesforce",
+              "com"
+            ],
+            "path": [
+              "s",
+              "-",
+              "dw",
+              "data",
+              "v23_2",
+              "customer_lists",
+              "RefArch",
+              "customers",
+              "00002001"
+            ]
+          }
+        },
+        "response": [],
+        "uid": "14838618-d4166e9e-d86b-40d5-af0e-b750a3434962"
+      }
+    ]
+  }
+}

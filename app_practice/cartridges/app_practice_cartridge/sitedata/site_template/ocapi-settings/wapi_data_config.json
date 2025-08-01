@@ -1,0 +1,21 @@
+{
+  "_v": "19.5",
+  "clients": [
+    {
+      "client_id": "92249283-3a09-4fcd-80d3-620c7b70f14c",
+      "resources": [
+        {
+          "resource_id": "/customer_lists/*",
+          "methods": ["get"],
+          "read_attributes": "(**)"
+        },
+        {
+          "resource_id": "/customer_lists/*/customers/*",
+          "methods": ["get", "patch"],
+          "read_attributes": "(**)",
+          "write_attributes": "(**)"
+        }
+      ]
+    }
+  ]
+}
