@@ -20,6 +20,16 @@
         </preferences>
     </payment-processor>
 
+    <payment-processor processor-id="CASH_ON_DELIVERY">
+        <description>Cash on Delivery Processor</description>
+        <preferences>
+            <all-instances/>
+            <development/>
+            <staging/>
+            <production/>
+        </preferences>
+    </payment-processor>
+
     <payment-processor processor-id="CYBERSOURCE_BML">
         <description>'Bill Me Later' online authorization through Cybersource (test and production systems).</description>
         <preferences>

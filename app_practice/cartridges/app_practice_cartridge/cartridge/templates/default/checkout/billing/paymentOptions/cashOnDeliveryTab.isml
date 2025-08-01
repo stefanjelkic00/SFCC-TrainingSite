@@ -1,0 +1,5 @@
+<li class="nav-item" data-method-id="${paymentOption.ID}">
+    <a class="nav-link cash-on-delivery-tab" data-toggle="tab" href="#cash-on-delivery-content" role="tab">
+        <span class="payment-option-name">${paymentOption.name}</span>
+    </a>
+</li>
