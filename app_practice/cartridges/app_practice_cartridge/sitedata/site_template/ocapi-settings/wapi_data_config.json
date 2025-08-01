@@ -82,11 +82,6 @@
       "client_id": "92249283-3a09-4fcd-80d3-620c7b70f14c",
       "resources": [
         {
-          "resource_id": "/sites/*",
-          "methods": ["get"],
-          "read_attributes": "(**)"
-        },
-        {
           "resource_id": "/customer_lists/*",
           "methods": ["get"],
           "read_attributes": "(**)"
@@ -96,11 +91,6 @@
           "methods": ["get", "patch"],
           "read_attributes": "(**)",
           "write_attributes": "(**)"
-        },
-        {
-          "resource_id": "/customer_lists/*/customer_search",
-          "methods": ["post"],
-          "read_attributes": "(**)"
         }
       ]
     }
