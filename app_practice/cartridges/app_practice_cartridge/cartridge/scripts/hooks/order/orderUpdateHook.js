@@ -6,8 +6,11 @@ const Transaction = require('dw/system/Transaction');
 exports.afterPATCH = function(order, orderInput) {
     Transaction.wrap(function() {
         for (let i = 0; i < orderInput.shipments.length; i++) {
-            if (order.shipments[i] && orderInput.shipments[i].c_trackingNumber) {
-                order.shipments[i].custom.trackingNumber = orderInput.shipments[i].c_trackingNumber;
+            for (let j = 0; j < order.shipments.length; j++) {
+                if (orderInput.shipments[i].shipment_id === order.shipments[j].ID && 
+                    orderInput.shipments[i].c_trackingNumber) {
+                    order.shipments[j].custom.trackingNumber = orderInput.shipments[i].c_trackingNumber;
+                }
             }
         }
     });
