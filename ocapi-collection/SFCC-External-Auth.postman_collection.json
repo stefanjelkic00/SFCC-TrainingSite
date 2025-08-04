@@ -4,7 +4,7 @@
       "_postman_id": "ac17e646-2a78-4f16-8377-a27b4153bdee",
       "name": "SFCC External Auth",
       "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-      "updatedAt": "2025-08-01T08:52:12.000Z",
+      "updatedAt": "2025-08-04T08:42:21.000Z",
       "createdAt": "2025-07-15T11:40:00.000Z",
       "lastUpdatedBy": "14838618",
       "uid": "14838618-ac17e646-2a78-4f16-8377-a27b4153bdee"
@@ -27,7 +27,7 @@
           ],
           "body": {
             "mode": "raw",
-            "raw": "{\r\n    \"username\": \"test2@example.com\",\r\n    \"password\": \"aaa\"\r\n}",
+            "raw": "{\n    \"username\": \"test2@example.com\",\n    \"password\": \"aaa\"\n}",
             "options": {
               "raw": {
                 "language": "json"
@@ -63,7 +63,7 @@
               ],
               "body": {
                 "mode": "raw",
-                "raw": "{\r\n    \"username\": \"testx@example.com\",\r\n    \"password\": \"aaa\"\r\n}",
+                "raw": "{\n    \"username\": \"testx@example.com\",\n    \"password\": \"aaa\"\n}",
                 "options": {
                   "raw": {
                     "language": "json"
@@ -112,7 +112,7 @@
               ],
               "body": {
                 "mode": "raw",
-                "raw": "{\r\n    \"username\": \"aaa@email.com\",\r\n    \"password\": \"aaa\"\r\n}",
+                "raw": "{\n    \"username\": \"aaa@email.com\",\n    \"password\": \"aaa\"\n}",
                 "options": {
                   "raw": {
                     "language": "json"
@@ -163,7 +163,7 @@
               ],
               "body": {
                 "mode": "raw",
-                "raw": "{\r\n    \"username\": \"test2@example.com\",\r\n    \"password\": \"aaa\"\r\n}",
+                "raw": "{\n    \"username\": \"test2@example.com\",\n    \"password\": \"aaa\"\n}",
                 "options": {
                   "raw": {
                     "language": "json"
@@ -190,7 +190,7 @@
             "header": null,
             "cookie": [],
             "responseTime": null,
-            "body": "{\r\n  \"success\": true,\r\n  \"user\": {\r\n    \"id\": \"67890\",\r\n    \"email\": \"test2@example.com\",\r\n    \"firstName\": \"Test2\",\r\n    \"lastName\": \"User2\"\r\n  }\r\n}",
+            "body": "{\n  \"success\": true,\n  \"user\": {\n    \"id\": \"67890\",\n    \"email\": \"test2@example.com\",\n    \"firstName\": \"Test2\",\n    \"lastName\": \"User2\"\n  }\n}",
             "uid": "14838618-60dcff41-0ee3-4eaf-9d42-8805e70dedad"
           }
         ],
@@ -321,7 +321,7 @@
           "header": [],
           "body": {
             "mode": "raw",
-            "raw": "{\r\n  \"first_name\": \"Stefan\",\r\n  \"last_name\": \"Jelkic - Updated via OCAPI\"\r\n}",
+            "raw": "{\n  \"first_name\": \"Stefan\",\n  \"last_name\": \"Jelkic - Updated via OCAPI\"\n}",
             "options": {
               "raw": {
                 "language": "json"
@@ -353,6 +353,278 @@
         },
         "response": [],
         "uid": "14838618-d4166e9e-d86b-40d5-af0e-b750a3434962"
+      },
+      {
+        "name": "Authenticate Customer Guest",
+        "id": "9d6a664a-aefb-4569-94b2-b461fc750fad",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "eyJ0eXAiOiJKV1QiLCJraWQiOiJEMWhPUDdEODN4TjBqZWlqaTI3WWFvZFRjL0E9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI5MjI0OTI4My0zYTA5LTRmY2QtODBkMy02MjBjN2I3MGYxNGMiLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXVkaXRUcmFja2luZ0lkIjoiZTNkZjJkNmEtNjI2OS00ZmQ5LWFjZjItNGI3MTBiMGU5MzNiLTE2NzI5NjUwMDMiLCJzdWJuYW1lIjoiOTIyNDkyODMtM2EwOS00ZmNkLTgwZDMtNjIwYzdiNzBmMTRjIiwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50LmRlbWFuZHdhcmUuY29tOjQ0My9kd3Nzby9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJwdjZRZUpKQ01ZTlVxQjFibTFGT1NqWWlnSlkiLCJhdWQiOiI5MjI0OTI4My0zYTA5LTRmY2QtODBkMy02MjBjN2I3MGYxNGMiLCJuYmYiOjE3NTQyOTE4NTgsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJzY29wZSI6WyJtYWlsIl0sImF1dGhfdGltZSI6MTc1NDI5MTg1OCwicmVhbG0iOiIvIiwiZXhwIjoxNzU0MjkzNjU4LCJpYXQiOjE3NTQyOTE4NTgsImV4cGlyZXNfaW4iOjE4MDAsImp0aSI6InA4NU01N0pONkU4TTA2MkJub3JSejQ3RmE4RSIsImNsaWVudF9pZCI6IjkyMjQ5MjgzLTNhMDktNGZjZC04MGQzLTYyMGM3YjcwZjE0YyJ9.G7e8dSqyhCPAECEyjqog1njEx8FmboOBBjbWVg-a482WqbwbjqPElWGFdAI7MD1etbZLf8FFfLHdQ5feNXH7b2vnZ4AAapc7MDcboaSthMjLzacNSZKLzSo6bu3ErxNcxlMBSz1PvCYl8tGef43F7O062nLeSre4ggkYwGi4t_cPqlrTflrkmH4hPQ7pcIsjgowsoLmGl9GP73qe9kxF1t0PgoFGfsrqpGYM-NsD1j9eKA42P3eTijn02lsR0gIjQ5-L_bBn-N-FUIgt7LqvnBEkQb5byt1rMioQdGBQUdZevNitcBKX-LHZea0M3sC_8zaOZ3BZ2Wen4Zo0BkNoBw",
+                "type": "string"
+              }
+            ]
+          },
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            },
+            {
+              "key": "x-dw-client-id",
+              "value": "92249283-3a09-4fcd-80d3-620c7b70f14c",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"type\": \"credentials\",\n  \"login\": \"stefanjelkic2@gmail.com\",\n  \"password\": \"Rikirik00.\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "https://zzqg-008.dx.commercecloud.salesforce.com/s/RefArch/dw/shop/v23_2/customers/auth",
+            "protocol": "https",
+            "host": [
+              "zzqg-008",
+              "dx",
+              "commercecloud",
+              "salesforce",
+              "com"
+            ],
+            "path": [
+              "s",
+              "RefArch",
+              "dw",
+              "shop",
+              "v23_2",
+              "customers",
+              "auth"
+            ]
+          }
+        },
+        "response": [],
+        "uid": "14838618-9d6a664a-aefb-4569-94b2-b461fc750fad"
+      },
+      {
+        "name": "https://zzqg-008.dx.commercecloud.salesforce.com/s/RefArch/dw/shop/v23_2/orders/00000417",
+        "id": "4dd248ee-c918-4173-99ed-9c5c45a00fcc",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "eyJ0eXAiOiJKV1QiLCJraWQiOiJEMWhPUDdEODN4TjBqZWlqaTI3WWFvZFRjL0E9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI5MjI0OTI4My0zYTA5LTRmY2QtODBkMy02MjBjN2I3MGYxNGMiLCJjdHMiOiJPQVVUSDJfU1RBVEVMRVNTX0dSQU5UIiwiYXVkaXRUcmFja2luZ0lkIjoiZTNkZjJkNmEtNjI2OS00ZmQ5LWFjZjItNGI3MTBiMGU5MzNiLTE2NzI5NjUwMDMiLCJzdWJuYW1lIjoiOTIyNDkyODMtM2EwOS00ZmNkLTgwZDMtNjIwYzdiNzBmMTRjIiwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50LmRlbWFuZHdhcmUuY29tOjQ0My9kd3Nzby9vYXV0aDIiLCJ0b2tlbk5hbWUiOiJhY2Nlc3NfdG9rZW4iLCJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiYXV0aEdyYW50SWQiOiJwdjZRZUpKQ01ZTlVxQjFibTFGT1NqWWlnSlkiLCJhdWQiOiI5MjI0OTI4My0zYTA5LTRmY2QtODBkMy02MjBjN2I3MGYxNGMiLCJuYmYiOjE3NTQyOTE4NTgsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJzY29wZSI6WyJtYWlsIl0sImF1dGhfdGltZSI6MTc1NDI5MTg1OCwicmVhbG0iOiIvIiwiZXhwIjoxNzU0MjkzNjU4LCJpYXQiOjE3NTQyOTE4NTgsImV4cGlyZXNfaW4iOjE4MDAsImp0aSI6InA4NU01N0pONkU4TTA2MkJub3JSejQ3RmE4RSIsImNsaWVudF9pZCI6IjkyMjQ5MjgzLTNhMDktNGZjZC04MGQzLTYyMGM3YjcwZjE0YyJ9.G7e8dSqyhCPAECEyjqog1njEx8FmboOBBjbWVg-a482WqbwbjqPElWGFdAI7MD1etbZLf8FFfLHdQ5feNXH7b2vnZ4AAapc7MDcboaSthMjLzacNSZKLzSo6bu3ErxNcxlMBSz1PvCYl8tGef43F7O062nLeSre4ggkYwGi4t_cPqlrTflrkmH4hPQ7pcIsjgowsoLmGl9GP73qe9kxF1t0PgoFGfsrqpGYM-NsD1j9eKA42P3eTijn02lsR0gIjQ5-L_bBn-N-FUIgt7LqvnBEkQb5byt1rMioQdGBQUdZevNitcBKX-LHZea0M3sC_8zaOZ3BZ2Wen4Zo0BkNoBw",
+                "type": "string"
+              }
+            ]
+          },
+          "method": "GET",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            },
+            {
+              "key": "x-dw-client-id",
+              "value": "92249283-3a09-4fcd-80d3-620c7b70f14c",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "https://zzqg-008.dx.commercecloud.salesforce.com/s/RefArch/dw/shop/v23_2/orders/00000417",
+            "protocol": "https",
+            "host": [
+              "zzqg-008",
+              "dx",
+              "commercecloud",
+              "salesforce",
+              "com"
+            ],
+            "path": [
+              "s",
+              "RefArch",
+              "dw",
+              "shop",
+              "v23_2",
+              "orders",
+              "00000417"
+            ]
+          }
+        },
+        "response": [],
+        "uid": "14838618-4dd248ee-c918-4173-99ed-9c5c45a00fcc"
+      },
+      {
+        "name": "Authenticate Customer - Registered",
+        "id": "c6256f25-d876-42b6-918d-ee714f4262e7",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "auth": {
+            "type": "basic",
+            "basic": [
+              {
+                "key": "password",
+                "value": "Rikiriki00.",
+                "type": "string"
+              },
+              {
+                "key": "username",
+                "value": "stefanjelkic2@gmail.com",
+                "type": "string"
+              }
+            ]
+          },
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            },
+            {
+              "key": "Authorization",
+              "value": "",
+              "type": "text",
+              "disabled": true
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"type\": \"credentials\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "https://zzqg-008.dx.commercecloud.salesforce.com/s/RefArch/dw/shop/v23_2/customers/auth",
+            "protocol": "https",
+            "host": [
+              "zzqg-008",
+              "dx",
+              "commercecloud",
+              "salesforce",
+              "com"
+            ],
+            "path": [
+              "s",
+              "RefArch",
+              "dw",
+              "shop",
+              "v23_2",
+              "customers",
+              "auth"
+            ]
+          }
+        },
+        "response": [],
+        "uid": "14838618-c6256f25-d876-42b6-918d-ee714f4262e7"
+      },
+      {
+        "name": "Update Order",
+        "id": "7859a684-0094-48ff-b5fe-88651ba5f6cc",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "PATCH",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            },
+            {
+              "key": "Authorization",
+              "value": "Bearer eyJfdiI6IjEiLCJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfdiI6IjEiLCJleHAiOjE3NTQyOTcwODQsImlhdCI6MTc1NDI5NTI4NCwiaXNzIjoiOTIyNDkyODMtM2EwOS00ZmNkLTgwZDMtNjIwYzdiNzBmMTRjIiwic3ViIjoie1wiX3ZcIjpcIjFcIixcImN1c3RvbWVyX2luZm9cIjp7XCJjdXN0b21lcl9pZFwiOlwiYWJBTExzcXIyd1hBZ25Hc1FwMngxNnE4ZjNcIixcImd1ZXN0XCI6ZmFsc2UsXCJ2aXNpdF9pZFwiOlwiMTA3NDRiMjg2YTZmYmRjNmU4NjFkOWY2NzZcIn19In0.dl8XgldAVo8SGRDrrSAdnbD_tnRnfYwIrohjhsPW78JgTif2kukQqnB74RgKHRx6U5CTBee8ktTVwqnmtguRT_ebWNRzmVC8xTNwjRPa0pRgL7nOVdEKnzVc_uR55mmyC4a5UdrT9Dq7iJVKOCoQW7ZUq3IoRzSttvSIdluP23-rFxErzvGofKmjRXu9SL-2NaPLeDw3QRe4tiaoaqDKGu3GOecIB7zXgDswhEt809Z6Y2NpG_mOX_gOmYm_m7hJzKuY4zU90SGc-GYkbBKfRPK3GthTr0LNXVsknydirpsZDI1hlBjrCxNz689-ogulfrqUDrvcQk2rfoY2obSbuQmWJLenvFSquONsbuRpBpaOLgfr7UmtBkTbaLmV0TbI3AKxCA1ThkkSq_6OsXroLf7dIstCSj8bbe-POGM6bXOmDmlWjqM4kHBhlHTzqOqBTiGbP2hgFbVdFZUWHRSz04xiczl_iqH87Pv6xwwgWspKOiZ_r8LxQkhz7EamMcB2S-v93fT7pZRql0XeSrA9ceMYW3Rd9t8f3GxFMlbHnj94-fkS8MHFqX7rlTYc7e7U",
+              "type": "text"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"shipments\": [\n        {\n            \"c_trackingNumber\": \"1Z999AA10123456784\"\n        }\n    ]\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "https://zzqg-008.dx.commercecloud.salesforce.com/s/RefArch/dw/shop/v23_2/orders/00000416",
+            "protocol": "https",
+            "host": [
+              "zzqg-008",
+              "dx",
+              "commercecloud",
+              "salesforce",
+              "com"
+            ],
+            "path": [
+              "s",
+              "RefArch",
+              "dw",
+              "shop",
+              "v23_2",
+              "orders",
+              "00000416"
+            ]
+          }
+        },
+        "response": [],
+        "uid": "14838618-7859a684-0094-48ff-b5fe-88651ba5f6cc"
+      },
+      {
+        "name": "Get Order",
+        "id": "3172a00c-2ad3-4b71-a9a1-b835aacecfb8",
+        "protocolProfileBehavior": {
+          "disableBodyPruning": true
+        },
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "https://zzqg-008.dx.commercecloud.salesforce.com/s/RefArch/dw/shop/v23_2/orders/00000415",
+            "protocol": "https",
+            "host": [
+              "zzqg-008",
+              "dx",
+              "commercecloud",
+              "salesforce",
+              "com"
+            ],
+            "path": [
+              "s",
+              "RefArch",
+              "dw",
+              "shop",
+              "v23_2",
+              "orders",
+              "00000415"
+            ]
+          }
+        },
+        "response": [],
+        "uid": "14838618-3172a00c-2ad3-4b71-a9a1-b835aacecfb8"
       }
     ]
   }

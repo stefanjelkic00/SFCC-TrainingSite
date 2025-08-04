@@ -4589,12 +4589,22 @@
                 <min-length>0</min-length>
                 <field-length>0</field-length>
             </attribute-definition>
+            <attribute-definition attribute-id="trackingNumber">
+                <display-name xml:lang="x-default">Tracking Number</display-name>
+                <description xml:lang="x-default">Tracking number for the shipment provided by the carrier</description>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>255</field-length>
+            </attribute-definition>
         </custom-attribute-definitions>
         <group-definitions>
             <attribute-group group-id="storepickup">
                 <display-name xml:lang="x-default">Store Pickup Information</display-name>
                 <attribute attribute-id="fromStoreId"/>
                 <attribute attribute-id="storePickupMessage"/>
+                <attribute attribute-id="trackingNumber"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
@@ -4741,6 +4751,13 @@
 
     <type-extension type-id="SitePreferences">
         <custom-attribute-definitions>
+            <attribute-definition attribute-id="GTMCode">
+                <display-name xml:lang="x-default">GTM Code</display-name>
+                <type>string</type>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
             <attribute-definition attribute-id="GoogleVerificationTag">
                 <display-name xml:lang="x-default">GoogleVerificationTag - Content Attribute</display-name>
                 <type>string</type>
@@ -5006,6 +5023,10 @@
                 <attribute attribute-id="mapAPI"/>
                 <attribute attribute-id="emailForbiddenWords"/>
                 <attribute attribute-id="useExternalAuthentication"/>
+            </attribute-group>
+            <attribute-group group-id="GTM">
+                <display-name xml:lang="x-default">Google Tag Manager</display-name>
+                <attribute attribute-id="GTMCode"/>
             </attribute-group>
         </group-definitions>
     </type-extension>
