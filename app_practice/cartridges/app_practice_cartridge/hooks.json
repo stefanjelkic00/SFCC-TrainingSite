@@ -7,6 +7,10 @@
         {
             "name": "app.payment.form.processor.cash_on_delivery",
             "script": "./cartridge/scripts/hooks/payment/processor/cash_on_delivery_form_processor.js"
+        },
+        {
+            "name": "dw.ocapi.shop.order.afterPATCH",
+            "script": "./cartridge/scripts/hooks/order/orderUpdateHook.js"
         }
     ]
 }
