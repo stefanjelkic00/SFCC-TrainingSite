@@ -1,83 +1,119 @@
 'use strict';
 
 const assert = require('chai').assert;
-const AccountMock = require('../mocks/models/account');
-const AddressMock = require('../mocks/models/address');
+const proxyquire = require('proxyquire').noCallThru().noPreserveCache();
 
-describe('Account Model with Mocks', function() {
+describe('Account and Address Models', function() {
     
-    describe('Account Creation', function() {
-        it('should create account with profile data', function() {
-            const accountData = {
-                firstName: 'John',
-                lastName: 'Doe',
-                email: 'john@example.com',
+    describe('Newsletter Decorator', function() {
+        it('should add newsletter properties to profile', function() {
+            const newsletterDecorator = require('../../../../cartridges/app_practice_cartridge/cartridge/models/newsletter/decorators/newsletter');
+            
+            const profileObj = {};
+            const profile = {
+                custom: {
+                    newsletterFirstName: 'John',
+                    newsletterLastName: 'Doe',
+                    newsletterEmail: 'john@newsletter.com'
+                }
+            };
+            
+            newsletterDecorator(profileObj, profile);
+            
+            assert.deepEqual(Object.assign({}, profileObj), {
+                newsletterFirstName: 'John',
+                newsletterLastName: 'Doe',
+                newsletterEmail: 'john@newsletter.com'
+            });
+        });
+        
+        it('should handle missing custom properties', function() {
+            const newsletterDecorator = require('../../../../cartridges/app_practice_cartridge/cartridge/models/newsletter/decorators/newsletter');           
+            const profileObj = {};
+            const profile = { custom: {} };
+            
+            newsletterDecorator(profileObj, profile);
+            
+            assert.deepEqual(Object.assign({}, profileObj), {
+                newsletterFirstName: '',
+                newsletterLastName: '',
+                newsletterEmail: ''
+            });
+        });
+    });
+    
+    describe('House Number Decorator', function() {
+        it('should add house number to address', function() {
+            const houseNrDecorator = require('../../../../cartridges/app_practice_cartridge/cartridge/models/address/decorators/houseNr');           
+            const addressObj = {};
+            const address = {
+                custom: {
+                    houseNr: '123A'
+                }
+            };
+            
+            houseNrDecorator(addressObj, address);
+            
+            assert.deepEqual(Object.assign({}, addressObj), {
+                houseNr: '123A'
+            });
+        });
+        
+        it('should handle missing house number', function() {
+            const houseNrDecorator = require('../../../../cartridges/app_practice_cartridge/cartridge/models/address/decorators/houseNr');
+            const addressObj = {};
+            const address = { custom: {} };
+            
+            houseNrDecorator(addressObj, address);
+            
+            assert.deepEqual(Object.assign({}, addressObj), {
+                houseNr: ''
+            });
+        });
+    });
+    
+    describe('Model Integration with Mocked Base Classes', function() {
+        it('should create Account with newsletter properties', function() {
+            const BaseAccountMock = function(customer) {
+                this.profile = customer.profile;
+                this.addresses = [];
+                this.registeredUser = customer.authenticated && customer.registered;
+            };
+            
+            const Account = proxyquire('../../../../cartridges/app_practice_cartridge/cartridge/models/account', {
+                'app_storefront_base/cartridge/models/account': BaseAccountMock
+            });
+            
+            const customer = {
+                profile: {
+                    firstName: 'Jane',
+                    lastName: 'Smith',
+                    email: 'jane@example.com',
+                    custom: {
+                        newsletterFirstName: 'Jane',
+                        newsletterLastName: 'Smith',
+                        newsletterEmail: 'jane@newsletter.com'
+                    }
+                },
+                authenticated: true,
                 registered: true
             };
             
-            const account = new AccountMock(accountData);
-            assert.deepEqual(account.profile, {
-                firstName: 'John',
-                lastName: 'Doe',
-                email: 'john@example.com',
-                birthday: null,
-                customerNo: '',
-                phone: ''
+            const account = new Account(customer);
+            
+            assert.deepEqual(Object.assign({}, account.profile), {
+                firstName: 'Jane',
+                lastName: 'Smith',
+                email: 'jane@example.com',
+                custom: {
+                    newsletterFirstName: 'Jane',
+                    newsletterLastName: 'Smith',
+                    newsletterEmail: 'jane@newsletter.com'
+                },
+                newsletterFirstName: 'Jane',
+                newsletterLastName: 'Smith',
+                newsletterEmail: 'jane@newsletter.com'
             });
-            assert.isTrue(account.isRegistered());
-        });
-    });
-    
-    describe('Address Management', function() {
-        it('should add address to account', function() {
-            const account = new AccountMock({ firstName: 'Jane' });
-            const address = new AddressMock({
-                address1: '123 Main St',
-                city: 'Boston',
-                stateCode: 'MA',
-                postalCode: '02101'
-            });
-            
-            account.addAddress(address);
-            
-            assert.equal(account.addressBook.addresses.length, 1);
-            assert.equal(account.getPreferredAddress(), address);
-        });
-        
-        it('should compare addresses correctly', function() {
-            const address1 = new AddressMock({
-                address1: '123 Main St',
-                city: 'Boston',
-                stateCode: 'MA',
-                postalCode: '02101'
-            });
-            
-            const address2 = new AddressMock({
-                address1: '123 Main St',
-                city: 'Boston',
-                stateCode: 'MA',
-                postalCode: '02101'
-            });
-            
-            assert.isTrue(address1.isEquivalentAddress(address2));
-        });
-    });
-    
-    describe('Prototype Chain', function() {
-        it('should demonstrate prototype chain', function() {
-            const account = new AccountMock({ firstName: 'Test' });
-            assert.equal(account.__proto__.constructor, AccountMock);
-            assert.equal(account.__proto__.__proto__.constructor, Object);
-            assert.equal(account.getProfile, AccountMock.prototype.getProfile);
-            assert.isTrue(account.hasOwnProperty('profile'));
-            assert.isFalse(account.hasOwnProperty('getProfile'));
-        });
-        
-        it('should get complete prototype chain', function() {
-            const account = new AccountMock({});
-            const chain = account.getPrototypeChain();
-            
-            assert.deepEqual(chain, ['AccountMock', 'Object', 'Object']);
         });
     });
 });
