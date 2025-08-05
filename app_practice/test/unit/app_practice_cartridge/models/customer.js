@@ -17,32 +17,26 @@ describe('Customer Model', function () {
             };
 
             const customer = new Customer(customerData);
-
-            assert.equal(customer.email, 'test@example.com');
-            assert.equal(customer.firstName, 'John');
-            assert.equal(customer.lastName, 'Doe');
-            assert.equal(customer.phone, '123-456-7890');
-            assert.isTrue(customer.isRegistered);
+            assert.deepEqual(Object.assign({}, customer), customerData);
         });
 
         it('should handle null customer data', function () {
             const customer = new Customer(null);
-
-            assert.isUndefined(customer.email);
-            assert.isUndefined(customer.firstName);
-            assert.isUndefined(customer.lastName);
-            assert.isUndefined(customer.phone);
-            assert.isUndefined(customer.isRegistered);
+            assert.deepEqual(Object.assign({}, customer), {});
         });
 
         it('should handle empty customer data object', function () {
             const customer = new Customer({});
 
-            assert.equal(customer.email, '');
-            assert.equal(customer.firstName, '');
-            assert.equal(customer.lastName, '');
-            assert.equal(customer.phone, '');
-            assert.isFalse(customer.isRegistered);
+            const expectedResult = {
+                email: '',
+                firstName: '',
+                lastName: '',
+                phone: '',
+                isRegistered: false
+            };
+
+            assert.deepEqual(Object.assign({}, customer), expectedResult);
         });
 
         it('should handle partial customer data', function () {
@@ -53,11 +47,15 @@ describe('Customer Model', function () {
 
             const customer = new Customer(customerData);
 
-            assert.equal(customer.email, 'partial@test.com');
-            assert.equal(customer.firstName, 'Jane');
-            assert.equal(customer.lastName, '');
-            assert.equal(customer.phone, '');
-            assert.isFalse(customer.isRegistered);
+            const expectedResult = {
+                email: 'partial@test.com',
+                firstName: 'Jane',
+                lastName: '',
+                phone: '',
+                isRegistered: false
+            };
+
+            assert.deepEqual(Object.assign({}, customer), expectedResult);
         });
     });
 
