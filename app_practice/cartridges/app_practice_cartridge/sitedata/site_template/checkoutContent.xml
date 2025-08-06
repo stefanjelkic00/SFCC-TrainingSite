@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<library xmlns="http://www.demandware.com/xml/impex/library/2006-10-31" library-id="RefArchSharedLibrary">
+  <content content-id="checkoutContent">
+    <display-name xml:lang="x-default">Checkout Content</display-name>
+    <description xml:lang="x-default">Page for cart promotion banners</description>
+    <type>page.componentWrapper</type>
+    <config>{
+  "visibility" : [ ]
+}</config>
+    <visibility-mode xml:lang="x-default">visible</visibility-mode>
+    <data xml:lang="x-default">{ }</data>
+    <online-flag>false</online-flag>
+    <online-flag site-id="RefArch">true</online-flag>
+    <searchable-flag>false</searchable-flag>
+    <searchable-flag site-id="RefArch">false</searchable-flag>
+    <page-attributes/>
+    <content-links>
+      <content-link content-id="6a93065a1f66f74b391223eda0" type="page.componentWrapper.main">
+        <position>1.0</position>
+      </content-link>
+      <content-link content-id="a291a90cb6a124fbd3753916fb" type="page.componentWrapper.main">
+        <position>0.0</position>
+      </content-link>
+    </content-links>
+    <sitemap-included-flag site-id="RefArch">false</sitemap-included-flag>
+    <sitemap-priority site-id="RefArch">0.0</sitemap-priority>
+  </content>
+  <content content-id="6a93065a1f66f74b391223eda0">
+    <type>component.commerce_assets.promotionBanner</type>
+    <config>{
+  "visibility" : [ {
+    "schedule" : { },
+    "customer_group_ids" : [ "Unregistered" ],
+    "campaign_qualifier" : { },
+    "aspect_attribute_qualifiers" : [ ],
+    "locale_ids" : [ ]
+  } ]
+}</config>
+    <data xml:lang="x-default">{
+  "image" : {
+    "path" : "/images/gift-certificates.png",
+    "focal_point" : {
+      "x" : 0.5,
+      "y" : 0.5
+    },
+    "meta_data" : {
+      "height" : 162,
+      "width" : 312
+    }
+  },
+  "product" : "sony-nwz-s738fbnM",
+  "alt" : "Gift Certificate Banner",
+  "linkText" : "Buy Now"
+}</data>
+    <online-flag>true</online-flag>
+    <online-flag site-id="RefArch">true</online-flag>
+    <page-attributes/>
+  </content>
+  <content content-id="a291a90cb6a124fbd3753916fb">
+    <type>component.commerce_assets.promotionBanner</type>
+    <config>{
+  "visibility" : [ {
+    "schedule" : { },
+    "customer_group_ids" : [ "Registered" ],
+    "campaign_qualifier" : { },
+    "aspect_attribute_qualifiers" : [ ],
+    "locale_ids" : [ ]
+  } ]
+}</config>
+    <data xml:lang="x-default">{
+  "image" : {
+    "path" : "/images/myaccount_payment.png",
+    "focal_point" : {
+      "x" : 0.5,
+      "y" : 0.5
+    },
+    "meta_data" : {
+      "height" : 70,
+      "width" : 71
+    }
+  },
+  "product" : "lucasarts-lego-indiana-jones-original-adventure-wiiM",
+  "alt" : "Buy it Right Now!!",
+  "linkText" : "Get it now at this prices "
+}</data>
+    <online-flag>true</online-flag>
+    <online-flag site-id="RefArch">true</online-flag>
+    <page-attributes/>
+  </content>
+</library>
