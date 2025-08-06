@@ -1,5 +1,5 @@
 <iscontent type="text/html" charset="UTF-8" compact="true"/>
-
+<isinclude template="components/modules" />
 <isdecorate template="common/layout/page">
     <isscript>
         const assets = require('*/cartridge/scripts/assets.js');
@@ -9,17 +9,9 @@
     <isif condition="${pdict.reportingURLs && pdict.reportingURLs.length}">
         <isinclude template="reporting/reportingUrls" />
     </isif>
-    
+
     <!--- Page Designer content --->
-    <isscript>
-        const PageMgr = require('dw/experience/PageMgr');
-        const page = PageMgr.getPage('checkoutContent');
-        
-        if (page && page.isVisible()) {
-            const pageContent = PageMgr.renderPage(page.ID, '');
-            out.print(pageContent);
-        }
-    </isscript>
+    <ispagedesigner pdid="checkoutContent" />
 
     <div class="cart-error-messaging cart-error">
         <isif condition="${pdict.valid.error && pdict.items.length !== 0}">

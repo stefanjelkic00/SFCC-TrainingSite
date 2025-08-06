@@ -1,0 +1,5 @@
+<isscript>
+    const PageMgr = require('dw/experience/PageMgr');
+    const page = PageMgr.getPage(pdict.pdid);
+    out.print(PageMgr.renderPage(page.ID, ''));
+</isscript>

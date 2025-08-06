@@ -9,17 +9,12 @@ module.exports.render = function (context, modelIn) {
     const model = modelIn || new HashMap();
     const content = context.content;
 
-    if (content.image) {
-        model.image = ImageTransformation.getScaledImage(content.image);
-    }
+    model.image = ImageTransformation.getScaledImage(content.image);
+    model.productUrl = URLUtils.url('Product-Show', 'pid', content.product.ID).toString();
+    model.linkText = content.linkText; 
     
     model.alt = content.alt || '';
-    model.linkText = content.linkText || '';
-    
-    if (content.product) {
-        model.productUrl = URLUtils.url('Product-Show', 'pid', content.product.ID).toString();
-    }
-    
+
     const expires = new Date();
     expires.setDate(expires.getDate() + 1);
     response.setExpires(expires);
