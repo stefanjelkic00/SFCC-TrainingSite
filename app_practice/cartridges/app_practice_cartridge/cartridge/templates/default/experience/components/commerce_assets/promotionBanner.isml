@@ -1,0 +1,21 @@
+<isscript>
+    const assets = require('*/cartridge/scripts/assets.js');
+    assets.addCss('/css/experience/components/commerceAssets/promotionBanner.css');
+</isscript>
+
+<div class="promotion-banner">
+    <isif condition="${pdict.image}">
+        <a href="${pdict.productUrl}" class="banner-link">
+            <picture>
+                <source media="(max-width: 767px)" srcset="${pdict.image.src.mobile}">
+                <source media="(max-width: 1023px)" srcset="${pdict.image.src.tablet}">
+                <img src="${pdict.image.src.desktop}" 
+                     alt="${pdict.alt}" 
+                     class="banner-image" />
+            </picture>
+            <isif condition="${pdict.linkText}">
+                <span class="banner-text">${pdict.linkText}</span>
+            </isif>
+        </a>
+    </isif>
+</div>
