@@ -1,5 +1,3 @@
-<isscript>
-    const PageMgr = require('dw/experience/PageMgr');
-    const page = PageMgr.getPage(pdict.pdid);
-    out.print(PageMgr.renderPage(page.ID, ''));
-</isscript>
+<isif condition="${pdict.pdid}">
+    <isinclude url="${URLUtils.url('Page-IncludePage', 'pdid', pdict.pdid)}" />
+</isif>
