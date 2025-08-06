@@ -1,0 +1,3 @@
+<isif condition="${pdict.pdid}">
+    <isinclude url="${URLUtils.url('Page-IncludePage', 'pdid', pdict.pdid)}" />
+</isif>

@@ -1,0 +1,43 @@
+{
+    "name": "Promotion Banner",
+    "description": "Banner with product link",
+    "group": "commerce_assets",
+    "attribute_definition_groups": [
+        {
+            "id": "bannerSettings",
+            "name": "Banner Settings",
+            "description": "Configure the promotion banner",
+            "attribute_definitions": [
+                {
+                    "id": "image",
+                    "name": "Banner Image",
+                    "description": "The banner image",
+                    "type": "image",
+                    "required": true
+                },
+                {
+                    "id": "alt",
+                    "name": "Alt Text",
+                    "description": "Alternative text for the image",
+                    "type": "string",
+                    "required": false
+                },
+                {
+                    "id": "product",
+                    "name": "Product Link",
+                    "description": "Product to link to",
+                    "type": "product",
+                    "required": true
+                },
+                {
+                    "id": "linkText",
+                    "name": "Link Text",
+                    "description": "Text to display over the banner",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        }
+    ],
+    "region_definitions": []
+}

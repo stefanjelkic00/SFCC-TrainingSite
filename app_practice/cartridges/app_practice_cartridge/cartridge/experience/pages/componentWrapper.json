@@ -1,0 +1,14 @@
+{
+    "name": "Component Wrapper",
+    "description": "Page without header and footer",
+    "region_definitions": [
+        {
+            "id": "main",
+            "name": "Main Content"
+        },
+        {
+            "id": "secondary",
+            "name": "Secondary Content"
+        }
+    ]
+}
