@@ -13,7 +13,7 @@ site_template/static/
 sitedata/**/static/
 .project
 .settings
-
+app_practice\cartridges\app_practice_cartridge\cartridge\static\default\js\css
 cartridges/app_practice_cartridge/cartridge/static/default/js/search.js
 cartridges/app_practice_cartridge/cartridge/static/app_practice_cartridge/
 # DW JSON file (osetljive informacije)
