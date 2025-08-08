@@ -1,5 +1,13 @@
 <iscontent type="text/html" charset="UTF-8" compact="true"/>
-<isprint value="${pdict.regions.main.render()}" encoding="off" />
-<isif condition="${pdict.regions.secondary}">
+
+<isif condition="${!pdict.hideHeaderFooter && pdict.regions && pdict.regions.primary}">
+    <isprint value="${pdict.regions.primary.render()}" encoding="off" />
+</isif>
+
+<isif condition="${pdict.regions && pdict.regions.main}">
+    <isprint value="${pdict.regions.main.render()}" encoding="off" />
+</isif>
+
+<isif condition="${!pdict.hideHeaderFooter && pdict.regions && pdict.regions.secondary}">
     <isprint value="${pdict.regions.secondary.render()}" encoding="off" />
 </isif>
