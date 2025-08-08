@@ -1,0 +1,3 @@
+<div class="product-tile-holder-container">
+    <isprint value="${pdict.regions.tiles.render()}" encoding="off"/>
+</div>

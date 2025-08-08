@@ -1,0 +1,8 @@
+<isif condition="${pdict.showProduct}">
+    <div class="custom-product-tile">
+        <img src="${pdict.product.imageURL}" alt="${pdict.product.name}"/>
+        <h3>${pdict.product.name}</h3>
+        <p class="price">${pdict.product.price}</p>
+        <p class="stock-status">In Stock</p>
+    </div>
+</isif>

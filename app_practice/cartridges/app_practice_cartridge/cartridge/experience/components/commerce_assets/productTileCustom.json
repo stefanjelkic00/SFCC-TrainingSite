@@ -1,0 +1,22 @@
+{
+    "name": "Custom Product Tile",
+    "description": "Individual product tile with stock check",
+    "group": "commerce_assets",
+    "attribute_definition_groups": [
+        {
+            "id": "productSelection",
+            "name": "Product Selection",
+            "description": "Select product to display",
+            "attribute_definitions": [
+                {
+                    "id": "product",
+                    "name": "Product",
+                    "description": "Select product to display in tile",
+                    "type": "product",
+                    "required": true
+                }
+            ]
+        }
+    ],
+    "region_definitions": []
+}

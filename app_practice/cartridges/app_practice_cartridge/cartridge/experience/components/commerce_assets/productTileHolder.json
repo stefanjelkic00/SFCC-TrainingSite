@@ -1,0 +1,15 @@
+{
+    "name": "Product Tile Holder",
+    "description": "Container for product tiles",
+    "group": "commerce_assets",
+    "attribute_definition_groups": [],
+    "region_definitions": [
+        {
+            "id": "tiles",
+            "name": "Product Tiles",
+            "component_type_inclusions": [
+                { "type_id": "commerce_assets.productTileCustom" }
+            ]
+        }
+    ]
+}
