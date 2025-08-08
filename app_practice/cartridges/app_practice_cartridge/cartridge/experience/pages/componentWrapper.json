@@ -3,12 +3,16 @@
     "description": "Page without header and footer",
     "region_definitions": [
         {
+            "id": "primary",
+            "name": "Header Content"
+        },
+        {
             "id": "main",
             "name": "Main Content"
         },
         {
             "id": "secondary",
-            "name": "Secondary Content"
+            "name": "Footer Content"
         }
     ]
 }

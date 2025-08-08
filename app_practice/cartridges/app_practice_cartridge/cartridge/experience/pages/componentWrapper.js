@@ -9,6 +9,9 @@ module.exports.render = function (context, modelIn) {
     
     model.page = context.page;
     model.regions = PageRenderHelper.getRegionModelRegistry(context.page);
+
+    const isEditMode = PageRenderHelper.isInEditMode ? PageRenderHelper.isInEditMode() : false;
+    model.hideHeaderFooter = !isEditMode;
     
     return new Template('experience/pages/componentWrapper').render(model).text;
 };
