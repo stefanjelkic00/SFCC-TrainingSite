@@ -3,8 +3,10 @@
 const server = require('server');
 server.extend(module.superModule);
 const csrfProtection = require('*/cartridge/scripts/middleware/csrf');
+const userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
 
 server.append('Show', function (req, res, next) {
+    const URLUtils = require('dw/web/URLUtils');
     const profile = req.currentCustomer.raw && req.currentCustomer.raw.profile;
     const newsletterFirstName = profile && profile.custom.newsletterFirstName ? profile.custom.newsletterFirstName : '';
     const newsletterLastName = profile && profile.custom.newsletterLastName ? profile.custom.newsletterLastName : '';
@@ -13,7 +15,8 @@ server.append('Show', function (req, res, next) {
     res.setViewData({
         newsletterFirstName: newsletterFirstName,
         newsletterLastName: newsletterLastName,
-        newsletterEmail: newsletterEmail
+        newsletterEmail: newsletterEmail,
+        myBlogsUrl: URLUtils.url('Account-MyBlogs').toString()
     });
     return next();
 });
@@ -74,6 +77,57 @@ server.post(
         }
         
         return next();
+    }
+);
+
+server.get('MyBlogs', 
+    server.middleware.https,
+    userLoggedIn.validateLoggedIn,
+    csrfProtection.generateToken,
+    function (req, res, next) {
+        const BlogModel = require('*/cartridge/models/blog');
+        const URLUtils = require('dw/web/URLUtils');
+        const Resource = require('dw/web/Resource');
+        const collections = require('*/cartridge/scripts/util/collections');
+        const customerID = req.currentCustomer.raw.ID;
+        const blogModel = new BlogModel();
+        const blogsIterator = blogModel.getUserBlogs(customerID);
+        const blogList = collections.map(blogsIterator, function(blog) {
+            return {
+                id: blog.custom.blogID,
+                title: blog.custom.title || 'Untitled',  
+                content: blog.custom.content ? 
+                    (blog.custom.content.substring(0, 150) + 
+                    (blog.custom.content.length > 150 ? '...' : '')) : 
+                    'No content', 
+                createdDate: blog.creationDate,
+                lastModified: blog.lastModified,
+                status: blog.custom.status || 'published', 
+                viewUrl: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString(),
+                editUrl: URLUtils.url('Blog-Edit', 'id', blog.custom.blogID).toString()
+            };
+        });
+        res.render('account/myBlogs', {
+            blogs: blogList,
+            createBlogUrl: URLUtils.url('Blog-Create').toString(),
+            breadcrumbs: [
+                {
+                    htmlValue: Resource.msg('global.home', 'common', null),
+                    url: URLUtils.home().toString()
+                },
+                {
+                    htmlValue: Resource.msg('page.title.myaccount', 'account', null),
+                    url: URLUtils.url('Account-Show').toString()
+                },
+                {
+                    htmlValue: 'My Blogs',
+                    url: ''
+                }
+            ],
+            accountlanding: false
+        });
+        
+        next();
     }
 );
 

@@ -1,0 +1,88 @@
+<isdecorate template="common/layout/page">
+    <isscript>
+        const assets = require('*/cartridge/scripts/assets.js');
+        assets.addJs('/js/blog.js');
+    </isscript>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-8 offset-lg-2">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title">
+                            <isif condition="${pdict.isEdit}">
+                                Edit Blog Post
+                            <iselse/>
+                                Create New Blog Post
+                            </isif>
+                        </h1>
+                        
+                        <form id="blog-form" 
+                              action="${pdict.actionUrl}" 
+                              method="POST"
+                              data-csrf-token="${pdict.csrf.token}">
+                            
+                            <!-- CSRF Token -->
+                            <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}" />
+                            
+                            <!-- Hidden field for blog ID (for editing) -->
+                            <isif condition="${pdict.isEdit && pdict.blogForm.blogID.value}">
+                                <input type="hidden" name="blogID" value="${pdict.blogForm.blogID.value}"/>
+                            </isif>
+                            
+                            <!-- Title Field - koristi jednostavno name="title" -->
+                            <div class="form-group required">
+                                <label for="title">Title</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="title"
+                                       name="title"
+                                       value="${pdict.blogForm.title.value || ''}"
+                                       required
+                                       minlength="3"
+                                       maxlength="255"
+                                       placeholder="Enter blog title...">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            
+                            <!-- Content Field - koristi jednostavno name="content" -->
+                            <div class="form-group required">
+                                <label for="content">Content</label>
+                                <textarea class="form-control" 
+                                          id="content"
+                                          name="content"
+                                          rows="10"
+                                          required
+                                          minlength="10"
+                                          maxlength="10000"
+                                          placeholder="Write your blog content here...">${pdict.blogForm.content.value || ''}</textarea>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            
+                            <!-- Form Actions -->
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary btn-save-blog">
+                                    <i class="fa fa-save"></i>
+                                    <isif condition="${pdict.isEdit}">
+                                        Update Blog
+                                    <iselse/>
+                                        Create Blog
+                                    </isif>
+                                </button>
+                                <a href="${pdict.cancelUrl}" class="btn btn-secondary">
+                                    <i class="fa fa-times"></i> Cancel
+                                </a>
+                            </div>
+                            
+                            <!-- Messages -->
+                            <div class="blog-form-messages">
+                                <div class="alert alert-danger d-none" role="alert"></div>
+                                <div class="alert alert-success d-none" role="alert"></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</isdecorate>

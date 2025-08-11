@@ -1,0 +1,19 @@
+<div class="card">
+    <div class="card-header">
+        <h2 class="pull-left">My Blogs</h2>
+    </div>
+    <div class="card-body card-body-positioning">
+        <p>Create and manage your blog posts</p>
+        <div class="card-info-group">
+            <a href="${URLUtils.url('Account-MyBlogs')}" class="btn btn-primary btn-block">
+                <i class="fa fa-pencil"></i> View My Blogs
+            </a>
+            <a href="${URLUtils.url('Blog-List')}" class="btn btn-outline-primary btn-block mt-2">
+                <i class="fa fa-list"></i> View All Blogs
+            </a>
+            <a href="${URLUtils.url('Blog-Create')}" class="btn btn-outline-primary btn-block mt-2">
+                <i class="fa fa-plus"></i> Create New Blog
+            </a>
+        </div>
+    </div>
+</div>
