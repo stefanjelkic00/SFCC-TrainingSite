@@ -16,20 +16,7 @@
                     </div>
                 </isif>
             </div>
-        </div>
-        
-        <!-- Search Box -->
-        <div class="row mb-4">
-            <div class="form-group position-relative">
-                <input type="text"
-                    id="blog-search"
-                    class="form-control"
-                    placeholder="Search blog posts..."
-                    data-search-url="${URLUtils.url('Blog-Search')}">
-                <div class="blog-search-suggestions dropdown-menu w-100"></div>
-            </div>
-        </div>
-        
+        </div>    
         <!-- Blog Grid -->
         <div class="row">
             <isif condition="${pdict.blogs && pdict.blogs.length > 0}">

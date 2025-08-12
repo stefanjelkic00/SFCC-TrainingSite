@@ -4,11 +4,9 @@ const CustomObjectMgr = require('dw/object/CustomObjectMgr');
 const Transaction = require('dw/system/Transaction');
 const UUIDUtils = require('dw/util/UUIDUtils');
 
-function BlogModel() {}
-
-BlogModel.prototype.createBlog = function(data) {
+function createBlog(data) {
     const result = { 
-        success: false, 
+        success: false,
         blog: null 
     };
     
@@ -28,33 +26,16 @@ BlogModel.prototype.createBlog = function(data) {
     });
     
     return result;
-};
+}
 
-BlogModel.prototype.getBlogByID = function(blogID) {
+function getBlogByID(blogID) {
     return CustomObjectMgr.getCustomObject('Blog', blogID);
-};
+}
 
-BlogModel.prototype.getAllBlogs = function() {
-    return CustomObjectMgr.queryCustomObjects(
-        'Blog',
-        '',
-        'creationDate desc'
-    );
-};
-
-BlogModel.prototype.getUserBlogs = function(userID) {
-    return CustomObjectMgr.queryCustomObjects(
-        'Blog',
-        'custom.author = {0}',
-        'creationDate desc',
-        userID
-    );
-};
-
-BlogModel.prototype.updateBlog = function(blogID, data) {
-    const blog = this.getBlogByID(blogID);
+function updateBlog(blogID, data) {
+    const blog = getBlogByID(blogID);
     
-    if (!blog){
+    if (!blog) {
         return false;
     }
     
@@ -65,11 +46,10 @@ BlogModel.prototype.updateBlog = function(blogID, data) {
     });
     
     return true;
-};
+}
 
-BlogModel.prototype.deleteBlog = function(blogID) {
- 
-    const blog = this.getBlogByID(blogID);
+function deleteBlog(blogID) {
+    const blog = getBlogByID(blogID);
     
     if (!blog) {
         return false;
@@ -80,37 +60,11 @@ BlogModel.prototype.deleteBlog = function(blogID) {
     });
     
     return true;
-};
+}
 
-BlogModel.prototype.searchBlogs = function(searchTerm, maxResults) {
-    maxResults = maxResults || 5;
-    const results = [];
-    const searchPattern = '*' + searchTerm + '*';
-    
-    const blogsIterator = CustomObjectMgr.queryCustomObjects(
-        'Blog',
-        'custom.title ILIKE {0}',
-        'creationDate desc',
-        searchPattern
-    );
-    
-    let count = 0;
-    while (blogsIterator.hasNext() && count < maxResults) {
-        results.push(blogsIterator.next());
-        count++;
-    }
-    blogsIterator.close();
-    
-    return results;
+module.exports = {
+    createBlog,
+    getBlogByID,
+    updateBlog,
+    deleteBlog
 };
-
-BlogModel.prototype.getRecentBlogs = function(limit) {
-    const iterator = this.getAllBlogs();
-    const blogs = [];
-    for (let i = 0; i < (limit || 12) && iterator.hasNext(); i++) {
-        blogs.push(iterator.next());
-    }
-    iterator.close();
-    return blogs;
-};
-module.exports = BlogModel;

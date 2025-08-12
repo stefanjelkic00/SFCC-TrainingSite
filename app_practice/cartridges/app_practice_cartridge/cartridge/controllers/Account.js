@@ -69,7 +69,7 @@ server.post(
         } else {
             const errorMessages = result.object && result.object.error
                 ? result.object.error
-                : Resource.msg('Authentication failed. Please check your credentials.');
+                : Resource.msg('error.authentication.failed', 'account', null);
             
             res.json({
                 error: [errorMessages]
@@ -85,28 +85,15 @@ server.get('MyBlogs',
     userLoggedIn.validateLoggedIn,
     csrfProtection.generateToken,
     function (req, res, next) {
-        const BlogModel = require('*/cartridge/models/blog');
+        const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
         const URLUtils = require('dw/web/URLUtils');
         const Resource = require('dw/web/Resource');
-        const collections = require('*/cartridge/scripts/util/collections');
         const customerID = req.currentCustomer.raw.ID;
-        const blogModel = new BlogModel();
-        const blogsIterator = blogModel.getUserBlogs(customerID);
-        const blogList = collections.map(blogsIterator, function(blog) {
-            return {
-                id: blog.custom.blogID,
-                title: blog.custom.title || 'Untitled',  
-                content: blog.custom.content ? 
-                    (blog.custom.content.substring(0, 150) + 
-                    (blog.custom.content.length > 150 ? '...' : '')) : 
-                    'No content', 
-                createdDate: blog.creationDate,
-                lastModified: blog.lastModified,
-                status: blog.custom.status || 'published', 
-                viewUrl: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString(),
-                editUrl: URLUtils.url('Blog-Edit', 'id', blog.custom.blogID).toString()
-            };
+        const blogs = blogHelpers.getUserBlogs(customerID);
+        const blogList = blogs.map(function(blog) {
+            return blogHelpers.formatBlogForDisplay(blog, true);
         });
+        
         res.render('account/myBlogs', {
             blogs: blogList,
             createBlogUrl: URLUtils.url('Blog-Create').toString(),
@@ -120,7 +107,7 @@ server.get('MyBlogs',
                     url: URLUtils.url('Account-Show').toString()
                 },
                 {
-                    htmlValue: 'My Blogs',
+                    htmlValue: Resource.msg('account.myblogs.title', 'account', null),
                     url: ''
                 }
             ],

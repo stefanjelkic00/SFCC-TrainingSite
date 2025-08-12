@@ -5,22 +5,11 @@ const csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 const userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
 
 server.get('List', function (req, res, next) {
-    const BlogModel = require('*/cartridge/models/blog');
+    const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
     const URLUtils = require('dw/web/URLUtils');
-    const collections = require('*/cartridge/scripts/util/collections');
-    
-    const blogModel = new BlogModel();
-    const blogsIterator = blogModel.getAllBlogs();
-    
-    const blogList = collections.map(blogsIterator, function(blog) {
-        return {
-            id: blog.custom.blogID,
-            title: blog.custom.title,
-            content: blog.custom.content ? blog.custom.content.substring(0, 200) + '...' : '',
-            author: blog.custom.authorName || 'Anonymous',
-            createdDate: blog.creationDate,
-            url: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString()
-        };
+    const blogs = blogHelpers.getAllBlogs();
+    const blogList = blogs.map(function(blog) {
+        return blogHelpers.formatBlogForList(blog);
     });
     
     res.render('blog/blogList', {
@@ -34,17 +23,23 @@ server.get('List', function (req, res, next) {
 server.get('Detail', function (req, res, next) {
     const BlogModel = require('*/cartridge/models/blog');
     const URLUtils = require('dw/web/URLUtils');
+    const Resource = require('dw/web/Resource');
     const blogID = req.querystring.id;
-    const blogModel = new BlogModel();
-    const blog = blogModel.getBlogByID(blogID);
+    const blog = BlogModel.getBlogByID(blogID);
 
+    if (!blog) {
+        res.render('error', {
+            message: Resource.msg('blog.error.not.found', 'blog', null)
+        });
+        return next();
+    }
     
     res.render('blog/blogDetail', {
         blog: {
             id: blog.custom.blogID,
-            title: blog.custom.title || 'Untitled',
+            title: blog.custom.title || Resource.msg('blog.untitled', 'blog', null),
             content: blog.custom.content || '',
-            author: blog.custom.authorName || 'Anonymous',
+            author: blog.custom.authorName || Resource.msg('blog.anonymous', 'blog', null),
             createdDate: blog.creationDate,
             lastModified: blog.lastModified
         },
@@ -89,8 +84,7 @@ server.get('Edit',
             return next();
         }
         
-        const blogModel = new BlogModel();
-        const blog = blogModel.getBlogByID(blogID);
+        const blog = BlogModel.getBlogByID(blogID);
         
         if (!blog) {
             res.redirect(URLUtils.url('Account-MyBlogs'));
@@ -105,9 +99,12 @@ server.get('Edit',
         }
         
         const blogForm = server.forms.getForm('blog');
-        blogForm.title.value = blog.custom.title;
-        blogForm.content.value = blog.custom.content;
-        blogForm.blogID.value = blog.custom.blogID;
+        blogForm.clear();
+        blogForm.copyFrom({
+            title: blog.custom.title,
+            content: blog.custom.content,
+            blogID: blog.custom.blogID
+        });
         
         res.render('blog/blogForm', {
             blogForm: blogForm,
@@ -121,65 +118,88 @@ server.get('Edit',
 );
 
 server.post('SaveBlog', 
+    server.middleware.https,
+    userLoggedIn.validateLoggedIn,
     csrfProtection.validateAjaxRequest, 
     function (req, res, next) {
         const BlogModel = require('*/cartridge/models/blog');
         const URLUtils = require('dw/web/URLUtils');
+        const Resource = require('dw/web/Resource');
+        const formErrors = require('*/cartridge/scripts/formErrors');
         
-        if (!req.currentCustomer.profile) {
-            res.json({ success: false, message: 'You must be logged in to save blogs' });
+        const blogForm = server.forms.getForm('blog');
+        blogForm.copyFrom(req.form);
+        
+        if (!blogForm.valid) {
+            res.json({
+                success: false,
+                fields: formErrors.getFormErrors(blogForm)
+            });
             return next();
         }
         
-        const title = req.form.title ? req.form.title.trim() : '';
-        const content = req.form.content ? req.form.content.trim() : '';
-        const blogID = req.form.blogID ? req.form.blogID.trim() : '';
+        const title = blogForm.title.htmlValue ? blogForm.title.htmlValue.trim() : '';
+        const content = blogForm.content.htmlValue ? blogForm.content.htmlValue.trim() : '';
+        const blogID = blogForm.blogID.htmlValue ? blogForm.blogID.htmlValue.trim() : '';
         
         if (!title || !content) {
             res.json({ 
                 success: false, 
-                message: !title ? 'Title is required' : 'Content is required' 
+                message: !title 
+                    ? Resource.msg('blog.error.title.required', 'blog', null) 
+                    : Resource.msg('blog.error.content.required', 'blog', null)
             });
             return next();
         }
         
-        const blogModel = new BlogModel();
         const customer = req.currentCustomer.raw;
         
         if (blogID) {
-            const existingBlog = blogModel.getBlogByID(blogID);
+            const existingBlog = BlogModel.getBlogByID(blogID);
             
             if (!existingBlog) {
-                res.json({ success: false, message: 'Blog not found' });
+                res.json({ 
+                    success: false, 
+                    message: Resource.msg('blog.error.not.found', 'blog', null)
+                });
                 return next();
             }
             
             if (existingBlog.custom.author !== customer.ID) {
-                res.json({ success: false, message: 'You can only edit your own blogs' });
+                res.json({ 
+                    success: false, 
+                    message: Resource.msg('blog.error.edit.permission', 'blog', null)
+                });
                 return next();
             }
             
-            const updateResult = blogModel.updateBlog(blogID, { title, content });
+            const updateResult = BlogModel.updateBlog(blogID, { title, content });
             
             res.json({
                 success: updateResult,
-                message: updateResult ? 'Blog updated successfully' : 'Failed to update blog',
+                message: updateResult 
+                    ? Resource.msg('blog.success.updated', 'blog', null)
+                    : Resource.msg('blog.error.update.failed', 'blog', null),
                 redirectUrl: updateResult ? URLUtils.url('Account-MyBlogs').toString() : null
             });
             return next();  
         }
+        
         const blogData = {
             title,
             content,
             author: customer.ID,
-            authorName: `${customer.profile.firstName || ''} ${customer.profile.lastName || ''}`.trim() || 'Anonymous',
+            authorName: `${customer.profile.firstName || ''} ${customer.profile.lastName || ''}`.trim() || Resource.msg('blog.anonymous', 'blog', null),
             status: 'published'
         };
-        const createResult = blogModel.createBlog(blogData);
+        
+        const createResult = BlogModel.createBlog(blogData);
 
         res.json({
             success: createResult.success,
-            message: createResult.success ? 'Blog created successfully' : 'Failed to create blog',
+            message: createResult.success 
+                ? Resource.msg('blog.success.created', 'blog', null)
+                : Resource.msg('blog.error.create.failed', 'blog', null),
             redirectUrl: createResult.success ? URLUtils.url('Account-MyBlogs').toString() : null
         });
         
@@ -188,71 +208,51 @@ server.post('SaveBlog',
 );
 
 server.post('Delete', 
+    server.middleware.https,
+    userLoggedIn.validateLoggedIn,
     csrfProtection.validateAjaxRequest,
     function (req, res, next) {
         const BlogModel = require('*/cartridge/models/blog');
-        
-        if (!req.currentCustomer.profile) {
-            res.json({ success: false, message: 'You must be logged in to delete blogs' });
-            return next();
-        }
-        
+        const Resource = require('dw/web/Resource');        
         const blogID = req.form.blogID;
         
         if (!blogID) {
-            res.json({ success: false, message: 'Blog ID is required' });
+            res.json({ 
+                success: false, 
+                message: Resource.msg('blog.error.id.required', 'blog', null)
+            });
             return next();
         }
         
-        const blogModel = new BlogModel();
-        const blog = blogModel.getBlogByID(blogID);
+        const blog = BlogModel.getBlogByID(blogID);
         
         if (!blog) {
-            res.json({ success: false, message: 'Blog not found' });
+            res.json({ 
+                success: false, 
+                message: Resource.msg('blog.error.not.found', 'blog', null)
+            });
             return next();
         }
         
         if (blog.custom.author !== req.currentCustomer.raw.ID) {
-            res.json({ success: false, message: 'You can only delete your own blogs' });
+            res.json({ 
+                success: false, 
+                message: Resource.msg('blog.error.delete.permission', 'blog', null)
+            });
             return next();
         }
         
-        const result = blogModel.deleteBlog(blogID);
+        const result = BlogModel.deleteBlog(blogID);
         
         res.json({
             success: result,
-            message: result ? 'Blog deleted successfully' : 'Failed to delete blog'
+            message: result 
+                ? Resource.msg('blog.success.deleted', 'blog', null)
+                : Resource.msg('blog.error.delete.failed', 'blog', null)
         });
         
         next();
     }
 );
-
-server.get('Search', function (req, res, next) {
-    const BlogModel = require('*/cartridge/models/blog');
-    const URLUtils = require('dw/web/URLUtils');
-    
-    const searchTerm = req.querystring.q;
-    
-    if (!searchTerm || searchTerm.length < 2) {
-        res.json({ suggestions: [] });
-        return next();
-    }
-    
-    const blogModel = new BlogModel();
-    const blogs = blogModel.searchBlogs(searchTerm, 5);
-    const suggestions = [];
-    
-    for (let i = 0; i < blogs.length; i++) {
-        const blog = blogs[i];
-        suggestions.push({
-            value: blog.custom.title,
-            url: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString()
-        });
-    }
-    
-    res.json({ suggestions: suggestions });
-    next();
-});
 
 module.exports = server.exports();

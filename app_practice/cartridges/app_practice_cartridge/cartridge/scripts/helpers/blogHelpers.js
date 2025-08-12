@@ -1,50 +1,155 @@
 'use strict';
 
 const CustomObjectMgr = require('dw/object/CustomObjectMgr');
-const collections = require('*/cartridge/scripts/util/collections');
 
-function getUserBlogCount(customerID) {
-    const blogsIterator = CustomObjectMgr.queryCustomObjects(
-        'Blog',
-        'custom.author = {0}',
-        null,
-        customerID
-    );
+function formatBlogForDisplay(blog, includeEditUrl) {
+    const URLUtils = require('dw/web/URLUtils');
+    const Resource = require('dw/web/Resource');
     
-    const count = blogsIterator.count;
-    blogsIterator.close();
+    const formatted = {
+        id: blog.custom.blogID,
+        title: blog.custom.title || Resource.msg('blog.untitled', 'blog', null),
+        content: blog.custom.content ? 
+            (blog.custom.content.substring(0, 150) + 
+            (blog.custom.content.length > 150 ? '...' : '')) : 
+            Resource.msg('blog.no.content', 'blog', null),
+        createdDate: blog.creationDate,
+        lastModified: blog.lastModified,
+        status: blog.custom.status || 'published',
+        viewUrl: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString()
+    };
     
-    return count || 0;
+    if (includeEditUrl) {
+        formatted.editUrl = URLUtils.url('Blog-Edit', 'id', blog.custom.blogID).toString();
+    }
+    
+    return formatted;
 }
 
-function getRecentBlogs(limit) {
-    limit = limit || 10;
-    const blogs = [];
+function formatBlogForList(blog) {
+    const URLUtils = require('dw/web/URLUtils');
+    const Resource = require('dw/web/Resource');
     
-    const allBlogs = CustomObjectMgr.queryCustomObjects(
+    return {
+        id: blog.custom.blogID,
+        title: blog.custom.title,
+        content: blog.custom.content ? blog.custom.content.substring(0, 200) + '...' : '',
+        author: blog.custom.authorName || Resource.msg('blog.anonymous', 'blog', null),
+        createdDate: blog.creationDate,
+        url: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString()
+    };
+}
+
+function formatBlogForSearch(blog) {
+    const URLUtils = require('dw/web/URLUtils');
+    
+    return {
+        id: blog.custom.blogID,
+        title: blog.custom.title || '',
+        content: blog.custom.content ? blog.custom.content.substring(0, 200) + '...' : '',
+        author: blog.custom.authorName || 'Anonymous',
+        createdDate: blog.creationDate,
+        url: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString()
+    };
+}
+
+function getAllBlogs() {
+    const iterator = CustomObjectMgr.queryCustomObjects(
         'Blog',
-        'custom.status = {0}',
-        'creationDate desc',
-        'published'
+        '',
+        'creationDate desc'
     );
     
-    let count = 0;
-    while (allBlogs.hasNext() && count < limit) {
-        const blog = allBlogs.next();
-        blogs.push({
-            id: blog.custom.blogID,
-            title: blog.custom.title,
-            author: blog.custom.authorName,
-            date: blog.creationDate
-        });
-        count++;
+    const blogs = [];
+    while (iterator.hasNext()) {
+        blogs.push(iterator.next());
     }
-    allBlogs.close();
+    iterator.close();
     
     return blogs;
 }
 
+function getUserBlogs(userID) {
+    const iterator = CustomObjectMgr.queryCustomObjects(
+        'Blog',
+        'custom.author = {0}',
+        'creationDate desc',
+        userID
+    );
+    
+    const blogs = [];
+    while (iterator.hasNext()) {
+        blogs.push(iterator.next());
+    }
+    iterator.close();
+    
+    return blogs;
+}
+
+function searchBlogs(searchTerm, maxResults) {
+    maxResults = maxResults || 5;
+    const results = [];
+    const searchPattern = '*' + searchTerm + '*';
+    
+    const blogsIterator = CustomObjectMgr.queryCustomObjects(
+        'Blog',
+        'custom.title ILIKE {0}',
+        'creationDate desc',
+        searchPattern
+    );
+    
+    let count = 0;
+    while (blogsIterator.hasNext() && count < maxResults) {
+        results.push(blogsIterator.next());
+        count++;
+    }
+    blogsIterator.close();
+    
+    return results;
+}
+
+function getBlogSearchResultsChunk(searchTerm, startingPage, pageSize) {
+    const URLUtils = require('dw/web/URLUtils');
+    
+    if (!searchTerm) {
+        return {
+            blogs: [],
+            blogCount: 0,
+            moreContentUrl: null,
+            searchTerm: searchTerm,
+            hasMessage: true
+        };
+    }
+    
+    const allBlogs = searchBlogs(searchTerm, 100);
+    const blogs = [];
+    
+    const startIndex = startingPage || 0;
+    const endIndex = Math.min(startIndex + pageSize, allBlogs.length);
+    
+    for (let i = startIndex; i < endIndex; i++) {
+        blogs.push(formatBlogForSearch(allBlogs[i]));
+    }
+    
+    const moreContentUrl = endIndex < allBlogs.length 
+        ? URLUtils.url('Search-BlogContent', 'q', searchTerm, 'startingPage', endIndex).toString()
+        : null;
+    
+    return {
+        blogs: blogs,
+        blogCount: allBlogs.length,
+        moreContentUrl: moreContentUrl,  
+        searchTerm: searchTerm,
+        hasMessage: startIndex === 0
+    };
+}
+
 module.exports = {
-    getUserBlogCount: getUserBlogCount,
-    getRecentBlogs: getRecentBlogs,
+    formatBlogForDisplay,
+    formatBlogForList,
+    formatBlogForSearch,
+    getBlogSearchResultsChunk,  
+    getAllBlogs,
+    getUserBlogs,
+    searchBlogs,
 };
