@@ -120,7 +120,6 @@ server.get('Edit',
 server.post('SaveBlog', 
     server.middleware.https,
     userLoggedIn.validateLoggedIn,
-    csrfProtection.validateAjaxRequest, 
     function (req, res, next) {
         const BlogModel = require('*/cartridge/models/blog');
         const URLUtils = require('dw/web/URLUtils');
@@ -210,7 +209,6 @@ server.post('SaveBlog',
 server.post('Delete', 
     server.middleware.https,
     userLoggedIn.validateLoggedIn,
-    csrfProtection.validateAjaxRequest,
     function (req, res, next) {
         const BlogModel = require('*/cartridge/models/blog');
         const Resource = require('dw/web/Resource');        
