@@ -86,12 +86,15 @@ server.get('MyBlogs',
     csrfProtection.generateToken,
     function (req, res, next) {
         const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
+        const BlogModel = require('*/cartridge/models/blog');
         const URLUtils = require('dw/web/URLUtils');
         const Resource = require('dw/web/Resource');
         const customerID = req.currentCustomer.raw.ID;
-        const blogs = blogHelpers.getUserBlogs(customerID);
-        const blogList = blogs.map(function(blog) {
-            return blogHelpers.formatBlogForDisplay(blog, true);
+        const userBlogsData = blogHelpers.getUserBlogs(customerID);
+        
+        const blogList = userBlogsData.map(function(blogCustomObject) {
+            const blogData = BlogModel.getBlog(blogCustomObject);
+            return BlogModel.getDisplayView(blogData, true); 
         });
         
         res.render('account/myBlogs', {

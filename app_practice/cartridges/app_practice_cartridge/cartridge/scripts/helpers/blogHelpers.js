@@ -1,66 +1,76 @@
 'use strict';
 
 const CustomObjectMgr = require('dw/object/CustomObjectMgr');
+const Transaction = require('dw/system/Transaction');
+const UUIDUtils = require('dw/util/UUIDUtils');
 
-function formatBlogForDisplay(blog, includeEditUrl) {
-    const URLUtils = require('dw/web/URLUtils');
-    const Resource = require('dw/web/Resource');
-    
-    const formatted = {
-        id: blog.custom.blogID,
-        title: blog.custom.title || Resource.msg('blog.untitled', 'blog', null),
-        content: blog.custom.content ? 
-            (blog.custom.content.substring(0, 150) + 
-            (blog.custom.content.length > 150 ? '...' : '')) : 
-            Resource.msg('blog.no.content', 'blog', null),
-        createdDate: blog.creationDate,
-        lastModified: blog.lastModified,
-        status: blog.custom.status || 'published',
-        viewUrl: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString()
+function createBlog(data) {
+    const result = { 
+        success: false,
+        blog: null 
     };
     
-    if (includeEditUrl) {
-        formatted.editUrl = URLUtils.url('Blog-Edit', 'id', blog.custom.blogID).toString();
+    Transaction.wrap(function() {
+        const uniqueBlogID = 'BLOG_' + UUIDUtils.createUUID();
+        const blog = CustomObjectMgr.createCustomObject('Blog', uniqueBlogID);
+        
+        blog.custom.blogID = uniqueBlogID;
+        blog.custom.title = data.title || '';
+        blog.custom.content = data.content || '';
+        blog.custom.author = data.author || '';
+        blog.custom.authorName = data.authorName || '';
+        blog.custom.status = data.status || 'published';
+        
+        result.success = true;
+        result.blog = blog;
+    });
+    
+    return result;
+}
+
+function getBlogByID(blogID) {
+    return CustomObjectMgr.getCustomObject('Blog', blogID);
+}
+
+function updateBlog(blogID, data) {
+    const blog = getBlogByID(blogID);
+    
+    if (!blog) {
+        return false;
     }
     
-    return formatted;
+    Transaction.wrap(function() {
+        if (data.title !== undefined) blog.custom.title = data.title;
+        if (data.content !== undefined) blog.custom.content = data.content;
+        if (data.status !== undefined) blog.custom.status = data.status;
+    });
+    
+    return true;
 }
 
-function formatBlogForList(blog) {
-    const URLUtils = require('dw/web/URLUtils');
-    const Resource = require('dw/web/Resource');
+function deleteBlog(blogID) {
+    const blog = getBlogByID(blogID);
     
-    return {
-        id: blog.custom.blogID,
-        title: blog.custom.title,
-        content: blog.custom.content ? blog.custom.content.substring(0, 200) + '...' : '',
-        author: blog.custom.authorName || Resource.msg('blog.anonymous', 'blog', null),
-        createdDate: blog.creationDate,
-        url: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString()
-    };
-}
-
-function formatBlogForSearch(blog) {
-    const URLUtils = require('dw/web/URLUtils');
+    if (!blog) {
+        return false; 
+    }
     
-    return {
-        id: blog.custom.blogID,
-        title: blog.custom.title || '',
-        content: blog.custom.content ? blog.custom.content.substring(0, 200) + '...' : '',
-        author: blog.custom.authorName || 'Anonymous',
-        createdDate: blog.creationDate,
-        url: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString()
-    };
+    Transaction.wrap(function() {
+        CustomObjectMgr.remove(blog);
+    });
+    
+    return true;
 }
 
 function getAllBlogs() {
+    const blogs = [];
     const iterator = CustomObjectMgr.queryCustomObjects(
         'Blog',
-        '',
-        'creationDate desc'
+        'custom.status = {0}',
+        'creationDate desc',
+        'published'
     );
     
-    const blogs = [];
     while (iterator.hasNext()) {
         blogs.push(iterator.next());
     }
@@ -70,6 +80,7 @@ function getAllBlogs() {
 }
 
 function getUserBlogs(userID) {
+    const blogs = [];
     const iterator = CustomObjectMgr.queryCustomObjects(
         'Blog',
         'custom.author = {0}',
@@ -77,7 +88,6 @@ function getUserBlogs(userID) {
         userID
     );
     
-    const blogs = [];
     while (iterator.hasNext()) {
         blogs.push(iterator.next());
     }
@@ -87,13 +97,13 @@ function getUserBlogs(userID) {
 }
 
 function searchBlogs(searchTerm, maxResults) {
-    maxResults = maxResults || 5;
+    maxResults = maxResults || 50;
     const results = [];
     const searchPattern = '*' + searchTerm + '*';
     
     const blogsIterator = CustomObjectMgr.queryCustomObjects(
         'Blog',
-        'custom.title ILIKE {0}',
+        'custom.title ILIKE {0} OR custom.content ILIKE {0}',
         'creationDate desc',
         searchPattern
     );
@@ -109,6 +119,7 @@ function searchBlogs(searchTerm, maxResults) {
 }
 
 function getBlogSearchResultsChunk(searchTerm, startingPage, pageSize) {
+    const BlogModel = require('*/cartridge/models/blog');
     const URLUtils = require('dw/web/URLUtils');
     
     if (!searchTerm) {
@@ -128,7 +139,8 @@ function getBlogSearchResultsChunk(searchTerm, startingPage, pageSize) {
     const endIndex = Math.min(startIndex + pageSize, allBlogs.length);
     
     for (let i = startIndex; i < endIndex; i++) {
-        blogs.push(formatBlogForSearch(allBlogs[i]));
+        const blogModel = new BlogModel(allBlogs[i]);
+        blogs.push(blogModel.getSearchView());
     }
     
     const moreContentUrl = endIndex < allBlogs.length 
@@ -145,11 +157,12 @@ function getBlogSearchResultsChunk(searchTerm, startingPage, pageSize) {
 }
 
 module.exports = {
-    formatBlogForDisplay,
-    formatBlogForList,
-    formatBlogForSearch,
-    getBlogSearchResultsChunk,  
+    createBlog,
+    getBlogByID,
+    updateBlog,
+    deleteBlog,
     getAllBlogs,
     getUserBlogs,
     searchBlogs,
+    getBlogSearchResultsChunk
 };

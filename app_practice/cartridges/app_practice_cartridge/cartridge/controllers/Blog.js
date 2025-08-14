@@ -6,10 +6,13 @@ const userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
 
 server.get('List', function (req, res, next) {
     const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
+    const BlogModel = require('*/cartridge/models/blog');
     const URLUtils = require('dw/web/URLUtils');
-    const blogs = blogHelpers.getAllBlogs();
-    const blogList = blogs.map(function(blog) {
-        return blogHelpers.formatBlogForList(blog);
+    
+    const blogsData = blogHelpers.getAllBlogs();
+    const blogList = blogsData.map(function(blogCustomObject) {
+        const blogData = BlogModel.getBlog(blogCustomObject);
+        return BlogModel.getListView(blogData);
     });
     
     res.render('blog/blogList', {
@@ -21,28 +24,25 @@ server.get('List', function (req, res, next) {
 });
 
 server.get('Detail', function (req, res, next) {
+    const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
     const BlogModel = require('*/cartridge/models/blog');
     const URLUtils = require('dw/web/URLUtils');
     const Resource = require('dw/web/Resource');
+    
     const blogID = req.querystring.id;
-    const blog = BlogModel.getBlogByID(blogID);
+    const blogCustomObject = blogHelpers.getBlogByID(blogID);
 
-    if (!blog) {
+    if (!blogCustomObject) {
         res.render('error', {
             message: Resource.msg('blog.error.not.found', 'blog', null)
         });
         return next();
     }
     
+    const blogData = BlogModel.getBlog(blogCustomObject);
+    
     res.render('blog/blogDetail', {
-        blog: {
-            id: blog.custom.blogID,
-            title: blog.custom.title || Resource.msg('blog.untitled', 'blog', null),
-            content: blog.custom.content || '',
-            author: blog.custom.authorName || Resource.msg('blog.anonymous', 'blog', null),
-            createdDate: blog.creationDate,
-            lastModified: blog.lastModified
-        },
+        blog: BlogModel.getDetailView(blogData),
         backUrl: URLUtils.url('Blog-List').toString()
     });
     
@@ -74,6 +74,7 @@ server.get('Edit',
     userLoggedIn.validateLoggedIn,
     csrfProtection.generateToken, 
     function (req, res, next) {
+        const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
         const BlogModel = require('*/cartridge/models/blog');
         const URLUtils = require('dw/web/URLUtils');
         
@@ -84,27 +85,24 @@ server.get('Edit',
             return next();
         }
         
-        const blog = BlogModel.getBlogByID(blogID);
+        const blogCustomObject = blogHelpers.getBlogByID(blogID);
         
-        if (!blog) {
+        if (!blogCustomObject) {
             res.redirect(URLUtils.url('Account-MyBlogs'));
             return next();
         }
         
         const customerID = req.currentCustomer.raw.ID;
         
-        if (blog.custom.author !== customerID) {
+        if (blogCustomObject.custom.author !== customerID) {
             res.redirect(URLUtils.url('Account-MyBlogs'));
             return next();
         }
         
+        const blogData = BlogModel.getBlog(blogCustomObject);
         const blogForm = server.forms.getForm('blog');
         blogForm.clear();
-        blogForm.copyFrom({
-            title: blog.custom.title,
-            content: blog.custom.content,
-            blogID: blog.custom.blogID
-        });
+        blogForm.copyFrom(BlogModel.getFormData(blogData));
         
         res.render('blog/blogForm', {
             blogForm: blogForm,
@@ -118,100 +116,91 @@ server.get('Edit',
 );
 
 server.post('SaveBlog', 
-    server.middleware.https,
-    userLoggedIn.validateLoggedIn,
-    function (req, res, next) {
-        const BlogModel = require('*/cartridge/models/blog');
-        const URLUtils = require('dw/web/URLUtils');
-        const Resource = require('dw/web/Resource');
-        const formErrors = require('*/cartridge/scripts/formErrors');
-        
-        const blogForm = server.forms.getForm('blog');
-        blogForm.copyFrom(req.form);
-        
-        if (!blogForm.valid) {
-            res.json({
-                success: false,
-                fields: formErrors.getFormErrors(blogForm)
-            });
-            return next();
-        }
-        
-        const title = blogForm.title.htmlValue ? blogForm.title.htmlValue.trim() : '';
-        const content = blogForm.content.htmlValue ? blogForm.content.htmlValue.trim() : '';
-        const blogID = blogForm.blogID.htmlValue ? blogForm.blogID.htmlValue.trim() : '';
-        
-        if (!title || !content) {
-            res.json({ 
-                success: false, 
-                message: !title 
-                    ? Resource.msg('blog.error.title.required', 'blog', null) 
-                    : Resource.msg('blog.error.content.required', 'blog', null)
-            });
-            return next();
-        }
-        
-        const customer = req.currentCustomer.raw;
-        
-        if (blogID) {
-            const existingBlog = BlogModel.getBlogByID(blogID);
-            
-            if (!existingBlog) {
-                res.json({ 
-                    success: false, 
-                    message: Resource.msg('blog.error.not.found', 'blog', null)
-                });
-                return next();
-            }
-            
-            if (existingBlog.custom.author !== customer.ID) {
-                res.json({ 
-                    success: false, 
-                    message: Resource.msg('blog.error.edit.permission', 'blog', null)
-                });
-                return next();
-            }
-            
-            const updateResult = BlogModel.updateBlog(blogID, { title, content });
-            
-            res.json({
-                success: updateResult,
-                message: updateResult 
-                    ? Resource.msg('blog.success.updated', 'blog', null)
-                    : Resource.msg('blog.error.update.failed', 'blog', null),
-                redirectUrl: updateResult ? URLUtils.url('Account-MyBlogs').toString() : null
-            });
-            return next();  
-        }
-        
-        const blogData = {
-            title,
-            content,
-            author: customer.ID,
-            authorName: `${customer.profile.firstName || ''} ${customer.profile.lastName || ''}`.trim() || Resource.msg('blog.anonymous', 'blog', null),
-            status: 'published'
-        };
-        
-        const createResult = BlogModel.createBlog(blogData);
+   server.middleware.https,
+   userLoggedIn.validateLoggedIn,
+   function (req, res, next) {
+       const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
+       const URLUtils = require('dw/web/URLUtils');
+       const Resource = require('dw/web/Resource');
+       const formErrors = require('*/cartridge/scripts/formErrors');
+       
+       const blogForm = server.forms.getForm('blog');
+       blogForm.clear();
+       blogForm.copyFrom(req.form);
+       
+       if (!blogForm.valid) {
+           res.json({
+               success: false,
+               fields: formErrors.getFormErrors(blogForm)
+           });
+           return next();
+       }
+       
+       const title = blogForm.title.value;
+       const content = blogForm.content.value;
+       const blogID = blogForm.blogID.value || '';
+       const customer = req.currentCustomer.raw;
+       
+       if (blogID) {
+           const existingBlog = blogHelpers.getBlogByID(blogID);
+           
+           if (!existingBlog) {
+               res.json({ 
+                   success: false, 
+                   message: Resource.msg('blog.error.not.found', 'blog', null)
+               });
+               return next();
+           }
+           
+           if (existingBlog.custom.author !== customer.ID) {
+               res.json({ 
+                   success: false, 
+                   message: Resource.msg('blog.error.edit.permission', 'blog', null)
+               });
+               return next();
+           }
+           
+           const updateResult = blogHelpers.updateBlog(blogID, { title, content });
+           
+           res.json({
+               success: updateResult,
+               message: updateResult 
+                   ? Resource.msg('blog.success.updated', 'blog', null)
+                   : Resource.msg('blog.error.update.failed', 'blog', null),
+               redirectUrl: updateResult ? URLUtils.url('Account-MyBlogs').toString() : null
+           });
+           return next();  
+       }
+       
+       const blogData = {
+           title,
+           content,
+           author: customer.ID,
+           authorName: `${customer.profile.firstName || ''} ${customer.profile.lastName || ''}`.trim() || Resource.msg('blog.anonymous', 'blog', null),
+           status: 'published'
+       };
+       
+       const createResult = blogHelpers.createBlog(blogData);
 
-        res.json({
-            success: createResult.success,
-            message: createResult.success 
-                ? Resource.msg('blog.success.created', 'blog', null)
-                : Resource.msg('blog.error.create.failed', 'blog', null),
-            redirectUrl: createResult.success ? URLUtils.url('Account-MyBlogs').toString() : null
-        });
-        
-        next();
-    }
+       res.json({
+           success: createResult.success,
+           message: createResult.success 
+               ? Resource.msg('blog.success.created', 'blog', null)
+               : Resource.msg('blog.error.create.failed', 'blog', null),
+           redirectUrl: createResult.success ? URLUtils.url('Account-MyBlogs').toString() : null
+       });
+       
+       next();
+   }
 );
 
 server.post('Delete', 
     server.middleware.https,
     userLoggedIn.validateLoggedIn,
     function (req, res, next) {
-        const BlogModel = require('*/cartridge/models/blog');
-        const Resource = require('dw/web/Resource');        
+        const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
+        const Resource = require('dw/web/Resource');
+        
         const blogID = req.form.blogID;
         
         if (!blogID) {
@@ -222,7 +211,7 @@ server.post('Delete',
             return next();
         }
         
-        const blog = BlogModel.getBlogByID(blogID);
+        const blog = blogHelpers.getBlogByID(blogID);
         
         if (!blog) {
             res.json({ 
@@ -240,7 +229,7 @@ server.post('Delete',
             return next();
         }
         
-        const result = BlogModel.deleteBlog(blogID);
+        const result = blogHelpers.deleteBlog(blogID);
         
         res.json({
             success: result,
