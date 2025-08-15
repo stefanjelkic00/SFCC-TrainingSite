@@ -13,7 +13,6 @@ function createBlog(data) {
     Transaction.wrap(function() {
         const uniqueBlogID = 'BLOG_' + UUIDUtils.createUUID();
         const blog = CustomObjectMgr.createCustomObject('Blog', uniqueBlogID);
-        
         blog.custom.blogID = uniqueBlogID;
         blog.custom.title = data.title || '';
         blog.custom.content = data.content || '';
@@ -95,17 +94,20 @@ function getUserBlogs(userID) {
     
     return blogs;
 }
-
 function searchBlogs(searchTerm, maxResults) {
-    maxResults = maxResults || 50;
-    const results = [];
-    const searchPattern = '*' + searchTerm + '*';
+    if (!searchTerm || searchTerm.length < 2) {
+        return [];
+    }
     
+    maxResults = maxResults || 5;
+    const results = [];
+    const searchPattern = '*' + searchTerm.toLowerCase() + '*';    
     const blogsIterator = CustomObjectMgr.queryCustomObjects(
         'Blog',
-        'custom.title ILIKE {0} OR custom.content ILIKE {0}',
+        'custom.title ILIKE {0} AND custom.status = {1}',
         'creationDate desc',
-        searchPattern
+        searchPattern,
+        'published'
     );
     
     let count = 0;
@@ -156,6 +158,31 @@ function getBlogSearchResultsChunk(searchTerm, startingPage, pageSize) {
     };
 }
 
+function getBlogSuggestions(searchTerm, maxResults) {
+    const BlogModel = require('*/cartridge/models/blog');
+    const URLUtils = require('dw/web/URLUtils');
+    
+    if (!searchTerm || searchTerm.length < 2) {
+        return {
+            available: false,
+            blogs: []
+        };
+    }
+    
+    const blogResults = searchBlogs(searchTerm, maxResults);
+    
+    return {
+        available: blogResults.length > 0,
+        blogs: blogResults.map(function(blog) {
+            const blogData = BlogModel.getBlog(blog);
+            return {
+                title: blogData.title || 'Untitled',
+                url: URLUtils.url('Blog-Detail', 'id', blogData.id).toString(),
+                author: blogData.authorName || 'Anonymous'
+            };
+        })
+    };
+}
 module.exports = {
     createBlog,
     getBlogByID,
@@ -164,5 +191,6 @@ module.exports = {
     getAllBlogs,
     getUserBlogs,
     searchBlogs,
-    getBlogSearchResultsChunk
+    getBlogSearchResultsChunk,
+    getBlogSuggestions  
 };

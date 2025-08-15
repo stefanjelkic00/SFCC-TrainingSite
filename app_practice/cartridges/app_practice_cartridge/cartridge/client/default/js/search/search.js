@@ -135,48 +135,6 @@ baseSearch.pagination = function() {
         });
     });
 };
-baseSearch.showBlogTab = function() {
-    $('.container').on('click', '.blog-search', function() {
-        const $blogResults = $('#blog-search-results');
-        
-        if ($blogResults.html() === '') {
-            const $tab = $(this);
-            const url = $tab.data('url');
-            
-            $.spinner().start();
-            
-            $.ajax({
-                url: url,
-                method: 'GET',
-                success: function(response) {
-                    $blogResults.html(response);
-                    $.spinner().stop();
-                },
-                error: function() {
-                    $.spinner().stop();
-                }
-            });
-        }
-    });
-    $('.container').on('click', '.show-more-blog-content button', function() {
-        const $btn = $(this);
-        const url = $btn.data('url');
-        
-        $.spinner().start();
-        
-        $.ajax({
-            url: url,
-            method: 'GET',
-            success: function(response) {
-                $('#blog-search-results').append(response);
-                $('.show-more-blog-content').remove();
-                $.spinner().stop();
-            },
-            error: function() {
-                $.spinner().stop();
-            }
-        });
-    });
-};
+
 
 module.exports = baseSearch;
