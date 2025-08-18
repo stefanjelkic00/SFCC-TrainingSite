@@ -1,4 +1,5 @@
 'use strict';
+
 const baseSearch = require('app_storefront_base/search/search');
 
 function parseResults(response) {
@@ -135,6 +136,7 @@ baseSearch.pagination = function() {
         });
     });
 };
+
 
 
 module.exports = baseSearch;

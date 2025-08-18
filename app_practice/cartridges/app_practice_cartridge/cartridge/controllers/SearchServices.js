@@ -9,9 +9,8 @@ server.replace('GetSuggestions', function (req, res, next) {
     const ContentSuggestions = require('*/cartridge/models/search/suggestions/content');
     const ProductSuggestions = require('*/cartridge/models/search/suggestions/product');
     const SearchPhraseSuggestions = require('*/cartridge/models/search/suggestions/searchPhrase');
+    const BlogSuggestions = require('*/cartridge/models/search/suggestions/blog');
     const Resource = require('dw/web/Resource');
-    
-    const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
     
     const searchTerms = req.querystring.q;
     const minChars = 2;
@@ -29,8 +28,7 @@ server.replace('GetSuggestions', function (req, res, next) {
         const recentSuggestions = new SearchPhraseSuggestions(suggestions.recentSearchPhrases, maxSuggestions);
         const popularSuggestions = new SearchPhraseSuggestions(suggestions.popularSearchPhrases, maxSuggestions);
         const brandSuggestions = new SearchPhraseSuggestions(suggestions.brandSuggestions, maxSuggestions);
-
-        const blogSuggestions = blogHelpers.getBlogSuggestions(searchTerms, maxSuggestions);
+        const blogSuggestions = new BlogSuggestions(searchTerms, maxSuggestions);
 
         if (productSuggestions.available || contentSuggestions.available
             || categorySuggestions.available
@@ -38,7 +36,7 @@ server.replace('GetSuggestions', function (req, res, next) {
             || popularSuggestions.available
             || brandSuggestions.available
             || blogSuggestions.available) {
-            
+                
             const total = productSuggestions.products.length + contentSuggestions.contents.length
                 + categorySuggestions.categories.length
                 + recentSuggestions.phrases.length

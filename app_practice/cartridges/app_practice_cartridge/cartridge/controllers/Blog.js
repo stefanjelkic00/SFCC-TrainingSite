@@ -98,9 +98,9 @@ server.get('Edit',
             return next();
         }
         
-        const customerID = req.currentCustomer.raw.ID;
+        const customer = req.currentCustomer.raw;
         
-        if (blogCustomObject.custom.author !== customerID) {
+        if (blogCustomObject.custom.author !== customer.ID) {
             res.redirect(URLUtils.url('Account-MyBlogs'));
             return next();
         }
@@ -214,6 +214,7 @@ server.post('Delete',
         const Resource = require('dw/web/Resource');
         
         const blogID = req.form.blogID;
+        const customer = req.currentCustomer.raw;
         
         if (!blogID) {
             res.json({ 
@@ -233,7 +234,7 @@ server.post('Delete',
             return next();
         }
         
-        if (blog.custom.author !== req.currentCustomer.raw.ID) {
+        if (blog.custom.author !== customer.ID) {
             res.json({ 
                 success: false, 
                 message: Resource.msg('blog.error.delete.permission', 'blog', null)

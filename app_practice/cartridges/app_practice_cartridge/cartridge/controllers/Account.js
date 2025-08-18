@@ -89,8 +89,8 @@ server.get('MyBlogs',
         const URLUtils = require('dw/web/URLUtils');
         const Resource = require('dw/web/Resource');
         
-        const customerID = req.currentCustomer.raw.ID;
-        const userBlogs = blogHelpers.getUserBlogs(customerID);
+        const customer = req.currentCustomer.raw;
+        const userBlogs = blogHelpers.getUserBlogs(customer.ID);
         
         const blogList = blogHelpers.formatBlogs(userBlogs, {
             shortExcerpt: true

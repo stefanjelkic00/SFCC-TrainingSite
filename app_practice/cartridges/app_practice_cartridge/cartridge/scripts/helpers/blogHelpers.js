@@ -127,30 +127,6 @@ function searchBlogs(searchTerm, maxResults) {
 }
 
 
-function getBlogSuggestions(searchTerm, maxResults) {
-    const URLUtils = require('dw/web/URLUtils');
-    
-    if (!searchTerm || searchTerm.length < 2) {
-        return {
-            available: false,
-            blogs: []
-        };
-    }
-    
-    const blogResults = searchBlogs(searchTerm, maxResults);
-    
-    return {
-        available: blogResults.length > 0,
-        blogs: blogResults.map(function(blog) {
-            return {
-                title: blog.custom.title || 'Untitled',
-                url: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString(),
-                author: blog.custom.authorName || 'Anonymous' 
-            };
-        })
-    };
-}
-
 function formatBlogs(blogs, options) {
     const Blog = require('*/cartridge/models/blog');
     const URLUtils = require('dw/web/URLUtils');
@@ -205,6 +181,5 @@ module.exports = {
     getAllBlogs,
     getUserBlogs,
     searchBlogs,
-    getBlogSuggestions,
     formatBlogs
 };
