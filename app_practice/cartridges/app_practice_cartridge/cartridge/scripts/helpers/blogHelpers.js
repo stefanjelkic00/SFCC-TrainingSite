@@ -27,9 +27,11 @@ function createBlog(data) {
     return result;
 }
 
+
 function getBlogByID(blogID) {
     return CustomObjectMgr.getCustomObject('Blog', blogID);
 }
+
 
 function updateBlog(blogID, data) {
     const blog = getBlogByID(blogID);
@@ -41,6 +43,8 @@ function updateBlog(blogID, data) {
     Transaction.wrap(function() {
         if (data.title !== undefined) blog.custom.title = data.title;
         if (data.content !== undefined) blog.custom.content = data.content;
+        if (data.author !== undefined) blog.custom.author = data.author;
+        if (data.authorName !== undefined) blog.custom.authorName = data.authorName;
         if (data.status !== undefined) blog.custom.status = data.status;
     });
     
@@ -94,14 +98,16 @@ function getUserBlogs(userID) {
     
     return blogs;
 }
+
 function searchBlogs(searchTerm, maxResults) {
     if (!searchTerm || searchTerm.length < 2) {
         return [];
     }
     
-    maxResults = maxResults || 5;
+    maxResults = maxResults || 10;
     const results = [];
     const searchPattern = '*' + searchTerm.toLowerCase() + '*';    
+    
     const blogsIterator = CustomObjectMgr.queryCustomObjects(
         'Blog',
         'custom.title ILIKE {0} AND custom.status = {1}',
@@ -120,46 +126,8 @@ function searchBlogs(searchTerm, maxResults) {
     return results;
 }
 
-function getBlogSearchResultsChunk(searchTerm, startingPage, pageSize) {
-    const BlogModel = require('*/cartridge/models/blog');
-    const URLUtils = require('dw/web/URLUtils');
-    
-    if (!searchTerm) {
-        return {
-            blogs: [],
-            blogCount: 0,
-            moreContentUrl: null,
-            searchTerm: searchTerm,
-            hasMessage: true
-        };
-    }
-    
-    const allBlogs = searchBlogs(searchTerm, 100);
-    const blogs = [];
-    
-    const startIndex = startingPage || 0;
-    const endIndex = Math.min(startIndex + pageSize, allBlogs.length);
-    
-    for (let i = startIndex; i < endIndex; i++) {
-        const blogModel = new BlogModel(allBlogs[i]);
-        blogs.push(blogModel.getSearchView());
-    }
-    
-    const moreContentUrl = endIndex < allBlogs.length 
-        ? URLUtils.url('Search-BlogContent', 'q', searchTerm, 'startingPage', endIndex).toString()
-        : null;
-    
-    return {
-        blogs: blogs,
-        blogCount: allBlogs.length,
-        moreContentUrl: moreContentUrl,  
-        searchTerm: searchTerm,
-        hasMessage: startIndex === 0
-    };
-}
 
 function getBlogSuggestions(searchTerm, maxResults) {
-    const BlogModel = require('*/cartridge/models/blog');
     const URLUtils = require('dw/web/URLUtils');
     
     if (!searchTerm || searchTerm.length < 2) {
@@ -174,15 +142,61 @@ function getBlogSuggestions(searchTerm, maxResults) {
     return {
         available: blogResults.length > 0,
         blogs: blogResults.map(function(blog) {
-            const blogData = BlogModel.getBlog(blog);
             return {
-                title: blogData.title || 'Untitled',
-                url: URLUtils.url('Blog-Detail', 'id', blogData.id).toString(),
-                author: blogData.authorName || 'Anonymous'
+                title: blog.custom.title || 'Untitled',
+                url: URLUtils.url('Blog-Detail', 'id', blog.custom.blogID).toString(),
+                author: blog.custom.authorName || 'Anonymous' 
             };
         })
     };
 }
+
+function formatBlogs(blogs, options) {
+    const Blog = require('*/cartridge/models/blog');
+    const URLUtils = require('dw/web/URLUtils');
+    
+    options = options || {};
+    const blogsArray = Array.isArray(blogs) ? blogs : [blogs];
+    
+    const formattedBlogs = blogsArray.map(function(blogCustomObject) {
+        const blog = new Blog(blogCustomObject);
+        
+        const formatted = {
+            id: blog.id,
+            title: blog.title || '',
+            createdDate: blog.creationDate
+        };
+        
+        if (options.fullContent && blog.content) {
+            formatted.content = blog.content;
+        } else if (options.shortExcerpt && blog.shortExcerpt) {
+            formatted.content = blog.shortExcerpt;
+        } else if (blog.excerpt) {
+            formatted.content = blog.excerpt;
+        }
+        if (blog.author){
+            formatted.author = blog.author;
+        } 
+        if (blog.authorName){
+            formatted.authorName = blog.authorName;
+        } 
+        if (blog.status){
+            formatted.status = blog.status;
+        } 
+        if (blog.lastModified){
+            formatted.lastModified = blog.lastModified;
+        } 
+        
+        formatted.url = URLUtils.url('Blog-Detail', 'id', blog.id).toString();
+        formatted.viewUrl = formatted.url;
+        formatted.editUrl = URLUtils.url('Blog-Edit', 'id', blog.id).toString();
+        
+        return formatted;
+    });
+    
+    return Array.isArray(blogs) ? formattedBlogs : formattedBlogs[0];
+}
+
 module.exports = {
     createBlog,
     getBlogByID,
@@ -191,6 +205,6 @@ module.exports = {
     getAllBlogs,
     getUserBlogs,
     searchBlogs,
-    getBlogSearchResultsChunk,
-    getBlogSuggestions  
+    getBlogSuggestions,
+    formatBlogs
 };

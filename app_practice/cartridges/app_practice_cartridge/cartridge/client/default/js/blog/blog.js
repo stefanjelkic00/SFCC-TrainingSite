@@ -2,16 +2,17 @@
 
 module.exports = {
     blogFormSubmit: function() {
-        $('body').on('submit', '#blog-form', function(e) {
+        $('#blog-form').submit(function(e) {
             e.preventDefault();
             const $form = $(this);
             const $submitBtn = $form.find('.btn-save-blog');
             const $errorAlert = $('.blog-form-messages .alert-danger');
             const $successAlert = $('.blog-form-messages .alert-success');
+            
             $errorAlert.addClass('d-none').text('');
             $successAlert.addClass('d-none').text('');
             $('.form-control').removeClass('is-invalid');
-            $('.invalid-feedback').remove();
+            $('.invalid-feedback').text('');
             
             const formData = $form.serialize();
             
@@ -34,15 +35,6 @@ module.exports = {
                             }, 1500);
                         }
                     } else {
-                        if (response.fields) {
-                            Object.keys(response.fields).forEach(function(fieldName) {
-                                const $field = $form.find('[name="' + fieldName + '"]');
-                                if ($field.length) {
-                                    $field.addClass('is-invalid');
-                                    $field.after('<div class="invalid-feedback">' + response.fields[fieldName] + '</div>');
-                                }
-                            });
-                        }
                         if (response.message) {
                             $errorAlert.text(response.message).removeClass('d-none');
                         }
@@ -50,7 +42,12 @@ module.exports = {
                     
                     $submitBtn.prop('disabled', false);
                 },
-                error: function() {
+                error: function(xhr) {
+                    let errorMsg = 'An error occurred';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    $errorAlert.text(errorMsg).removeClass('d-none');
                     $submitBtn.prop('disabled', false);
                 }
             });
@@ -58,7 +55,7 @@ module.exports = {
     },
 
     blogDelete: function() {
-        $('body').on('click', '.btn-delete-blog', function(e) {
+        $('.btn-delete-blog').click(function(e) {
             e.preventDefault();
             
             const $btn = $(this);
@@ -80,14 +77,22 @@ module.exports = {
                 success: function(response) {
                     if (response.success) {
                         $btn.closest('tr').fadeOut(400, function() {
-                            $(this).remove();
+                            $(this).remove();   
                             if ($('.table tbody tr').length === 0) {
-                                location.reload();
+                                $('.card').hide();
+                                $('.empty-state').show();
                             }
                         });
                     } else if (response.message) {
                         alert(response.message);
                     }
+                },
+                error: function(xhr) {
+                    let errorMsg = 'An error occurred';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    alert(errorMsg);
                 }
             });
         });

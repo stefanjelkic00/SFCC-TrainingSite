@@ -6,13 +6,11 @@ const userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
 
 server.get('List', function (req, res, next) {
     const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
-    const BlogModel = require('*/cartridge/models/blog');
     const URLUtils = require('dw/web/URLUtils');
     
-    const blogsData = blogHelpers.getAllBlogs();
-    const blogList = blogsData.map(function(blogCustomObject) {
-        const blogData = BlogModel.getBlog(blogCustomObject);
-        return BlogModel.getListView(blogData);
+    const blogs = blogHelpers.getAllBlogs();
+    const blogList = blogHelpers.formatBlogs(blogs, {
+        includeAuthor: true
     });
     
     res.render('blog/blogList', {
@@ -25,11 +23,12 @@ server.get('List', function (req, res, next) {
 
 server.get('Detail', function (req, res, next) {
     const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
-    const BlogModel = require('*/cartridge/models/blog');
+    const Blog = require('*/cartridge/models/blog'); 
     const URLUtils = require('dw/web/URLUtils');
     const Resource = require('dw/web/Resource');
     
     const blogID = req.querystring.id;
+    
     const blogCustomObject = blogHelpers.getBlogByID(blogID);
 
     if (!blogCustomObject) {
@@ -39,10 +38,17 @@ server.get('Detail', function (req, res, next) {
         return next();
     }
     
-    const blogData = BlogModel.getBlog(blogCustomObject);
+    const blog = new Blog(blogCustomObject);
     
     res.render('blog/blogDetail', {
-        blog: BlogModel.getDetailView(blogData),
+        blog: {
+            id: blog.id,
+            title: blog.title,
+            content: blog.content, 
+            author: blog.authorName,
+            createdDate: blog.creationDate,
+            lastModified: blog.lastModified
+        },
         backUrl: URLUtils.url('Blog-List').toString()
     });
     
@@ -75,7 +81,7 @@ server.get('Edit',
     csrfProtection.generateToken, 
     function (req, res, next) {
         const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
-        const BlogModel = require('*/cartridge/models/blog');
+        const Blog = require('*/cartridge/models/blog'); 
         const URLUtils = require('dw/web/URLUtils');
         
         const blogID = req.querystring.id;
@@ -99,10 +105,16 @@ server.get('Edit',
             return next();
         }
         
-        const blogData = BlogModel.getBlog(blogCustomObject);
+        const blog = new Blog(blogCustomObject);
+        
         const blogForm = server.forms.getForm('blog');
         blogForm.clear();
-        blogForm.copyFrom(BlogModel.getFormData(blogData));
+        
+        blogForm.copyFrom({
+            title: blog.title,
+            content: blog.content,
+            blogID: blog.id
+        });
         
         res.render('blog/blogForm', {
             blogForm: blogForm,
