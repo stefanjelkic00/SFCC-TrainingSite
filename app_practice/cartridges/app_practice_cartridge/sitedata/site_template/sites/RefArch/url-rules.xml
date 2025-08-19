@@ -3,7 +3,7 @@
     <general-settings>
         <lower-case-urls>true</lower-case-urls>
         <blank-substitute>%20</blank-substitute>
-        <character-replacements-enabled>false</character-replacements-enabled>
+        <character-replacements-enabled>true</character-replacements-enabled>
         <character-replacements-for-page-url-enabled>true</character-replacements-for-page-url-enabled>
     </general-settings>
     <locale-settings>
@@ -24,8 +24,8 @@
             <search-refinement-name>refinementColor</search-refinement-name>
         </url-search-refinements>
     </category-search-refinements>
-    <product-rule>[ category ]</product-rule>
-    <product-page-url-override>true</product-page-url-override>
+    <product-rule>[[constant, product], - , [attribute, name]]</product-rule>
+    <product-page-url-override>false</product-page-url-override>
     <product-id-separator>/</product-id-separator>
     <folder-rule>[ folder-path, [ attribute, displayName, noname ], / ]</folder-rule>
     <folder-page-url-override>true</folder-page-url-override>
@@ -42,45 +42,51 @@
     <content-page-url-override>true</content-page-url-override>
     <content-id-separator>/</content-id-separator>
     <pipeline-aliases xml:lang="x-default">
-        <pipeline-alias pipeline="Account-PasswordReset">passwordreset</pipeline-alias>
-        <pipeline-alias pipeline="Default-Offline">offline</pipeline-alias>
-        <pipeline-alias pipeline="Home-Show">home</pipeline-alias>
-        <pipeline-alias pipeline="COSummary-Start">revieworder</pipeline-alias>
-        <pipeline-alias pipeline="SiteMap-Start">sitemap</pipeline-alias>
-        <pipeline-alias pipeline="Error-Start">error</pipeline-alias>
-        <pipeline-alias pipeline="Account-Show">account</pipeline-alias>
-        <pipeline-alias pipeline="Compare-Show">compare</pipeline-alias>
-        <pipeline-alias pipeline="GiftRegistry-Search">giftregistrysearch</pipeline-alias>
-        <pipeline-alias pipeline="Default-Start">homepage</pipeline-alias>
-        <pipeline-alias pipeline="Account-SetNewPasswordConfirm">confirmednewpassword</pipeline-alias>
-        <pipeline-alias pipeline="GiftCert-Purchase">giftcertpurchase</pipeline-alias>
-        <pipeline-alias pipeline="Account-StartRegister">register</pipeline-alias>
-        <pipeline-alias pipeline="Search-ShowContent">contentsearch</pipeline-alias>
-        <pipeline-alias pipeline="Cart-Show">cart</pipeline-alias>
-        <pipeline-alias pipeline="Account-EditProfile">profile</pipeline-alias>
-        <pipeline-alias pipeline="CustomerService-Show">help</pipeline-alias>
-        <pipeline-alias pipeline="Account-SetNewPassword">setpassword</pipeline-alias>
-        <pipeline-alias pipeline="GiftRegistryCustomer-Show">giftregistryshow</pipeline-alias>
-        <pipeline-alias pipeline="COBilling-Start">billing</pipeline-alias>
-        <pipeline-alias pipeline="Wishlist-ShowOther">showotherwishlist</pipeline-alias>
-        <pipeline-alias pipeline="GiftCert-Edit">giftcertedit</pipeline-alias>
-        <pipeline-alias pipeline="Address-List">addressbook</pipeline-alias>
-        <pipeline-alias pipeline="COSummary-Submit">orderconfirmation</pipeline-alias>
-        <pipeline-alias pipeline="CustomerService-ContactUs">contactus</pipeline-alias>
-        <pipeline-alias pipeline="PaymentInstruments-List">wallet</pipeline-alias>
-        <pipeline-alias pipeline="Home-ErrorNotFound">404</pipeline-alias>
-        <pipeline-alias pipeline="Order-History">orders</pipeline-alias>
-        <pipeline-alias pipeline="Wishlist-Show">wishlist</pipeline-alias>
-        <pipeline-alias pipeline="COCustomer-Start">checkout</pipeline-alias>
-        <pipeline-alias pipeline="Search-Show">search</pipeline-alias>
-        <pipeline-alias pipeline="COShipping-Start">shipping</pipeline-alias>
-        <pipeline-alias pipeline="Wishlist-Search">searchwishlists</pipeline-alias>
-        <pipeline-alias pipeline="Stores-Find">stores</pipeline-alias>
-        <pipeline-alias pipeline="GiftRegistry-ShowRegistryByID">showgiftregistrybyid</pipeline-alias>
-        <pipeline-alias pipeline="GiftRegistry-Start">giftregistry</pipeline-alias>
     </pipeline-aliases>
     <pipeline-trailing-slash>false</pipeline-trailing-slash>
     <pipeline-perform-redirect>false</pipeline-perform-redirect>
+    <character-replacements xml:lang="x-default">
+        <character-replacement>
+            <character>Ć</character>
+            <replacement>C</replacement>
+        </character-replacement>
+        <character-replacement>
+            <character>ž</character>
+            <replacement>z</replacement>
+        </character-replacement>
+        <character-replacement>
+            <character>Ž</character>
+            <replacement>Z</replacement>
+        </character-replacement>
+        <character-replacement>
+            <character>š</character>
+            <replacement>s</replacement>
+        </character-replacement>
+        <character-replacement>
+            <character>Š</character>
+            <replacement>S</replacement>
+        </character-replacement>
+        <character-replacement>
+            <character>đ</character>
+            <replacement>dj</replacement>
+        </character-replacement>
+        <character-replacement>
+            <character>Đ</character>
+            <replacement>Dj</replacement>
+        </character-replacement>
+        <character-replacement>
+            <character>č</character>
+            <replacement>c</replacement>
+        </character-replacement>
+        <character-replacement>
+            <character>Č</character>
+            <replacement>C</replacement>
+        </character-replacement>
+        <character-replacement>
+            <character>ć</character>
+            <replacement>c</replacement>
+        </character-replacement>
+    </character-replacements>
     <search-refinement-url-settings>
         <position>after</position>
         <segment-delimiter>slash</segment-delimiter>
