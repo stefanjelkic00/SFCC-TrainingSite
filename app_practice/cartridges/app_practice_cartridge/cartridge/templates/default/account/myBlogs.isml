@@ -1,0 +1,91 @@
+<isdecorate template="common/layout/page">
+   <isscript>
+       const assets = require('*/cartridge/scripts/assets.js');
+       assets.addJs('/js/blog.js');
+   </isscript>
+   
+   <isinclude template="components/breadcrumbs/pageBreadcrumbs"/>
+   
+   <!-- CSRF Token hidden field -->
+   <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}" class="csrf-token" />
+   
+   <div class="container">
+       <div class="row">
+           <div class="col-12">
+               <h1 class="page-title">My Blog Posts</h1>
+               
+               <div class="text-right mb-3">
+                   <a href="${pdict.createBlogUrl}" class="btn btn-primary">
+                       <i class="fa fa-plus"></i> Create New Blog Post
+                   </a>
+               </div>
+               
+               <isif condition="${pdict.blogs && pdict.blogs.length > 0}">
+                   <div class="card">
+                       <div class="card-body">
+                           <div class="table-responsive">
+                               <table class="table table-striped">
+                                   <thead>
+                                       <tr>
+                                           <th>Title</th>
+                                           <th>Preview</th>
+                                           <th>Created</th>
+                                           <th>Status</th>
+                                           <th>Actions</th>
+                                       </tr>
+                                   </thead>
+                                   <tbody>
+                                       <isloop items="${pdict.blogs}" var="blog">
+                                           <tr data-blog-id="${blog.id}">
+                                               <td>
+                                                   <a href="${blog.viewUrl}" target="_blank">
+                                                       <strong><isprint value="${blog.title}" encoding="htmlcontent"/></strong>
+                                                   </a>
+                                               </td>
+                                               <td class="text-truncate" style="max-width: 300px;">
+                                                   <isprint value="${blog.content}" encoding="htmlcontent"/>
+                                               </td>
+                                               <td>
+                                                   <isprint value="${blog.createdDate}" style="DATE_SHORT"/>
+                                               </td>
+                                               <td>
+                                                   <span class="badge badge-${blog.status === 'published' ? 'success' : 'warning'}">
+                                                       ${blog.status}
+                                                   </span>
+                                               </td>
+                                               <td class="text-nowrap">
+                                                   <a href="${blog.viewUrl}" 
+                                                      class="btn btn-sm btn-info" 
+                                                      title="View"
+                                                      target="_blank">
+                                                       <i class="fa fa-eye"></i>
+                                                   </a>
+                                                   <a href="${blog.editUrl}" 
+                                                      class="btn btn-sm btn-warning" 
+                                                      title="Edit">
+                                                       <i class="fa fa-edit"></i>
+                                                   </a>
+                                                   <button class="btn btn-sm btn-danger btn-delete-blog" 
+                                                           data-blog-id="${blog.id}"
+                                                           data-blog-title="${blog.title}"
+                                                           data-url="${URLUtils.url('Blog-Delete')}"
+                                                           title="Delete">
+                                                       <i class="fa fa-trash"></i>
+                                                   </button>
+                                               </td>
+                                           </tr>
+                                       </isloop>
+                                   </tbody>
+                               </table>
+                           </div>
+                       </div>
+                   </div>
+               </isif>
+               <div class="alert alert-info empty-state" style="${pdict.blogs && pdict.blogs.length > 0 ? 'display:none' : ''}">
+                   <h4>No blog posts yet</h4>
+                   <p>You haven't created any blog posts. Click the button above to create your first blog post!</p>
+               </div>
+           </div>
+       </div>
+   </div>
+</isdecorate>

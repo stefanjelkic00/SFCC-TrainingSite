@@ -3,8 +3,10 @@
 const server = require('server');
 server.extend(module.superModule);
 const csrfProtection = require('*/cartridge/scripts/middleware/csrf');
+const userLoggedIn = require('*/cartridge/scripts/middleware/userLoggedIn');
 
 server.append('Show', function (req, res, next) {
+    const URLUtils = require('dw/web/URLUtils');
     const profile = req.currentCustomer.raw && req.currentCustomer.raw.profile;
     const newsletterFirstName = profile && profile.custom.newsletterFirstName ? profile.custom.newsletterFirstName : '';
     const newsletterLastName = profile && profile.custom.newsletterLastName ? profile.custom.newsletterLastName : '';
@@ -13,7 +15,8 @@ server.append('Show', function (req, res, next) {
     res.setViewData({
         newsletterFirstName: newsletterFirstName,
         newsletterLastName: newsletterLastName,
-        newsletterEmail: newsletterEmail
+        newsletterEmail: newsletterEmail,
+        myBlogsUrl: URLUtils.url('Account-MyBlogs').toString()
     });
     return next();
 });
@@ -66,7 +69,7 @@ server.post(
         } else {
             const errorMessages = result.object && result.object.error
                 ? result.object.error
-                : Resource.msg('Authentication failed. Please check your credentials.');
+                : Resource.msg('error.authentication.failed', 'account', null);
             
             res.json({
                 error: [errorMessages]
@@ -74,6 +77,46 @@ server.post(
         }
         
         return next();
+    }
+);
+
+server.get('MyBlogs', 
+    server.middleware.https,
+    userLoggedIn.validateLoggedIn,
+    csrfProtection.generateToken,
+    function (req, res, next) {
+        const blogHelpers = require('*/cartridge/scripts/helpers/blogHelpers');
+        const URLUtils = require('dw/web/URLUtils');
+        const Resource = require('dw/web/Resource');
+        
+        const customer = req.currentCustomer.raw;
+        const userBlogs = blogHelpers.getUserBlogs(customer.ID);
+        
+        const blogList = blogHelpers.formatBlogs(userBlogs, {
+            shortExcerpt: true
+        });
+        
+        res.render('account/myBlogs', {
+            blogs: blogList,
+            createBlogUrl: URLUtils.url('Blog-Create').toString(),
+            breadcrumbs: [
+                {
+                    htmlValue: Resource.msg('global.home', 'common', null),
+                    url: URLUtils.home().toString()
+                },
+                {
+                    htmlValue: Resource.msg('page.title.myaccount', 'account', null),
+                    url: URLUtils.url('Account-Show').toString()
+                },
+                {
+                    htmlValue: Resource.msg('account.myblogs.title', 'account', null),
+                    url: ''
+                }
+            ],
+            accountlanding: false
+        });
+        
+        next();
     }
 );
 

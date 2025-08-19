@@ -1,2 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31"/>
+<metadata xmlns="http://www.demandware.com/xml/impex/metadata/2006-10-31">
+    <custom-type type-id="Blog">
+        <display-name xml:lang="x-default">Blog</display-name>
+        <description xml:lang="x-default">Custom object for storing blog posts with author, title and content</description>
+        <staging-mode>no-staging</staging-mode>
+        <storage-scope>organization</storage-scope>
+        <key-definition attribute-id="blogID">
+            <type>string</type>
+            <min-length>0</min-length>
+        </key-definition>
+        <attribute-definitions>
+            <attribute-definition attribute-id="author">
+                <display-name xml:lang="x-default">Author</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+                <field-length>255</field-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="authorName">
+                <display-name xml:lang="x-default">Author Name</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+            <attribute-definition attribute-id="content">
+                <display-name xml:lang="x-default">Content</display-name>
+                <type>text</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+            </attribute-definition>
+            <attribute-definition attribute-id="status">
+                <display-name xml:lang="x-default">Status</display-name>
+                <type>enum-of-string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>false</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <value-definitions>
+                    <value-definition>
+                        <display xml:lang="x-default">Draft</display>
+                        <value>draft</value>
+                    </value-definition>
+                    <value-definition default="true">
+                        <display xml:lang="x-default">Published</display>
+                        <value>published</value>
+                    </value-definition>
+                </value-definitions>
+            </attribute-definition>
+            <attribute-definition attribute-id="title">
+                <display-name xml:lang="x-default">Title</display-name>
+                <type>string</type>
+                <localizable-flag>false</localizable-flag>
+                <mandatory-flag>true</mandatory-flag>
+                <externally-managed-flag>false</externally-managed-flag>
+                <min-length>0</min-length>
+            </attribute-definition>
+        </attribute-definitions>
+        <group-definitions>
+            <attribute-group group-id="blog">
+                <display-name xml:lang="x-default">Blog</display-name>
+                <attribute attribute-id="status"/>
+                <attribute attribute-id="content"/>
+                <attribute attribute-id="title"/>
+                <attribute attribute-id="blogID"/>
+            </attribute-group>
+        </group-definitions>
+    </custom-type>
+
+</metadata>

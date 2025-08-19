@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<form xmlns="http://www.demandware.com/xml/form/2008-08-27">
+    <field formid="title" label="Title" type="string" mandatory="true" 
+           min-length="3" max-length="255">
+        <description>Blog post title</description>
+    </field>
+    <field formid="content" label="Content" type="string" mandatory="true" 
+           min-length="10" max-length="10000">
+        <description>Blog post content</description>
+    </field>
+    <field formid="author" label="Author" type="string" mandatory="false">
+        <description>Author customer ID</description>
+    </field>
+    <field formid="authorName" label="Author Name" type="string" mandatory="false">
+        <description>Author display name</description>
+    </field>
+    <field formid="blogID" label="Blog ID" type="string" mandatory="false">
+        <description>Blog unique identifier</description>
+    </field>
+    <action formid="save" valid-form="true"/>
+    <action formid="cancel" valid-form="false"/>
+</form>

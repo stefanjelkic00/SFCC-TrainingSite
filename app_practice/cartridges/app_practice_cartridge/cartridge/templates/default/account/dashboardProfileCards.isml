@@ -2,16 +2,20 @@
     <div class="col-sm-6">
         <!---Profile--->
         <isinclude template="account/profileCard"/>
-
+        
         <isif condition="${!pdict.account.isExternallyAuthenticated}">
             <!---Password--->
             <isinclude template="account/passwordCard"/>
         </isif>
-
+        
         <!---Address Book--->
         <isinclude template="account/addressBookCard"/>
+        
         <!---Newsletter Card--->
         <isinclude template="account/newsletterCard"/>
+        
+        <!---My Blogs Card--->
+        <isinclude template="account/myBlogsCard"/>
     </div>
     <div class="col-sm-6">
         <!---Order History--->
@@ -22,4 +26,4 @@
         <!---Payment--->
         <isinclude template="account/paymentCard"/>
     </div>
-</div> 
+</div>
