@@ -3,6 +3,7 @@
     <page-meta-tag-definitions>
         <page-meta-tag-definition meta-tag-id="description" type="name"/>
         <page-meta-tag-definition meta-tag-id="og:url" type="property"/>
+        <page-meta-tag-definition meta-tag-id="practice" type="name"/>
         <page-meta-tag-definition meta-tag-id="robots" type="name"/>
         <page-meta-tag-definition meta-tag-id="title" type="title"/>
     </page-meta-tag-definitions>
@@ -47,6 +48,10 @@
             <page-meta-tag-rule rule-id="Product Listing Page Open Graph URL" meta-tag-id="og:url">
                 <description>Provide page URL in open graph tag.</description>
                 <rule xml:lang="x-default">${OriginalRequestURL}</rule>
+            </page-meta-tag-rule>
+            <page-meta-tag-rule rule-id="Practice Tag - No Refinements" meta-tag-id="practice">
+                <description>Add practice meta tag only on PLP page without applied filters</description>
+                <rule xml:lang="x-default">${IF SearchRefinement.color OR SearchRefinement.size THEN Constant('noindex') ELSE Constant('index')}</rule>
             </page-meta-tag-rule>
             <page-meta-tag-rule rule-id="Product Listing Page Robots - Global" meta-tag-id="robots">
                 <description>Example rule to block indexation of color &amp; size refinements by search crawlers.</description>
