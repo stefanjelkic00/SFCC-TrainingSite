@@ -51,21 +51,6 @@
             <boost>2.0</boost>
             <auto-correction>false</auto-correction>
         </searchable-attribute>
-        <searchable-attribute>
-            <attribute-path>product.custom.productColor</attribute-path>
-            <boost>1.0</boost>
-            <auto-correction>false</auto-correction>
-        </searchable-attribute>
-        <searchable-attribute>
-            <attribute-path>product.custom.productHeight</attribute-path>
-            <boost>1.0</boost>
-            <auto-correction>false</auto-correction>
-        </searchable-attribute>
-        <searchable-attribute>
-            <attribute-path>product.custom.productWidth</attribute-path>
-            <boost>1.0</boost>
-            <auto-correction>false</auto-correction>
-        </searchable-attribute>
     </searchable-attributes>
 
     <stopword-list xml:lang="en-US">
